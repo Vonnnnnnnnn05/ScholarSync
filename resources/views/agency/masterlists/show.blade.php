@@ -21,10 +21,18 @@
                 </div>
             @endif
 
-            <div class="mb-6 grid gap-4 sm:grid-cols-4">
+            <div class="mb-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-6">
                 <div class="rounded-lg bg-white p-5 shadow-sm ring-1 ring-gray-200">
                     <p class="text-sm font-medium text-gray-600">{{ __('Records') }}</p>
                     <p class="mt-2 text-2xl font-semibold text-gray-950">{{ $masterlist->total_records }}</p>
+                </div>
+                <div class="rounded-lg bg-white p-5 shadow-sm ring-1 ring-gray-200">
+                    <p class="text-sm font-medium text-gray-600">{{ __('Enrolled') }}</p>
+                    <p class="mt-2 text-2xl font-semibold text-emerald-800">{{ $masterlist->enrolled_count }}</p>
+                </div>
+                <div class="rounded-lg bg-white p-5 shadow-sm ring-1 ring-gray-200">
+                    <p class="text-sm font-medium text-gray-600">{{ __('Unenrolled') }}</p>
+                    <p class="mt-2 text-2xl font-semibold text-blue-800">{{ $masterlist->unenrolled_count }}</p>
                 </div>
                 <div class="rounded-lg bg-white p-5 shadow-sm ring-1 ring-gray-200">
                     <p class="text-sm font-medium text-gray-600">{{ __('Duplicates') }}</p>
@@ -49,7 +57,8 @@
                                 <th class="px-6 py-3 text-left text-xs font-semibold uppercase text-gray-600">{{ __('Student') }}</th>
                                 <th class="px-6 py-3 text-left text-xs font-semibold uppercase text-gray-600">{{ __('Program') }}</th>
                                 <th class="px-6 py-3 text-left text-xs font-semibold uppercase text-gray-600">{{ __('Fund Source') }}</th>
-                                <th class="px-6 py-3 text-left text-xs font-semibold uppercase text-gray-600">{{ __('Status') }}</th>
+                                <th class="px-6 py-3 text-left text-xs font-semibold uppercase text-gray-600">{{ __('Verification') }}</th>
+                                <th class="px-6 py-3 text-left text-xs font-semibold uppercase text-gray-600">{{ __('Final Result') }}</th>
                                 <th class="px-6 py-3 text-left text-xs font-semibold uppercase text-gray-600">{{ __('Remarks') }}</th>
                             </tr>
                         </thead>
@@ -57,9 +66,11 @@
                             @forelse ($records as $record)
                                 @php
                                     $statusClass = match ($record->verification_status) {
+                                        'enrolled' => 'bg-emerald-100 text-emerald-900',
+                                        'unenrolled' => 'bg-blue-100 text-blue-900',
                                         'duplicate' => 'bg-yellow-100 text-yellow-900',
                                         'invalid' => 'bg-red-100 text-red-900',
-                                        default => 'bg-emerald-100 text-emerald-900',
+                                        default => 'bg-gray-100 text-gray-900',
                                     };
                                 @endphp
                                 <tr>
@@ -72,11 +83,23 @@
                                             {{ Str::headline($record->verification_status) }}
                                         </span>
                                     </td>
+                                    <td class="whitespace-nowrap px-6 py-4 text-sm">
+                                        @php
+                                            $chairmanClass = match ($record->chairman_status) {
+                                                'approved' => 'bg-emerald-100 text-emerald-900',
+                                                'rejected' => 'bg-red-100 text-red-900',
+                                                default => 'bg-gray-100 text-gray-900',
+                                            };
+                                        @endphp
+                                        <span class="inline-flex rounded-md px-2.5 py-1 text-xs font-semibold {{ $chairmanClass }}">
+                                            {{ Str::headline($record->chairman_status) }}
+                                        </span>
+                                    </td>
                                     <td class="max-w-sm px-6 py-4 text-sm text-gray-700">{{ $record->remarks ?: __('No remarks') }}</td>
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="6" class="px-6 py-12 text-center text-sm text-gray-600">
+                                    <td colspan="7" class="px-6 py-12 text-center text-sm text-gray-600">
                                         {{ __('No records found.') }}
                                     </td>
                                 </tr>

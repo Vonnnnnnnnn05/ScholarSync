@@ -58,11 +58,11 @@ class DashboardController extends Controller
             UserRole::Student => [
                 'Track scholarship applications',
                 'Request certificates',
-                'View notifications and updates',
+                'Submit renewal requirements',
             ],
             UserRole::Administrator => [
                 'Manage user accounts and roles',
-                'Review system records',
+                'Evaluate scholarship renewals',
                 'Monitor reports and activity',
             ],
             UserRole::ScholarshipAgency => [
@@ -71,14 +71,14 @@ class DashboardController extends Controller
                 'Track duplicate records for review',
             ],
             UserRole::Coordinator => [
-                'Validate masterlist records',
-                'Coordinate certificate requests',
-                'Prepare endorsement updates',
+                'Review enrolled scholar records',
+                'Validate unenrolled scholar records',
+                'Evaluate continuing scholarship renewals',
             ],
             UserRole::ScholarshipChairman => [
-                'Review coordinator endorsements',
-                'Approve scholarship masterlists',
-                'Monitor scholarship compliance',
+                'Review coordinator-submitted masterlists',
+                'Approve or reject scholar records',
+                'Release final scholar records to agencies',
             ],
         };
     }

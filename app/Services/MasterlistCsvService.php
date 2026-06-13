@@ -19,6 +19,8 @@ class MasterlistCsvService
         'fund_source',
     ];
 
+    public function __construct(private readonly MasterlistVerificationService $verifier) {}
+
     /**
      * @return array<string, mixed>
      */
@@ -99,7 +101,7 @@ class MasterlistCsvService
 
         Storage::disk('local')->copy($temporaryPath, $storedPath);
 
-        return DB::transaction(function () use ($agency, $storedPath, $originalFileName, $preview): ScholarshipMasterlist {
+        $masterlist = DB::transaction(function () use ($agency, $storedPath, $originalFileName, $preview): ScholarshipMasterlist {
             $masterlist = $agency->masterlists()->create([
                 'file_name' => $originalFileName,
                 'file_path' => $storedPath,
@@ -130,6 +132,10 @@ class MasterlistCsvService
 
             return $masterlist;
         });
+
+        $this->verifier->verify($masterlist);
+
+        return $masterlist->refresh();
     }
 
     /**

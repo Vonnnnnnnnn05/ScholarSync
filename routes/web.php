@@ -1,11 +1,21 @@
 <?php
 
 use App\Http\Controllers\Admin\CertificateController;
+use App\Http\Controllers\Admin\Monitoring\MonitoringDashboardController;
+use App\Http\Controllers\Admin\Monitoring\ScholarRecordMonitoringController;
+use App\Http\Controllers\Admin\Monitoring\ScholarshipProgramController;
+use App\Http\Controllers\Admin\Monitoring\StudentMonitoringController;
+use App\Http\Controllers\Admin\Monitoring\TransactionMonitoringController;
 use App\Http\Controllers\Admin\OfficialReceiptVerificationController;
+use App\Http\Controllers\Admin\Reports\ReportController;
 use App\Http\Controllers\Agency\MasterlistController;
+use App\Http\Controllers\Chairman\MasterlistApprovalController;
+use App\Http\Controllers\Coordinator\MasterlistValidationController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\Evaluator\ScholarshipRenewalEvaluationController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Student\CertificateRequestController;
+use App\Http\Controllers\Student\ScholarshipRenewalController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -47,6 +57,19 @@ Route::middleware(['auth', 'verified'])->group(function () {
                 ->name('certificate.download');
         });
 
+    Route::middleware('role:student')
+        ->prefix('student/scholarship-renewals')
+        ->name('student.scholarship-renewals.')
+        ->group(function () {
+            Route::get('/', [ScholarshipRenewalController::class, 'index'])->name('index');
+            Route::get('/create', [ScholarshipRenewalController::class, 'create'])->name('create');
+            Route::post('/', [ScholarshipRenewalController::class, 'store'])->name('store');
+            Route::get('/{application}', [ScholarshipRenewalController::class, 'show'])->name('show');
+            Route::patch('/{application}/revise', [ScholarshipRenewalController::class, 'revise'])->name('revise');
+            Route::get('/{application}/requirements/{requirement}/download', [ScholarshipRenewalController::class, 'downloadRequirement'])
+                ->name('requirements.download');
+        });
+
     Route::middleware('role:administrator')
         ->prefix('admin/official-receipts')
         ->name('admin.official-receipts.')
@@ -67,6 +90,42 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::get('/{certificate}/download', [CertificateController::class, 'download'])->name('download');
         });
 
+    Route::middleware('role:administrator')
+        ->prefix('admin/monitoring')
+        ->name('admin.monitoring.')
+        ->group(function () {
+            Route::get('/', MonitoringDashboardController::class)->name('dashboard');
+            Route::get('/students', [StudentMonitoringController::class, 'index'])->name('students.index');
+            Route::get('/students/{student}', [StudentMonitoringController::class, 'show'])->name('students.show');
+            Route::patch('/students/{student}', [StudentMonitoringController::class, 'update'])->name('students.update');
+            Route::get('/scholars', ScholarRecordMonitoringController::class)->name('scholars.index');
+            Route::get('/transactions', TransactionMonitoringController::class)->name('transactions.index');
+            Route::get('/programs', [ScholarshipProgramController::class, 'index'])->name('programs.index');
+            Route::post('/programs', [ScholarshipProgramController::class, 'store'])->name('programs.store');
+            Route::patch('/programs/{program}', [ScholarshipProgramController::class, 'update'])->name('programs.update');
+            Route::delete('/programs/{program}', [ScholarshipProgramController::class, 'destroy'])->name('programs.destroy');
+        });
+
+    Route::middleware('role:administrator')
+        ->prefix('admin/reports')
+        ->name('admin.reports.')
+        ->group(function () {
+            Route::get('/', [ReportController::class, 'index'])->name('index');
+            Route::get('/preview', [ReportController::class, 'preview'])->name('preview');
+            Route::get('/export', [ReportController::class, 'export'])->name('export');
+        });
+
+    Route::middleware('role:administrator,coordinator')
+        ->prefix('evaluator/scholarship-renewals')
+        ->name('evaluator.scholarship-renewals.')
+        ->group(function () {
+            Route::get('/', [ScholarshipRenewalEvaluationController::class, 'index'])->name('index');
+            Route::get('/{application}', [ScholarshipRenewalEvaluationController::class, 'show'])->name('show');
+            Route::patch('/{application}', [ScholarshipRenewalEvaluationController::class, 'update'])->name('update');
+            Route::get('/{application}/requirements/{requirement}/download', [ScholarshipRenewalEvaluationController::class, 'downloadRequirement'])
+                ->name('requirements.download');
+        });
+
     Route::middleware('role:scholarship_agency')
         ->prefix('agency/masterlists')
         ->name('agency.masterlists.')
@@ -76,6 +135,28 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::post('/preview', [MasterlistController::class, 'preview'])->name('preview');
             Route::post('/', [MasterlistController::class, 'store'])->name('store');
             Route::get('/{masterlist}', [MasterlistController::class, 'show'])->name('show');
+        });
+
+    Route::middleware('role:coordinator')
+        ->prefix('coordinator/masterlists')
+        ->name('coordinator.masterlists.')
+        ->group(function () {
+            Route::get('/', [MasterlistValidationController::class, 'index'])->name('index');
+            Route::get('/{masterlist}', [MasterlistValidationController::class, 'show'])->name('show');
+            Route::patch('/{masterlist}/records/{record}', [MasterlistValidationController::class, 'updateRecord'])
+                ->name('records.update');
+            Route::post('/{masterlist}/submit', [MasterlistValidationController::class, 'submit'])->name('submit');
+        });
+
+    Route::middleware('role:scholarship_chairman')
+        ->prefix('chairman/masterlists')
+        ->name('chairman.masterlists.')
+        ->group(function () {
+            Route::get('/', [MasterlistApprovalController::class, 'index'])->name('index');
+            Route::get('/{masterlist}', [MasterlistApprovalController::class, 'show'])->name('show');
+            Route::patch('/{masterlist}/records/{record}', [MasterlistApprovalController::class, 'updateRecord'])
+                ->name('records.update');
+            Route::post('/{masterlist}/release', [MasterlistApprovalController::class, 'release'])->name('release');
         });
 });
 

@@ -1,15 +1,10 @@
 <x-app-layout>
     <x-slot name="header">
-        <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-                <p class="text-sm font-medium text-emerald-700">{{ $agency->agency_name }}</p>
-                <h2 class="text-xl font-semibold leading-tight text-gray-900">
-                    {{ __('Scholarship Masterlists') }}
-                </h2>
-            </div>
-            <a href="{{ route('agency.masterlists.create') }}" class="inline-flex min-h-11 items-center justify-center rounded-md bg-emerald-800 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:ring-offset-2">
-                {{ __('Upload CSV') }}
-            </a>
+        <div>
+            <p class="text-sm font-medium text-emerald-700">{{ __('Scholarship Chairman') }}</p>
+            <h2 class="text-xl font-semibold leading-tight text-gray-900">
+                {{ __('Masterlist Approvals') }}
+            </h2>
         </div>
     </x-slot>
 
@@ -26,19 +21,19 @@
                     <table class="min-w-full divide-y divide-gray-200">
                         <thead class="bg-gray-50">
                             <tr>
+                                <th class="px-6 py-3 text-left text-xs font-semibold uppercase text-gray-600">{{ __('Agency') }}</th>
                                 <th class="px-6 py-3 text-left text-xs font-semibold uppercase text-gray-600">{{ __('File') }}</th>
-                                <th class="px-6 py-3 text-left text-xs font-semibold uppercase text-gray-600">{{ __('Records') }}</th>
-                                <th class="px-6 py-3 text-left text-xs font-semibold uppercase text-gray-600">{{ __('Needs Review') }}</th>
+                                <th class="px-6 py-3 text-left text-xs font-semibold uppercase text-gray-600">{{ __('Validation Summary') }}</th>
+                                <th class="px-6 py-3 text-left text-xs font-semibold uppercase text-gray-600">{{ __('Approval Progress') }}</th>
                                 <th class="px-6 py-3 text-left text-xs font-semibold uppercase text-gray-600">{{ __('Status') }}</th>
-                                <th class="px-6 py-3 text-left text-xs font-semibold uppercase text-gray-600">{{ __('Uploaded') }}</th>
                                 <th class="px-6 py-3 text-right text-xs font-semibold uppercase text-gray-600">{{ __('Action') }}</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-200 bg-white">
                             @forelse ($masterlists as $masterlist)
                                 <tr>
-                                    <td class="px-6 py-4 text-sm font-semibold text-gray-950">{{ $masterlist->file_name }}</td>
-                                    <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-700">{{ $masterlist->total_records }}</td>
+                                    <td class="px-6 py-4 text-sm font-semibold text-gray-950">{{ $masterlist->agency->agency_name }}</td>
+                                    <td class="px-6 py-4 text-sm text-gray-800">{{ $masterlist->file_name }}</td>
                                     <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-700">
                                         {{ __(':enrolled enrolled, :unenrolled unenrolled, :duplicates duplicate, :invalid invalid', [
                                             'enrolled' => $masterlist->enrolled_count,
@@ -47,24 +42,28 @@
                                             'invalid' => $masterlist->invalid_count,
                                         ]) }}
                                     </td>
+                                    <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-700">
+                                        {{ __(':approved approved, :rejected rejected, :pending pending', [
+                                            'approved' => $masterlist->approved_records_count,
+                                            'rejected' => $masterlist->rejected_records_count,
+                                            'pending' => $masterlist->pending_records_count,
+                                        ]) }}
+                                    </td>
                                     <td class="whitespace-nowrap px-6 py-4 text-sm">
                                         <span class="inline-flex rounded-md bg-yellow-100 px-2.5 py-1 text-xs font-semibold text-yellow-900">
                                             {{ Str::headline($masterlist->status) }}
                                         </span>
                                     </td>
-                                    <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-700">
-                                        {{ optional($masterlist->uploaded_at ?? $masterlist->created_at)->format('M d, Y') }}
-                                    </td>
                                     <td class="whitespace-nowrap px-6 py-4 text-right text-sm">
-                                        <a href="{{ route('agency.masterlists.show', $masterlist) }}" class="font-semibold text-emerald-800 hover:text-emerald-950">
-                                            {{ __('View') }}
+                                        <a href="{{ route('chairman.masterlists.show', $masterlist) }}" class="font-semibold text-emerald-800 hover:text-emerald-950">
+                                            {{ __('Review') }}
                                         </a>
                                     </td>
                                 </tr>
                             @empty
                                 <tr>
                                     <td colspan="6" class="px-6 py-12 text-center text-sm text-gray-600">
-                                        {{ __('No masterlists uploaded yet.') }}
+                                        {{ __('No masterlists have been submitted for chairman approval.') }}
                                     </td>
                                 </tr>
                             @endforelse

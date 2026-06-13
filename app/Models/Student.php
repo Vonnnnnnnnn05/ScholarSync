@@ -36,6 +36,11 @@ class Student extends Model
         return $this->hasMany(CertificateRequest::class);
     }
 
+    public function scholarshipApplications(): HasMany
+    {
+        return $this->hasMany(ScholarshipApplication::class);
+    }
+
     public function fullName(): string
     {
         return collect([

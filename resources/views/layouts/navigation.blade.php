@@ -20,6 +20,10 @@
                         <x-nav-link :href="route('student.certificate-requests.index')" :active="request()->routeIs('student.certificate-requests.*')">
                             {{ __('Certificates') }}
                         </x-nav-link>
+
+                        <x-nav-link :href="route('student.scholarship-renewals.index')" :active="request()->routeIs('student.scholarship-renewals.*')">
+                            {{ __('Renewals') }}
+                        </x-nav-link>
                     @endif
 
                     @if (Auth::user()->hasRole(\App\Enums\UserRole::Administrator))
@@ -30,11 +34,39 @@
                         <x-nav-link :href="route('admin.certificates.index')" :active="request()->routeIs('admin.certificates.*')">
                             {{ __('Certificates') }}
                         </x-nav-link>
+
+                        <x-nav-link :href="route('evaluator.scholarship-renewals.index')" :active="request()->routeIs('evaluator.scholarship-renewals.*')">
+                            {{ __('Evaluations') }}
+                        </x-nav-link>
+
+                        <x-nav-link :href="route('admin.monitoring.dashboard')" :active="request()->routeIs('admin.monitoring.*')">
+                            {{ __('Monitoring') }}
+                        </x-nav-link>
+
+                        <x-nav-link :href="route('admin.reports.index')" :active="request()->routeIs('admin.reports.*')">
+                            {{ __('Reports') }}
+                        </x-nav-link>
                     @endif
 
                     @if (Auth::user()->hasRole(\App\Enums\UserRole::ScholarshipAgency))
                         <x-nav-link :href="route('agency.masterlists.index')" :active="request()->routeIs('agency.masterlists.*')">
                             {{ __('Masterlists') }}
+                        </x-nav-link>
+                    @endif
+
+                    @if (Auth::user()->hasRole(\App\Enums\UserRole::Coordinator))
+                        <x-nav-link :href="route('coordinator.masterlists.index')" :active="request()->routeIs('coordinator.masterlists.*')">
+                            Validation
+                        </x-nav-link>
+
+                        <x-nav-link :href="route('evaluator.scholarship-renewals.index')" :active="request()->routeIs('evaluator.scholarship-renewals.*')">
+                            {{ __('Evaluations') }}
+                        </x-nav-link>
+                    @endif
+
+                    @if (Auth::user()->hasRole(\App\Enums\UserRole::ScholarshipChairman))
+                        <x-nav-link :href="route('chairman.masterlists.index')" :active="request()->routeIs('chairman.masterlists.*')">
+                            {{ __('Approvals') }}
                         </x-nav-link>
                     @endif
                 </div>
@@ -97,6 +129,10 @@
                 <x-responsive-nav-link :href="route('student.certificate-requests.index')" :active="request()->routeIs('student.certificate-requests.*')">
                     {{ __('Certificates') }}
                 </x-responsive-nav-link>
+
+                <x-responsive-nav-link :href="route('student.scholarship-renewals.index')" :active="request()->routeIs('student.scholarship-renewals.*')">
+                    {{ __('Renewals') }}
+                </x-responsive-nav-link>
             @endif
 
             @if (Auth::user()->hasRole(\App\Enums\UserRole::Administrator))
@@ -107,11 +143,39 @@
                 <x-responsive-nav-link :href="route('admin.certificates.index')" :active="request()->routeIs('admin.certificates.*')">
                     {{ __('Certificates') }}
                 </x-responsive-nav-link>
+
+                <x-responsive-nav-link :href="route('evaluator.scholarship-renewals.index')" :active="request()->routeIs('evaluator.scholarship-renewals.*')">
+                    {{ __('Evaluations') }}
+                </x-responsive-nav-link>
+
+                <x-responsive-nav-link :href="route('admin.monitoring.dashboard')" :active="request()->routeIs('admin.monitoring.*')">
+                    {{ __('Monitoring') }}
+                </x-responsive-nav-link>
+
+                <x-responsive-nav-link :href="route('admin.reports.index')" :active="request()->routeIs('admin.reports.*')">
+                    {{ __('Reports') }}
+                </x-responsive-nav-link>
             @endif
 
             @if (Auth::user()->hasRole(\App\Enums\UserRole::ScholarshipAgency))
                 <x-responsive-nav-link :href="route('agency.masterlists.index')" :active="request()->routeIs('agency.masterlists.*')">
                     {{ __('Masterlists') }}
+                </x-responsive-nav-link>
+            @endif
+
+            @if (Auth::user()->hasRole(\App\Enums\UserRole::Coordinator))
+                <x-responsive-nav-link :href="route('coordinator.masterlists.index')" :active="request()->routeIs('coordinator.masterlists.*')">
+                    Validation
+                </x-responsive-nav-link>
+
+                <x-responsive-nav-link :href="route('evaluator.scholarship-renewals.index')" :active="request()->routeIs('evaluator.scholarship-renewals.*')">
+                    {{ __('Evaluations') }}
+                </x-responsive-nav-link>
+            @endif
+
+            @if (Auth::user()->hasRole(\App\Enums\UserRole::ScholarshipChairman))
+                <x-responsive-nav-link :href="route('chairman.masterlists.index')" :active="request()->routeIs('chairman.masterlists.*')">
+                    {{ __('Approvals') }}
                 </x-responsive-nav-link>
             @endif
         </div>

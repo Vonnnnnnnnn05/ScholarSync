@@ -35,4 +35,9 @@ return [
         ],
     ],
 
+    'masterlist_verifier' => [
+        'url' => env('MASTERLIST_VERIFIER_URL'),
+        'timeout' => env('MASTERLIST_VERIFIER_TIMEOUT', 10),
+    ],
+
 ];
