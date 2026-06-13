@@ -2,14 +2,11 @@
     <x-slot name="header">
         <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
             <div>
-                <p class="text-sm font-medium text-emerald-700">{{ __('Student Certificate Request') }}</p>
+                <p class="text-sm font-medium text-emerald-700">{{ __('Administrator') }}</p>
                 <h2 class="text-xl font-semibold leading-tight text-gray-900">
-                    {{ __('Certificate Request History') }}
+                    {{ __('Official Receipt Verification') }}
                 </h2>
             </div>
-            <a href="{{ route('student.certificate-requests.create') }}" class="inline-flex min-h-11 items-center justify-center rounded-md bg-emerald-800 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:ring-offset-2">
-                {{ __('New Request') }}
-            </a>
         </div>
     </x-slot>
 
@@ -21,16 +18,27 @@
                 </div>
             @endif
 
+            <div class="mb-5 flex flex-wrap gap-2">
+                <a href="{{ route('admin.official-receipts.index') }}" class="rounded-md px-3 py-2 text-sm font-semibold {{ $activeStatus === '' ? 'bg-emerald-800 text-white' : 'bg-white text-emerald-800 ring-1 ring-emerald-700/20' }}">
+                    {{ __('All') }}
+                </a>
+                @foreach ($statuses as $status)
+                    <a href="{{ route('admin.official-receipts.index', ['status' => $status->value]) }}" class="rounded-md px-3 py-2 text-sm font-semibold {{ $activeStatus === $status->value ? 'bg-emerald-800 text-white' : 'bg-white text-emerald-800 ring-1 ring-emerald-700/20' }}">
+                        {{ $status->label() }}
+                    </a>
+                @endforeach
+            </div>
+
             <div class="overflow-hidden rounded-lg bg-white shadow-sm ring-1 ring-gray-200">
                 <div class="overflow-x-auto">
                     <table class="min-w-full divide-y divide-gray-200">
                         <thead class="bg-gray-50">
                             <tr>
-                                <th class="px-6 py-3 text-left text-xs font-semibold uppercase text-gray-600">{{ __('Date') }}</th>
+                                <th class="px-6 py-3 text-left text-xs font-semibold uppercase text-gray-600">{{ __('Request') }}</th>
+                                <th class="px-6 py-3 text-left text-xs font-semibold uppercase text-gray-600">{{ __('Student') }}</th>
                                 <th class="px-6 py-3 text-left text-xs font-semibold uppercase text-gray-600">{{ __('Purpose') }}</th>
                                 <th class="px-6 py-3 text-left text-xs font-semibold uppercase text-gray-600">{{ __('Status') }}</th>
-                                <th class="px-6 py-3 text-left text-xs font-semibold uppercase text-gray-600">{{ __('Remarks') }}</th>
-                                <th class="px-6 py-3 text-left text-xs font-semibold uppercase text-gray-600">{{ __('Certificate') }}</th>
+                                <th class="px-6 py-3 text-left text-xs font-semibold uppercase text-gray-600">{{ __('Submitted') }}</th>
                                 <th class="px-6 py-3 text-right text-xs font-semibold uppercase text-gray-600">{{ __('Action') }}</th>
                             </tr>
                         </thead>
@@ -45,39 +53,34 @@
                                     };
                                 @endphp
                                 <tr>
-                                    <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-700">
-                                        {{ $certificateRequest->created_at->format('M d, Y') }}
+                                    <td class="whitespace-nowrap px-6 py-4 text-sm font-semibold text-gray-950">
+                                        #{{ $certificateRequest->id }}
                                     </td>
-                                    <td class="max-w-xs px-6 py-4 text-sm text-gray-900">
-                                        {{ Str::limit($certificateRequest->purpose, 70) }}
+                                    <td class="px-6 py-4 text-sm text-gray-900">
+                                        <div class="font-semibold">{{ $certificateRequest->student->fullName() }}</div>
+                                        <div class="text-xs text-gray-500">{{ $certificateRequest->student->student_id_number }}</div>
+                                    </td>
+                                    <td class="max-w-xs px-6 py-4 text-sm text-gray-700">
+                                        {{ Str::limit($certificateRequest->purpose, 80) }}
                                     </td>
                                     <td class="whitespace-nowrap px-6 py-4 text-sm">
                                         <span class="inline-flex rounded-md px-2.5 py-1 text-xs font-semibold {{ $statusClass }}">
                                             {{ $certificateRequest->status->label() }}
                                         </span>
                                     </td>
-                                    <td class="max-w-xs px-6 py-4 text-sm text-gray-700">
-                                        {{ $certificateRequest->remarks ?: __('No remarks yet') }}
-                                    </td>
                                     <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-700">
-                                        @if ($certificateRequest->isCertificateAvailable())
-                                            <a href="{{ route('student.certificate-requests.certificate.download', $certificateRequest) }}" class="font-semibold text-emerald-800 underline hover:text-emerald-950">
-                                                {{ __('Download PDF') }}
-                                            </a>
-                                        @else
-                                            {{ __('Not available') }}
-                                        @endif
+                                        {{ $certificateRequest->created_at->format('M d, Y') }}
                                     </td>
                                     <td class="whitespace-nowrap px-6 py-4 text-right text-sm">
-                                        <a href="{{ route('student.certificate-requests.show', $certificateRequest) }}" class="font-semibold text-emerald-800 hover:text-emerald-950">
-                                            {{ __('View') }}
+                                        <a href="{{ route('admin.official-receipts.show', $certificateRequest) }}" class="font-semibold text-emerald-800 hover:text-emerald-950">
+                                            {{ __('Review') }}
                                         </a>
                                     </td>
                                 </tr>
                             @empty
                                 <tr>
                                     <td colspan="6" class="px-6 py-12 text-center text-sm text-gray-600">
-                                        {{ __('No certificate requests yet.') }}
+                                        {{ __('No certificate requests found.') }}
                                     </td>
                                 </tr>
                             @endforelse

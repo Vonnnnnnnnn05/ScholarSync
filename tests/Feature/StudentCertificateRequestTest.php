@@ -2,6 +2,7 @@
 
 use App\Enums\CertificateRequestStatus;
 use App\Enums\UserRole;
+use App\Models\Certificate;
 use App\Models\CertificateRequest;
 use App\Models\Student;
 use App\Models\User;
@@ -113,7 +114,7 @@ test('non student users cannot access student certificate request module', funct
         ->assertForbidden();
 });
 
-test('approved requests can download temporary sample docx certificate', function () {
+test('approved requests can download generated pdf certificate', function () {
     Storage::fake('local');
 
     $user = User::factory()->role(UserRole::Student)->create();
@@ -122,11 +123,16 @@ test('approved requests can download temporary sample docx certificate', functio
         ->for($student)
         ->status(CertificateRequestStatus::Approved)
         ->create();
+    $certificate = Certificate::create([
+        'certificate_request_id' => $certificateRequest->id,
+        'certificate_number' => 'CERT-2026-000001',
+        'file_path' => 'certificates/generated/cert-2026-000001.pdf',
+        'generated_at' => now(),
+    ]);
+    Storage::disk('local')->put($certificate->file_path, '%PDF-1.4');
 
     $this->actingAs($user)
         ->get(route('student.certificate-requests.certificate.download', $certificateRequest))
         ->assertOk()
         ->assertHeader('content-disposition');
-
-    Storage::disk('local')->assertExists('certificates/samples/certificate-of-no-scholarship-sample.docx');
 });

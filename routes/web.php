@@ -1,5 +1,8 @@
 <?php
 
+use App\Http\Controllers\Admin\CertificateController;
+use App\Http\Controllers\Admin\OfficialReceiptVerificationController;
+use App\Http\Controllers\Agency\MasterlistController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Student\CertificateRequestController;
@@ -42,6 +45,37 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::get('/{certificateRequest}', [CertificateRequestController::class, 'show'])->name('show');
             Route::get('/{certificateRequest}/certificate', [CertificateRequestController::class, 'downloadCertificate'])
                 ->name('certificate.download');
+        });
+
+    Route::middleware('role:administrator')
+        ->prefix('admin/official-receipts')
+        ->name('admin.official-receipts.')
+        ->group(function () {
+            Route::get('/', [OfficialReceiptVerificationController::class, 'index'])->name('index');
+            Route::get('/{certificateRequest}', [OfficialReceiptVerificationController::class, 'show'])->name('show');
+            Route::get('/{certificateRequest}/download', [OfficialReceiptVerificationController::class, 'download'])->name('download');
+            Route::patch('/{certificateRequest}/verify', [OfficialReceiptVerificationController::class, 'verify'])->name('verify');
+            Route::patch('/{certificateRequest}/approve', [OfficialReceiptVerificationController::class, 'approve'])->name('approve');
+            Route::patch('/{certificateRequest}/reject', [OfficialReceiptVerificationController::class, 'reject'])->name('reject');
+        });
+
+    Route::middleware('role:administrator')
+        ->prefix('admin/certificates')
+        ->name('admin.certificates.')
+        ->group(function () {
+            Route::get('/', [CertificateController::class, 'index'])->name('index');
+            Route::get('/{certificate}/download', [CertificateController::class, 'download'])->name('download');
+        });
+
+    Route::middleware('role:scholarship_agency')
+        ->prefix('agency/masterlists')
+        ->name('agency.masterlists.')
+        ->group(function () {
+            Route::get('/', [MasterlistController::class, 'index'])->name('index');
+            Route::get('/create', [MasterlistController::class, 'create'])->name('create');
+            Route::post('/preview', [MasterlistController::class, 'preview'])->name('preview');
+            Route::post('/', [MasterlistController::class, 'store'])->name('store');
+            Route::get('/{masterlist}', [MasterlistController::class, 'show'])->name('show');
         });
 });
 

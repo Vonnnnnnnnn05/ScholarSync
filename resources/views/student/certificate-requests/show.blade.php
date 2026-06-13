@@ -33,7 +33,7 @@
 
                     @if ($certificateRequest->isCertificateAvailable())
                         <a href="{{ route('student.certificate-requests.certificate.download', $certificateRequest) }}" class="inline-flex min-h-11 items-center justify-center rounded-md bg-emerald-800 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:ring-offset-2">
-                            {{ $certificateRequest->certificate ? __('Download Certificate') : __('Download Sample DOCX') }}
+                            {{ __('Download Certificate PDF') }}
                         </a>
                     @endif
                 </div>

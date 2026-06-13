@@ -66,9 +66,9 @@ class DashboardController extends Controller
                 'Monitor reports and activity',
             ],
             UserRole::ScholarshipAgency => [
-                'Manage scholarship programs',
-                'Review submitted requirements',
-                'Publish agency updates',
+                'Upload scholarship masterlists',
+                'Preview CSV records before import',
+                'Track duplicate records for review',
             ],
             UserRole::Coordinator => [
                 'Validate masterlist records',

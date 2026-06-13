@@ -55,6 +55,7 @@ class CertificateRequest extends Model
 
     public function isCertificateAvailable(): bool
     {
-        return $this->status === CertificateRequestStatus::Approved;
+        return $this->status === CertificateRequestStatus::Approved
+            && ($this->relationLoaded('certificate') ? $this->certificate !== null : $this->certificate()->exists());
     }
 }

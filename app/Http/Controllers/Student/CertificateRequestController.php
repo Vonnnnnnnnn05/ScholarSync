@@ -7,7 +7,6 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreCertificateRequestRequest;
 use App\Models\CertificateRequest;
 use App\Models\Student;
-use App\Support\SampleCertificateTemplate;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -76,13 +75,14 @@ class CertificateRequestController extends Controller
 
         abort_unless($certificateRequest->isCertificateAvailable(), 404);
 
-        $path = $certificateRequest->certificate?->file_path ?? SampleCertificateTemplate::ensureExists();
+        $certificateRequest->loadMissing('certificate');
+        $path = $certificateRequest->certificate->file_path;
 
         abort_unless(Storage::disk('local')->exists($path), 404);
 
         return Storage::disk('local')->download(
             $path,
-            'certificate-of-no-scholarship-'.$certificateRequest->id.'.docx'
+            'certificate-of-no-scholarship-'.$certificateRequest->certificate->certificate_number.'.pdf'
         );
     }
 

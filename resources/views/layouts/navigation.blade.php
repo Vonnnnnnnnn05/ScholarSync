@@ -21,6 +21,22 @@
                             {{ __('Certificates') }}
                         </x-nav-link>
                     @endif
+
+                    @if (Auth::user()->hasRole(\App\Enums\UserRole::Administrator))
+                        <x-nav-link :href="route('admin.official-receipts.index')" :active="request()->routeIs('admin.official-receipts.*')">
+                            {{ __('OR Verification') }}
+                        </x-nav-link>
+
+                        <x-nav-link :href="route('admin.certificates.index')" :active="request()->routeIs('admin.certificates.*')">
+                            {{ __('Certificates') }}
+                        </x-nav-link>
+                    @endif
+
+                    @if (Auth::user()->hasRole(\App\Enums\UserRole::ScholarshipAgency))
+                        <x-nav-link :href="route('agency.masterlists.index')" :active="request()->routeIs('agency.masterlists.*')">
+                            {{ __('Masterlists') }}
+                        </x-nav-link>
+                    @endif
                 </div>
             </div>
 
@@ -80,6 +96,22 @@
             @if (Auth::user()->hasRole(\App\Enums\UserRole::Student))
                 <x-responsive-nav-link :href="route('student.certificate-requests.index')" :active="request()->routeIs('student.certificate-requests.*')">
                     {{ __('Certificates') }}
+                </x-responsive-nav-link>
+            @endif
+
+            @if (Auth::user()->hasRole(\App\Enums\UserRole::Administrator))
+                <x-responsive-nav-link :href="route('admin.official-receipts.index')" :active="request()->routeIs('admin.official-receipts.*')">
+                    {{ __('OR Verification') }}
+                </x-responsive-nav-link>
+
+                <x-responsive-nav-link :href="route('admin.certificates.index')" :active="request()->routeIs('admin.certificates.*')">
+                    {{ __('Certificates') }}
+                </x-responsive-nav-link>
+            @endif
+
+            @if (Auth::user()->hasRole(\App\Enums\UserRole::ScholarshipAgency))
+                <x-responsive-nav-link :href="route('agency.masterlists.index')" :active="request()->routeIs('agency.masterlists.*')">
+                    {{ __('Masterlists') }}
                 </x-responsive-nav-link>
             @endif
         </div>
