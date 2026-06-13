@@ -14,23 +14,39 @@
         <!-- Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
-    <body class="font-sans antialiased">
-        <div class="min-h-screen bg-gray-100 dark:bg-gray-900">
-            @include('layouts.navigation')
+    <body class="bg-gray-100 font-sans antialiased">
+        @php
+            $authenticatedUser = Auth::user();
+            $isAdministrator = $authenticatedUser?->hasRole(\App\Enums\UserRole::Administrator) ?? false;
+        @endphp
 
-            <!-- Page Heading -->
-            @isset($header)
-                <header class="bg-white dark:bg-gray-800 shadow">
-                    <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-                        {{ $header }}
-                    </div>
-                </header>
-            @endisset
+        <div class="min-h-screen bg-gray-100">
+            @unless ($isAdministrator)
+                @include('layouts.navigation')
+            @endunless
 
-            <!-- Page Content -->
-            <main>
-                {{ $slot }}
-            </main>
+            <div class="flex">
+                @if ($isAdministrator)
+                    @include('layouts.sidebar')
+                @endif
+
+                <div class="min-w-0 flex-1">
+                    @isset($header)
+                        <header class="border-b border-gray-200 bg-white shadow-sm">
+                            <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+                                {{ $header }}
+                            </div>
+                        </header>
+                    @endisset
+
+                    <main id="main-content">
+                        <div class="mx-auto max-w-7xl px-4 pt-6 sm:px-6 lg:px-8">
+                            <x-status-alerts />
+                        </div>
+                        {{ $slot }}
+                    </main>
+                </div>
+            </div>
         </div>
     </body>
 </html>

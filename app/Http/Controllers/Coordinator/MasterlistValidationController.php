@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\UpdateCoordinatorMasterlistRecordRequest;
 use App\Models\MasterlistRecord;
 use App\Models\ScholarshipMasterlist;
+use App\Services\AuditTrailService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -55,6 +56,7 @@ class MasterlistValidationController extends Controller
         UpdateCoordinatorMasterlistRecordRequest $request,
         ScholarshipMasterlist $masterlist,
         MasterlistRecord $record,
+        AuditTrailService $audit,
     ): RedirectResponse {
         abort_unless($record->masterlist_id === $masterlist->id, 404);
         abort_unless(in_array($masterlist->status, ['verified', 'coordinator_validation'], true), 404);
@@ -65,10 +67,15 @@ class MasterlistValidationController extends Controller
             $masterlist->update(['status' => 'coordinator_validation']);
         }
 
+        $audit->record('masterlist_record_coordinator_validated', $record, [
+            'masterlist_id' => $masterlist->id,
+            'coordinator_status' => $record->coordinator_status,
+        ], $request);
+
         return back()->with('status', 'Record validation saved.');
     }
 
-    public function submit(ScholarshipMasterlist $masterlist): RedirectResponse
+    public function submit(ScholarshipMasterlist $masterlist, AuditTrailService $audit): RedirectResponse
     {
         abort_unless(in_array($masterlist->status, ['verified', 'coordinator_validation'], true), 404);
 
@@ -93,6 +100,10 @@ class MasterlistValidationController extends Controller
                 'validated_at' => now(),
             ]);
         });
+
+        $audit->record('masterlist_submitted_to_chairman', $masterlist, [
+            'records' => $masterlist->records()->count(),
+        ]);
 
         return redirect()
             ->route('coordinator.masterlists.show', $masterlist)

@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\CertificateController;
+use App\Http\Controllers\Admin\Monitoring\AuditLogController;
 use App\Http\Controllers\Admin\Monitoring\MonitoringDashboardController;
 use App\Http\Controllers\Admin\Monitoring\ScholarRecordMonitoringController;
 use App\Http\Controllers\Admin\Monitoring\ScholarshipProgramController;
@@ -100,6 +101,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::patch('/students/{student}', [StudentMonitoringController::class, 'update'])->name('students.update');
             Route::get('/scholars', ScholarRecordMonitoringController::class)->name('scholars.index');
             Route::get('/transactions', TransactionMonitoringController::class)->name('transactions.index');
+            Route::get('/audit', AuditLogController::class)->name('audit.index');
             Route::get('/programs', [ScholarshipProgramController::class, 'index'])->name('programs.index');
             Route::post('/programs', [ScholarshipProgramController::class, 'store'])->name('programs.store');
             Route::patch('/programs/{program}', [ScholarshipProgramController::class, 'update'])->name('programs.update');

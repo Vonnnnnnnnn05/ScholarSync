@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Enums\CertificateRequestStatus;
 use App\Http\Controllers\Controller;
 use App\Models\CertificateRequest;
+use App\Services\AuditTrailService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -49,7 +50,7 @@ class OfficialReceiptVerificationController extends Controller
         return Storage::disk('local')->download($certificateRequest->official_receipt);
     }
 
-    public function verify(Request $request, CertificateRequest $certificateRequest): RedirectResponse
+    public function verify(Request $request, CertificateRequest $certificateRequest, AuditTrailService $audit): RedirectResponse
     {
         $certificateRequest->update([
             'status' => CertificateRequestStatus::Verified,
@@ -58,12 +59,17 @@ class OfficialReceiptVerificationController extends Controller
             'verified_at' => now(),
         ]);
 
+        $audit->record('or_verified', $certificateRequest, [
+            'student_id' => $certificateRequest->student_id,
+            'status' => CertificateRequestStatus::Verified->value,
+        ], $request);
+
         return redirect()
             ->route('admin.official-receipts.show', $certificateRequest)
             ->with('status', 'Official Receipt verified successfully.');
     }
 
-    public function approve(Request $request, CertificateRequest $certificateRequest): RedirectResponse
+    public function approve(Request $request, CertificateRequest $certificateRequest, AuditTrailService $audit): RedirectResponse
     {
         abort_unless($certificateRequest->status === CertificateRequestStatus::Verified, 422);
 
@@ -73,12 +79,17 @@ class OfficialReceiptVerificationController extends Controller
             'approved_at' => now(),
         ]);
 
+        $audit->record('certificate_request_approved', $certificateRequest, [
+            'student_id' => $certificateRequest->student_id,
+            'status' => CertificateRequestStatus::Approved->value,
+        ], $request);
+
         return redirect()
             ->route('admin.official-receipts.show', $certificateRequest)
             ->with('status', 'Request approved and certificate PDF generated.');
     }
 
-    public function reject(Request $request, CertificateRequest $certificateRequest): RedirectResponse
+    public function reject(Request $request, CertificateRequest $certificateRequest, AuditTrailService $audit): RedirectResponse
     {
         $validated = $request->validate([
             'remarks' => ['required', 'string', 'min:5', 'max:1000'],
@@ -90,6 +101,12 @@ class OfficialReceiptVerificationController extends Controller
             'verified_by' => $request->user()->id,
             'verified_at' => now(),
         ]);
+
+        $audit->record('or_rejected', $certificateRequest, [
+            'student_id' => $certificateRequest->student_id,
+            'remarks' => $validated['remarks'],
+            'status' => CertificateRequestStatus::Rejected->value,
+        ], $request);
 
         return redirect()
             ->route('admin.official-receipts.show', $certificateRequest)

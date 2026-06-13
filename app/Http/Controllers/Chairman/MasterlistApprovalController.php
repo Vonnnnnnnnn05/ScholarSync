@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\UpdateChairmanMasterlistRecordRequest;
 use App\Models\MasterlistRecord;
 use App\Models\ScholarshipMasterlist;
+use App\Services\AuditTrailService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -56,6 +57,7 @@ class MasterlistApprovalController extends Controller
         UpdateChairmanMasterlistRecordRequest $request,
         ScholarshipMasterlist $masterlist,
         MasterlistRecord $record,
+        AuditTrailService $audit,
     ): RedirectResponse {
         abort_unless($record->masterlist_id === $masterlist->id, 404);
         abort_unless(in_array($masterlist->status, ['submitted_to_chairman', 'chairman_review'], true), 404);
@@ -66,10 +68,15 @@ class MasterlistApprovalController extends Controller
             $masterlist->update(['status' => 'chairman_review']);
         }
 
+        $audit->record('masterlist_record_chairman_decision', $record, [
+            'masterlist_id' => $masterlist->id,
+            'chairman_status' => $record->chairman_status,
+        ], $request);
+
         return back()->with('status', 'Chairman decision saved.');
     }
 
-    public function release(ScholarshipMasterlist $masterlist): RedirectResponse
+    public function release(ScholarshipMasterlist $masterlist, AuditTrailService $audit): RedirectResponse
     {
         abort_unless(in_array($masterlist->status, ['submitted_to_chairman', 'chairman_review'], true), 404);
 
@@ -90,6 +97,11 @@ class MasterlistApprovalController extends Controller
                 'approved_at' => now(),
             ]);
         });
+
+        $audit->record('masterlist_released', $masterlist, [
+            'approved_records' => $masterlist->records()->where('chairman_status', 'approved')->count(),
+            'rejected_records' => $masterlist->records()->where('chairman_status', 'rejected')->count(),
+        ]);
 
         return redirect()
             ->route('chairman.masterlists.show', $masterlist)

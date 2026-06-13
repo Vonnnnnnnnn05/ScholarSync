@@ -150,9 +150,9 @@
             @if ($canEdit)
                 <form method="POST" action="{{ route('chairman.masterlists.release', $masterlist) }}" class="mt-6 flex justify-end">
                     @csrf
-                    <button type="submit" class="inline-flex min-h-11 items-center justify-center rounded-md bg-emerald-800 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:ring-offset-2">
+                    <x-confirm-submit message="Release final scholar records to the scholarship agency?" class="min-h-11 px-4">
                         {{ __('Release Final Records') }}
-                    </button>
+                    </x-confirm-submit>
                 </form>
             @endif
         </div>

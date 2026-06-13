@@ -95,5 +95,11 @@ class ReportExportService
             'filters' => $filters,
             'generated_at' => now(),
         ]);
+
+        app(AuditTrailService::class)->record('report_generated', null, [
+            'report_type' => $type,
+            'format' => $format,
+            'file_path' => $path,
+        ]);
     }
 }

@@ -24,11 +24,12 @@
                 @endforeach
             </div>
 
-            <div class="mt-6 grid gap-4 md:grid-cols-4">
+            <div class="mt-6 grid gap-4 md:grid-cols-5">
                 <a href="{{ route('admin.monitoring.students.index') }}" class="rounded-lg bg-white p-5 text-sm font-semibold text-emerald-800 shadow-sm ring-1 ring-gray-200 hover:bg-emerald-50">{{ __('Student Profiles') }}</a>
                 <a href="{{ route('admin.monitoring.scholars.index') }}" class="rounded-lg bg-white p-5 text-sm font-semibold text-emerald-800 shadow-sm ring-1 ring-gray-200 hover:bg-emerald-50">{{ __('Scholar Records') }}</a>
                 <a href="{{ route('admin.monitoring.transactions.index') }}" class="rounded-lg bg-white p-5 text-sm font-semibold text-emerald-800 shadow-sm ring-1 ring-gray-200 hover:bg-emerald-50">{{ __('Transactions') }}</a>
                 <a href="{{ route('admin.monitoring.programs.index') }}" class="rounded-lg bg-white p-5 text-sm font-semibold text-emerald-800 shadow-sm ring-1 ring-gray-200 hover:bg-emerald-50">{{ __('Fund Sources') }}</a>
+                <a href="{{ route('admin.monitoring.audit.index') }}" class="rounded-lg bg-white p-5 text-sm font-semibold text-emerald-800 shadow-sm ring-1 ring-gray-200 hover:bg-emerald-50">{{ __('Audit Trail') }}</a>
             </div>
 
             <div class="mt-6 grid gap-6 lg:grid-cols-2">

@@ -39,13 +39,20 @@ class CertificateGenerationService
 
             Storage::disk('local')->put($filePath, $pdf->output());
 
-            return Certificate::create([
+            $certificate = Certificate::create([
                 'certificate_request_id' => $certificateRequest->id,
                 'certificate_number' => $certificateNumber,
                 'file_path' => $filePath,
                 'generated_by' => $generatedBy?->id ?? $certificateRequest->approved_by,
                 'generated_at' => now(),
             ]);
+
+            app(AuditTrailService::class)->record('certificate_generated', $certificate, [
+                'certificate_number' => $certificateNumber,
+                'certificate_request_id' => $certificateRequest->id,
+            ]);
+
+            return $certificate;
         });
     }
 
