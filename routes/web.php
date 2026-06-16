@@ -17,11 +17,10 @@ use App\Http\Controllers\Evaluator\ScholarshipRenewalEvaluationController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Student\CertificateRequestController;
 use App\Http\Controllers\Student\ScholarshipRenewalController;
+use App\Http\Controllers\WelcomeController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-    return view('welcome');
-});
+Route::get('/', WelcomeController::class);
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');

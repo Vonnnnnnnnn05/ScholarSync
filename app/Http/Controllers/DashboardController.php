@@ -55,6 +55,7 @@ class DashboardController extends Controller
             'title' => $role->label().' Dashboard',
             'summary' => $this->summaryFor($role),
             'items' => $this->itemsFor($role),
+            'roleFunctions' => $this->roleFunctionsFor($role),
             'adminDashboard' => $role === UserRole::Administrator ? $this->adminDashboard() : null,
         ]);
     }
@@ -101,6 +102,115 @@ class DashboardController extends Controller
             UserRole::ScholarshipAgency => 'Agency workspace for scholarship program coordination.',
             UserRole::Coordinator => 'Coordinator dashboard for reviewing and preparing scholarship records.',
             UserRole::ScholarshipChairman => 'Chairman dashboard for final scholarship review and approvals.',
+        };
+    }
+
+    /**
+     * @return array<int, array{title: string, details: array<int, string>}>
+     */
+    private function roleFunctionsFor(UserRole $role): array
+    {
+        return match ($role) {
+            UserRole::Student => [
+                [
+                    'title' => 'Certificate Requests',
+                    'details' => [
+                        'Request a Certificate of No Scholarship.',
+                        'Enter purpose and required request details.',
+                        'Upload Official Receipt files.',
+                        'Track Pending, Verified, Rejected, and Approved request statuses.',
+                        'View remarks and download approved generated certificates.',
+                    ],
+                ],
+                [
+                    'title' => 'Continuing Scholarship Renewal',
+                    'details' => [
+                        'Upload scholarship renewal requirements.',
+                        'Track Submitted, Under Evaluation, Approved, Rejected, and Need Revision statuses.',
+                        'Resubmit requirements when revisions are requested.',
+                    ],
+                ],
+            ],
+            UserRole::Administrator => [
+                [
+                    'title' => 'Verification and Certificates',
+                    'details' => [
+                        'View submitted Official Receipt uploads.',
+                        'Verify valid OR files or reject invalid uploads with remarks.',
+                        'Approve certificate requests and view generated certificate records.',
+                    ],
+                ],
+                [
+                    'title' => 'Monitoring and Reports',
+                    'details' => [
+                        'View central monitoring dashboard charts and summaries.',
+                        'Monitor student profiles, scholar records, transactions, fund sources, and audit trail.',
+                        'Generate and export reports as PDF, Excel, or CSV.',
+                    ],
+                ],
+                [
+                    'title' => 'Evaluation',
+                    'details' => [
+                        'Review continuing scholarship renewal applications.',
+                        'Add evaluation remarks and approval, rejection, or revision decisions.',
+                    ],
+                ],
+            ],
+            UserRole::ScholarshipAgency => [
+                [
+                    'title' => 'Masterlist Management',
+                    'details' => [
+                        'Upload scholar masterlist CSV files.',
+                        'Preview CSV rows before final submission.',
+                        'Review missing, invalid, and duplicate fields.',
+                        'Submit masterlists for system verification.',
+                    ],
+                ],
+                [
+                    'title' => 'Released Results',
+                    'details' => [
+                        'View uploaded masterlist history.',
+                        'Track validation results.',
+                        'View final released scholar records after chairman approval.',
+                    ],
+                ],
+            ],
+            UserRole::Coordinator => [
+                [
+                    'title' => 'Masterlist Validation',
+                    'details' => [
+                        'View pending verified masterlists for validation.',
+                        'Review enrolled, unenrolled, duplicate, and invalid records.',
+                        'Add remarks and save coordinator validation status.',
+                        'Submit fully reviewed masterlists to the Scholarship Chairman.',
+                    ],
+                ],
+                [
+                    'title' => 'Renewal Evaluation',
+                    'details' => [
+                        'Evaluate continuing scholarship renewal applications.',
+                        'Add evaluation remarks and decisions.',
+                    ],
+                ],
+            ],
+            UserRole::ScholarshipChairman => [
+                [
+                    'title' => 'Final Masterlist Approval',
+                    'details' => [
+                        'View masterlists submitted by coordinators.',
+                        'Review enrolled, unenrolled, duplicate, and invalid records.',
+                        'Approve valid scholar records.',
+                        'Reject invalid records with required remarks.',
+                    ],
+                ],
+                [
+                    'title' => 'Final Release',
+                    'details' => [
+                        'Record final approval decisions and approval date.',
+                        'Release final scholar records to scholarship agencies.',
+                    ],
+                ],
+            ],
         };
     }
 

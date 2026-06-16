@@ -18,7 +18,9 @@ test('role dashboards can be viewed by matching role users', function (UserRole 
         ->get(route($role->dashboardRouteName()))
         ->assertOk()
         ->assertSee($role->label().' Dashboard')
-        ->assertSee($role->label());
+        ->assertSee($role->label())
+        ->assertSee('Role Functions')
+        ->assertSee('Visible Functions and Fields');
 })->with(UserRole::cases());
 
 test('role dashboards reject users with another role', function () {

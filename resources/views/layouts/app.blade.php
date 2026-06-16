@@ -15,20 +15,11 @@
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
     <body class="bg-gray-100 font-sans antialiased">
-        @php
-            $authenticatedUser = Auth::user();
-            $isAdministrator = $authenticatedUser?->hasRole(\App\Enums\UserRole::Administrator) ?? false;
-        @endphp
-
         <div class="min-h-screen bg-gray-100">
-            @unless ($isAdministrator)
-                @include('layouts.navigation')
-            @endunless
-
-            <div class="flex">
-                @if ($isAdministrator)
+            <div class="flex min-h-screen flex-col lg:flex-row">
+                @auth
                     @include('layouts.sidebar')
-                @endif
+                @endauth
 
                 <div class="min-w-0 flex-1">
                     @isset($header)

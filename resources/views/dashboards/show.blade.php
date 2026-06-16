@@ -206,6 +206,34 @@
                     </div>
                 @endforeach
             </div>
+
+            <section class="mt-6 rounded-lg bg-white p-6 shadow-sm ring-1 ring-gray-200">
+                <div class="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-emerald-700">{{ __('Role Functions') }}</p>
+                        <h3 class="text-lg font-semibold text-gray-950">{{ __('Visible Functions and Fields') }}</h3>
+                    </div>
+                    <span class="inline-flex w-fit rounded-md bg-yellow-50 px-3 py-1 text-sm font-semibold text-yellow-800 ring-1 ring-yellow-700/20">
+                        {{ __($role->label()) }}
+                    </span>
+                </div>
+
+                <div class="mt-5 grid gap-4 lg:grid-cols-2">
+                    @foreach ($roleFunctions as $group)
+                        <article class="rounded-lg border border-gray-200 bg-gray-50 p-5">
+                            <h4 class="text-base font-semibold text-gray-950">{{ __($group['title']) }}</h4>
+                            <ul class="mt-4 space-y-3">
+                                @foreach ($group['details'] as $detail)
+                                    <li class="flex gap-3 text-sm leading-6 text-gray-700">
+                                        <span class="mt-2 h-2 w-2 shrink-0 rounded-full bg-emerald-700"></span>
+                                        <span>{{ __($detail) }}</span>
+                                    </li>
+                                @endforeach
+                            </ul>
+                        </article>
+                    @endforeach
+                </div>
+            </section>
         </div>
     </div>
 </x-app-layout>

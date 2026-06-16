@@ -514,23 +514,77 @@
 
         .roles-grid {
             display: grid;
-            grid-template-columns: repeat(5, minmax(0, 1fr));
-            gap: .85rem;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 1rem;
         }
 
         .role-card {
-            padding: 1rem;
+            padding: 1.15rem;
+        }
+
+        .role-card-header {
+            display: flex;
+            align-items: center;
+            gap: .8rem;
+        }
+
+        .role-icon {
+            display: grid;
+            width: 46px;
+            height: 46px;
+            flex: 0 0 46px;
+            place-items: center;
+            border-radius: 8px;
+            background: var(--sksu-mint);
+            color: var(--sksu-green-dark);
+        }
+
+        .role-card:nth-child(2) .role-icon,
+        .role-card:nth-child(5) .role-icon {
+            background: #e5efff;
+            color: var(--sksu-navy);
+        }
+
+        .role-card:nth-child(3) .role-icon {
+            background: #fff3c4;
+            color: #4e3310;
         }
 
         .role-card strong {
             display: block;
             color: var(--sksu-green-dark);
-            font-size: 1rem;
+            font-size: 1.05rem;
         }
 
         .role-card p {
-            margin-top: .4rem;
+            margin-top: .2rem;
             font-size: .9rem;
+        }
+
+        .role-functions {
+            display: grid;
+            gap: .55rem;
+            margin: 1rem 0 0;
+            padding: 0;
+            list-style: none;
+        }
+
+        .role-functions li {
+            position: relative;
+            padding-left: 1.1rem;
+            color: var(--muted);
+            font-size: .9rem;
+        }
+
+        .role-functions li::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: .58rem;
+            width: .42rem;
+            height: .42rem;
+            border-radius: 50%;
+            background: var(--sksu-gold);
         }
 
         .monitoring-layout {
@@ -1028,30 +1082,98 @@
                     <div class="section-heading">
                         <div>
                             <p class="section-kicker">Role portals</p>
-                            <h2>Built around the people who keep scholarships moving.</h2>
+                            <h2>Each role has a clear function in the scholarship workflow.</h2>
                         </div>
+                        <p class="section-note">
+                            Access is separated by responsibility so students, administrators, agencies, coordinators, and the chairman only see the tools they need.
+                        </p>
                     </div>
 
                     <div class="roles-grid">
                         <article class="role-card">
-                            <strong>Student</strong>
-                            <p>Request certificates, upload files, track status, and receive results.</p>
+                            <div class="role-card-header">
+                                <span class="role-icon" aria-hidden="true">
+                                    <i class="fa-solid fa-user-graduate"></i>
+                                </span>
+                                <div>
+                                    <strong>Student</strong>
+                                    <p>Scholarship service requester</p>
+                                </div>
+                            </div>
+                            <ul class="role-functions">
+                                <li>Request Certificate of No Scholarship.</li>
+                                <li>Upload Official Receipt and renewal requirements.</li>
+                                <li>Track request, certificate, and renewal status.</li>
+                                <li>Download approved generated certificates.</li>
+                            </ul>
                         </article>
                         <article class="role-card">
-                            <strong>Administrator</strong>
-                            <p>Manage users, verify receipts, monitor transactions, and generate reports.</p>
+                            <div class="role-card-header">
+                                <span class="role-icon" aria-hidden="true">
+                                    <i class="fa-solid fa-user-shield"></i>
+                                </span>
+                                <div>
+                                    <strong>Administrator</strong>
+                                    <p>System and verification manager</p>
+                                </div>
+                            </div>
+                            <ul class="role-functions">
+                                <li>Verify or reject Official Receipt uploads.</li>
+                                <li>Monitor scholars, transactions, programs, and fund sources.</li>
+                                <li>Generate certificate, masterlist, evaluation, and fund reports.</li>
+                                <li>Review audit trail and system activity.</li>
+                            </ul>
                         </article>
                         <article class="role-card">
-                            <strong>Agency</strong>
-                            <p>Upload scholar masterlists and receive validated scholar records.</p>
+                            <div class="role-card-header">
+                                <span class="role-icon" aria-hidden="true">
+                                    <i class="fa-solid fa-building-columns"></i>
+                                </span>
+                                <div>
+                                    <strong>Scholarship Agency</strong>
+                                    <p>Masterlist source and result receiver</p>
+                                </div>
+                            </div>
+                            <ul class="role-functions">
+                                <li>Upload scholar masterlist CSV files.</li>
+                                <li>Preview records and review missing or duplicate entries.</li>
+                                <li>Submit masterlists for verification and validation.</li>
+                                <li>View released final scholar records.</li>
+                            </ul>
                         </article>
                         <article class="role-card">
-                            <strong>Coordinator</strong>
-                            <p>Review validation results and prepare records for final approval.</p>
+                            <div class="role-card-header">
+                                <span class="role-icon" aria-hidden="true">
+                                    <i class="fa-solid fa-clipboard-check"></i>
+                                </span>
+                                <div>
+                                    <strong>Coordinator</strong>
+                                    <p>Validation reviewer</p>
+                                </div>
+                            </div>
+                            <ul class="role-functions">
+                                <li>Review enrolled and unenrolled scholar records.</li>
+                                <li>Add validation remarks and record decisions.</li>
+                                <li>Mark records for correction, rejection, or chairman review.</li>
+                                <li>Forward validated masterlists to the chairman.</li>
+                            </ul>
                         </article>
                         <article class="role-card">
-                            <strong>Chairman</strong>
-                            <p>Approve, reject, and release validated scholarship records.</p>
+                            <div class="role-card-header">
+                                <span class="role-icon" aria-hidden="true">
+                                    <i class="fa-solid fa-scale-balanced"></i>
+                                </span>
+                                <div>
+                                    <strong>Scholarship Chairman</strong>
+                                    <p>Final approval authority</p>
+                                </div>
+                            </div>
+                            <ul class="role-functions">
+                                <li>Review coordinator-submitted masterlists.</li>
+                                <li>Approve valid scholar records.</li>
+                                <li>Reject invalid records with required remarks.</li>
+                                <li>Release final scholar records to agencies.</li>
+                            </ul>
                         </article>
                     </div>
                 </div>
@@ -1082,32 +1204,20 @@
                         </ul>
                     </div>
 
-                    <div class="dashboard-preview" aria-label="Monitoring dashboard preview">
+                    <div class="dashboard-preview" aria-label="Live monitoring dashboard preview">
                         <div class="preview-topbar">
                             <span class="preview-title">Monitoring Overview</span>
-                            <span class="preview-badge">Live status</span>
+                            <span class="preview-badge">Live data</span>
                         </div>
                         <div class="preview-grid">
-                            <div class="preview-stat">
-                                <span>Pending certificate requests</span>
-                                <strong>24</strong>
-                                <div class="preview-progress" aria-hidden="true"><i style="width: 58%"></i></div>
-                            </div>
-                            <div class="preview-stat">
-                                <span>Verified official receipts</span>
-                                <strong>86</strong>
-                                <div class="preview-progress" aria-hidden="true"><i style="width: 82%"></i></div>
-                            </div>
-                            <div class="preview-stat">
-                                <span>Uploaded masterlists</span>
-                                <strong>12</strong>
-                                <div class="preview-progress" aria-hidden="true"><i style="width: 46%"></i></div>
-                            </div>
-                            <div class="preview-stat">
-                                <span>Approved records</span>
-                                <strong>148</strong>
-                                <div class="preview-progress" aria-hidden="true"><i style="width: 74%"></i></div>
-                            </div>
+                            @foreach ($monitoringStats as $stat)
+                                @php($width = max(6, ($stat['value'] / $monitoringMaxValue) * 100))
+                                <div class="preview-stat">
+                                    <span>{{ $stat['label'] }}</span>
+                                    <strong>{{ number_format($stat['value']) }}</strong>
+                                    <div class="preview-progress" aria-hidden="true"><i style="width: {{ $width }}%"></i></div>
+                                </div>
+                            @endforeach
                         </div>
                     </div>
                 </div>
