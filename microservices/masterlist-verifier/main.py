@@ -15,7 +15,7 @@ class MasterlistRecordIn(BaseModel):
     fund_source: str | None = None
 
 
-class EnrolledStudentIn(BaseModel):
+class EnrolledStudentIn(BaseModel): 
     id: int
     student_id_number: str
     student_name: str | None = None

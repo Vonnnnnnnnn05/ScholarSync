@@ -2,6 +2,7 @@
     $user = Auth::user();
     $links = [
         ['label' => 'Dashboard', 'route' => 'dashboard', 'active' => 'dashboard*', 'show' => true],
+        ['label' => 'User Management', 'route' => 'admin.users.index', 'active' => 'admin.users.*', 'show' => $user->hasRole(\App\Enums\UserRole::Administrator)],
         ['label' => 'Certificates', 'route' => 'student.certificate-requests.index', 'active' => 'student.certificate-requests.*', 'show' => $user->hasRole(\App\Enums\UserRole::Student)],
         ['label' => 'Renewals', 'route' => 'student.scholarship-renewals.index', 'active' => 'student.scholarship-renewals.*', 'show' => $user->hasRole(\App\Enums\UserRole::Student)],
         ['label' => 'OR Verification', 'route' => 'admin.official-receipts.index', 'active' => 'admin.official-receipts.*', 'show' => $user->hasRole(\App\Enums\UserRole::Administrator)],

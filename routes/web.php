@@ -9,6 +9,7 @@ use App\Http\Controllers\Admin\Monitoring\StudentMonitoringController;
 use App\Http\Controllers\Admin\Monitoring\TransactionMonitoringController;
 use App\Http\Controllers\Admin\OfficialReceiptVerificationController;
 use App\Http\Controllers\Admin\Reports\ReportController;
+use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Agency\MasterlistController;
 use App\Http\Controllers\Chairman\MasterlistApprovalController;
 use App\Http\Controllers\Coordinator\MasterlistValidationController;
@@ -44,6 +45,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/scholarship-chairman/dashboard', [DashboardController::class, 'scholarshipChairman'])
         ->middleware('role:scholarship_chairman')
         ->name('dashboard.scholarship-chairman');
+
+    Route::middleware('role:administrator')
+        ->prefix('admin/users')
+        ->name('admin.users.')
+        ->group(function () {
+            Route::get('/', [UserController::class, 'index'])->name('index');
+            Route::post('/', [UserController::class, 'store'])->name('store');
+        });
 
     Route::middleware('role:student')
         ->prefix('student/certificate-requests')
