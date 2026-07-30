@@ -7,6 +7,7 @@ use App\Enums\ScholarshipApplicationStatus;
 use App\Enums\UserRole;
 use App\Models\CertificateRequest;
 use App\Models\MasterlistRecord;
+use App\Models\RegistrarStudent;
 use App\Models\ScholarshipApplication;
 use App\Models\ScholarshipMasterlist;
 use App\Models\Student;
@@ -48,14 +49,24 @@ class DashboardController extends Controller
         return $this->show(UserRole::ScholarshipChairman);
     }
 
+    public function registrar(): View
+    {
+        return $this->show(UserRole::Registrar);
+    }
+
     private function show(UserRole $role): View
     {
+        $studentProfile = $role === UserRole::Student
+            ? request()->user()->student
+            : null;
+
         return view('dashboards.show', [
             'role' => $role,
             'title' => $role->label().' Dashboard',
             'summary' => $this->summaryFor($role),
             'items' => $this->itemsFor($role),
             'roleFunctions' => $this->roleFunctionsFor($role),
+            'studentProfile' => $studentProfile,
             'adminDashboard' => $role === UserRole::Administrator ? $this->adminDashboard() : null,
         ]);
     }
@@ -69,6 +80,7 @@ class DashboardController extends Controller
             UserRole::Student => [
                 'Track scholarship applications',
                 'Request certificates',
+                'View scholarship eligibility and agency policies',
                 'Submit renewal requirements',
             ],
             UserRole::Administrator => [
@@ -78,7 +90,7 @@ class DashboardController extends Controller
             ],
             UserRole::ScholarshipAgency => [
                 'Upload scholarship masterlists',
-                'Preview CSV records before import',
+                'Publish scholarship rules and eligibility policies',
                 'Track duplicate records for review',
             ],
             UserRole::Coordinator => [
@@ -91,6 +103,11 @@ class DashboardController extends Controller
                 'Approve or reject scholar records',
                 'Release final scholar records to agencies',
             ],
+            UserRole::Registrar => [
+                'Maintain official enrolled-student records',
+                'Support microservice enrollment matching',
+                'Provide reliable enrollment data for validation',
+            ],
         };
     }
 
@@ -102,6 +119,7 @@ class DashboardController extends Controller
             UserRole::ScholarshipAgency => 'Agency workspace for scholarship program coordination.',
             UserRole::Coordinator => 'Coordinator dashboard for reviewing and preparing scholarship records.',
             UserRole::ScholarshipChairman => 'Chairman dashboard for final scholarship review and approvals.',
+            UserRole::Registrar => 'Registrar dashboard for maintaining official enrollment records used in validation.',
         };
     }
 
@@ -120,6 +138,14 @@ class DashboardController extends Controller
                         'Upload Official Receipt files.',
                         'Track Pending, Verified, Rejected, and Approved request statuses.',
                         'View remarks and download approved generated certificates.',
+                    ],
+                ],
+                [
+                    'title' => 'Scholarship Discovery',
+                    'details' => [
+                        'View scholarship details posted by agencies.',
+                        'Review eligibility requirements, documentary requirements, and deadlines.',
+                        'Download published agency policies and guidelines.',
                     ],
                 ],
                 [
@@ -167,6 +193,14 @@ class DashboardController extends Controller
                     ],
                 ],
                 [
+                    'title' => 'Scholarship Policies',
+                    'details' => [
+                        'Publish scholarship rules, policies, and guidelines.',
+                        'Set eligibility and documentary requirements visible to students.',
+                        'Upload downloadable policy files.',
+                    ],
+                ],
+                [
                     'title' => 'Released Results',
                     'details' => [
                         'View uploaded masterlist history.',
@@ -180,7 +214,7 @@ class DashboardController extends Controller
                     'title' => 'Masterlist Validation',
                     'details' => [
                         'View pending verified masterlists for validation.',
-                        'Review enrolled, unenrolled, duplicate, and invalid records.',
+                        'Review enrolled, unenrolled, duplicate, invalid, qualified, and unqualified records.',
                         'Add remarks and save coordinator validation status.',
                         'Submit fully reviewed masterlists to the Scholarship Chairman.',
                     ],
@@ -198,7 +232,7 @@ class DashboardController extends Controller
                     'title' => 'Final Masterlist Approval',
                     'details' => [
                         'View masterlists submitted by coordinators.',
-                        'Review enrolled, unenrolled, duplicate, and invalid records.',
+                        'Review enrolled, unenrolled, duplicate, invalid, qualified, and unqualified records.',
                         'Approve valid scholar records.',
                         'Reject invalid records with required remarks.',
                     ],
@@ -208,6 +242,16 @@ class DashboardController extends Controller
                     'details' => [
                         'Record final approval decisions and approval date.',
                         'Release final scholar records to scholarship agencies.',
+                    ],
+                ],
+            ],
+            UserRole::Registrar => [
+                [
+                    'title' => 'Enrollment Records',
+                    'details' => [
+                        'Add official enrolled-student records.',
+                        'Maintain enrollment status, course, campus, academic year, and semester.',
+                        'Provide the trusted enrollment source used by microservice verification.',
                     ],
                 ],
             ],
@@ -267,6 +311,7 @@ class DashboardController extends Controller
         return [
             'metrics' => [
                 ['label' => 'Total Scholars', 'value' => Student::query()->count(), 'accent' => 'emerald'],
+                ['label' => 'Registrar Enrolled', 'value' => RegistrarStudent::query()->where('enrollment_status', 'enrolled')->count(), 'accent' => 'emerald'],
                 ['label' => 'Certificate Requests', 'value' => CertificateRequest::query()->count(), 'accent' => 'blue'],
                 ['label' => 'Uploaded Masterlists', 'value' => ScholarshipMasterlist::query()->count(), 'accent' => 'amber'],
                 ['label' => 'Renewal Applications', 'value' => ScholarshipApplication::query()->count(), 'accent' => 'slate'],

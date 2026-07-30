@@ -18,7 +18,7 @@
                     @method('PATCH')
                     <h3 class="text-base font-semibold text-gray-950">{{ __('Profile') }}</h3>
                     <div class="mt-4 space-y-4">
-                        @foreach (['student_id_number' => 'Student ID', 'first_name' => 'First Name', 'middle_name' => 'Middle Name', 'last_name' => 'Last Name', 'course' => 'Course', 'year_level' => 'Year Level', 'campus' => 'Campus', 'contact_number' => 'Contact Number'] as $field => $label)
+                        @foreach (['student_id_number' => 'Student ID', 'first_name' => 'First Name', 'middle_name' => 'Middle Name', 'last_name' => 'Last Name', 'course' => 'Course', 'year_level' => 'Year Level', 'section' => 'Section', 'campus' => 'Campus', 'contact_number' => 'Contact Number'] as $field => $label)
                             <div>
                                 <x-input-label :for="$field" :value="__($label)" />
                                 <x-text-input :id="$field" :name="$field" class="mt-1 block w-full" :value="old($field, $student->{$field})" />

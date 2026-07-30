@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\RegistrarStudent;
 use App\Models\ScholarshipMasterlist;
 use App\Models\Student;
 use Illuminate\Http\Client\ConnectionException;
@@ -35,6 +36,7 @@ class MasterlistVerificationService
                 $record->update([
                     'matched_student_id' => $verifiedRecord['matched_student_id'] ?? null,
                     'verification_status' => $verifiedRecord['status'],
+                    'eligibility_status' => $verifiedRecord['eligibility_status'] ?? ($verifiedRecord['status'] === 'enrolled' ? 'qualified' : 'unqualified'),
                     'remarks' => $verifiedRecord['remarks'] ?? null,
                 ]);
             }
@@ -48,6 +50,8 @@ class MasterlistVerificationService
                 'unenrolled_count' => $summary['unenrolled_count'] ?? 0,
                 'duplicate_count' => $summary['duplicate_count'] ?? 0,
                 'invalid_count' => $summary['invalid_count'] ?? 0,
+                'qualified_count' => $summary['qualified_count'] ?? 0,
+                'unqualified_count' => $summary['unqualified_count'] ?? 0,
                 'validated_at' => now(),
             ]);
 
@@ -82,6 +86,34 @@ class MasterlistVerificationService
      */
     private function payload(ScholarshipMasterlist $masterlist): array
     {
+        $enrolledStudents = RegistrarStudent::query()
+            ->where('enrollment_status', 'enrolled')
+            ->oldest('id')
+            ->get()
+            ->map(function (RegistrarStudent $student): array {
+                $studentProfileId = Student::query()
+                    ->where('student_id_number', $student->student_id_number)
+                    ->value('id');
+
+                return [
+                    'id' => $studentProfileId ?: $student->id,
+                    'student_id_number' => $student->student_id_number,
+                    'student_name' => $student->student_name,
+                ];
+            });
+
+        if ($enrolledStudents->isEmpty()) {
+            $enrolledStudents = Student::query()
+                ->where('status', 'active')
+                ->oldest('id')
+                ->get()
+                ->map(fn (Student $student): array => [
+                    'id' => $student->id,
+                    'student_id_number' => $student->student_id_number,
+                    'student_name' => $student->fullName(),
+                ]);
+        }
+
         return [
             'records' => $masterlist->records()
                 ->oldest('id')
@@ -95,15 +127,7 @@ class MasterlistVerificationService
                 ])
                 ->values()
                 ->all(),
-            'enrolled_students' => Student::query()
-                ->where('status', 'active')
-                ->oldest('id')
-                ->get()
-                ->map(fn (Student $student): array => [
-                    'id' => $student->id,
-                    'student_id_number' => $student->student_id_number,
-                    'student_name' => $student->fullName(),
-                ])
+            'enrolled_students' => $enrolledStudents
                 ->values()
                 ->all(),
         ];

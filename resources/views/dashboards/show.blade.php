@@ -196,6 +196,44 @@
                 </section>
             @endif
 
+            @if ($role === \App\Enums\UserRole::Student)
+                <section class="mt-6 rounded-lg bg-white p-6 shadow-sm ring-1 ring-gray-200">
+                    <div class="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-emerald-700">{{ __('Student Profile') }}</p>
+                            <h3 class="text-lg font-semibold text-gray-950">{{ __('Personal Details') }}</h3>
+                        </div>
+                        <span class="inline-flex w-fit rounded-md bg-emerald-50 px-3 py-1 text-sm font-semibold text-emerald-800 ring-1 ring-emerald-700/15">
+                            {{ __($studentProfile?->status ? Str::headline($studentProfile->status) : 'Profile Pending') }}
+                        </span>
+                    </div>
+
+                    @if ($studentProfile)
+                        <dl class="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                            @foreach ([
+                                'Student ID' => $studentProfile->student_id_number,
+                                'Full Name' => $studentProfile->fullName(),
+                                'Email' => auth()->user()->email,
+                                'Campus' => $studentProfile->campus,
+                                'Course' => $studentProfile->course,
+                                'Year Level' => $studentProfile->year_level,
+                                'Section' => $studentProfile->section,
+                                'Contact Number' => $studentProfile->contact_number,
+                            ] as $label => $value)
+                                <div class="rounded-md border border-gray-200 bg-gray-50 p-4">
+                                    <dt class="text-xs font-semibold uppercase tracking-wide text-gray-500">{{ __($label) }}</dt>
+                                    <dd class="mt-2 text-sm font-semibold text-gray-950">{{ filled($value) ? $value : __('Not set') }}</dd>
+                                </div>
+                            @endforeach
+                        </dl>
+                    @else
+                        <div class="mt-5 rounded-md border border-amber-200 bg-amber-50 p-4 text-sm font-medium text-amber-900">
+                            {{ __('Your student profile details are not complete yet. Please contact the administrator if this account was created manually.') }}
+                        </div>
+                    @endif
+                </section>
+            @endif
+
             <div class="mt-6 grid gap-4 md:grid-cols-3">
                 @foreach ($items as $item)
                     <div class="rounded-lg bg-white p-5 shadow-sm ring-1 ring-gray-200">

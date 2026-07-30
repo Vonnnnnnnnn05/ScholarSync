@@ -49,6 +49,7 @@ class StudentMonitoringController extends Controller
             'last_name' => ['required', 'string', 'max:255'],
             'course' => ['nullable', 'string', 'max:255'],
             'year_level' => ['nullable', 'string', 'max:255'],
+            'section' => ['nullable', 'string', 'max:255'],
             'campus' => ['nullable', 'string', 'max:255'],
             'contact_number' => ['nullable', 'string', 'max:255'],
             'status' => ['required', 'string', 'in:active,inactive'],

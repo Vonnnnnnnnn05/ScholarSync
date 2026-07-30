@@ -3,14 +3,17 @@
     $links = [
         ['label' => 'Dashboard', 'route' => 'dashboard', 'active' => 'dashboard*', 'show' => true],
         ['label' => 'User Management', 'route' => 'admin.users.index', 'active' => 'admin.users.*', 'show' => $user->hasRole(\App\Enums\UserRole::Administrator)],
+        ['label' => 'Scholarships', 'route' => 'student.scholarships.index', 'active' => 'student.scholarships.*', 'show' => $user->hasRole(\App\Enums\UserRole::Student)],
         ['label' => 'Certificates', 'route' => 'student.certificate-requests.index', 'active' => 'student.certificate-requests.*', 'show' => $user->hasRole(\App\Enums\UserRole::Student)],
         ['label' => 'Renewals', 'route' => 'student.scholarship-renewals.index', 'active' => 'student.scholarship-renewals.*', 'show' => $user->hasRole(\App\Enums\UserRole::Student)],
         ['label' => 'OR Verification', 'route' => 'admin.official-receipts.index', 'active' => 'admin.official-receipts.*', 'show' => $user->hasRole(\App\Enums\UserRole::Administrator)],
         ['label' => 'Certificates', 'route' => 'admin.certificates.index', 'active' => 'admin.certificates.*', 'show' => $user->hasRole(\App\Enums\UserRole::Administrator)],
         ['label' => 'Evaluations', 'route' => 'evaluator.scholarship-renewals.index', 'active' => 'evaluator.scholarship-renewals.*', 'show' => $user->hasAnyRole([\App\Enums\UserRole::Administrator, \App\Enums\UserRole::Coordinator])],
+        ['label' => 'Scholarship Policies', 'route' => 'agency.policies.index', 'active' => 'agency.policies.*', 'show' => $user->hasRole(\App\Enums\UserRole::ScholarshipAgency)],
         ['label' => 'Masterlists', 'route' => 'agency.masterlists.index', 'active' => 'agency.masterlists.*', 'show' => $user->hasRole(\App\Enums\UserRole::ScholarshipAgency)],
         ['label' => 'Validation', 'route' => 'coordinator.masterlists.index', 'active' => 'coordinator.masterlists.*', 'show' => $user->hasRole(\App\Enums\UserRole::Coordinator)],
         ['label' => 'Approvals', 'route' => 'chairman.masterlists.index', 'active' => 'chairman.masterlists.*', 'show' => $user->hasRole(\App\Enums\UserRole::ScholarshipChairman)],
+        ['label' => 'Enrollment Records', 'route' => 'registrar.enrolled-students.index', 'active' => 'registrar.enrolled-students.*', 'show' => $user->hasRole(\App\Enums\UserRole::Registrar)],
         ['label' => 'Profile', 'route' => 'profile.edit', 'active' => 'profile.*', 'show' => true],
     ];
     $monitoringLinks = [
@@ -30,6 +33,8 @@
         ['label' => 'Requirement Submissions', 'route' => 'admin.reports.preview', 'type' => 'requirement_submissions'],
         ['label' => 'Fund Sources', 'route' => 'admin.reports.preview', 'type' => 'fund_sources'],
         ['label' => 'Approved and Rejected', 'route' => 'admin.reports.preview', 'type' => 'approved_rejected'],
+        ['label' => 'Enrollment Verification', 'route' => 'admin.reports.preview', 'type' => 'enrollment_verification'],
+        ['label' => 'Agency Submissions', 'route' => 'admin.reports.preview', 'type' => 'agency_submissions'],
     ];
 @endphp
 

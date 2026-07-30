@@ -20,6 +20,7 @@ class MasterlistRecord extends Model
         'scholarship_program',
         'fund_source',
         'verification_status',
+        'eligibility_status',
         'coordinator_status',
         'chairman_status',
         'remarks',

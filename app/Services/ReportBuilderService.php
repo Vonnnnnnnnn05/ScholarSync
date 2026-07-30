@@ -8,6 +8,7 @@ use App\Models\CertificateRequest;
 use App\Models\MasterlistRecord;
 use App\Models\ScholarshipApplication;
 use App\Models\ScholarshipMasterlist;
+use App\Models\ScholarshipPolicy;
 use App\Models\ScholarshipProgram;
 use App\Models\ScholarshipRequirement;
 use App\Models\Student;
@@ -29,6 +30,8 @@ class ReportBuilderService
             'requirement_submissions' => 'Student Requirement Submission Report',
             'fund_sources' => 'Scholarship Fund Source Report',
             'approved_rejected' => 'Approved and Rejected Transactions Report',
+            'enrollment_verification' => 'Enrollment Verification Report',
+            'agency_submissions' => 'Agency Submission Report',
         ];
     }
 
@@ -47,14 +50,12 @@ class ReportBuilderService
             'requirement_submissions' => $this->requirementSubmissions($filters),
             'fund_sources' => $this->fundSources($filters),
             'approved_rejected' => $this->approvedRejected($filters),
+            'enrollment_verification' => $this->enrollmentVerification($filters),
+            'agency_submissions' => $this->agencySubmissions($filters),
             default => abort(404),
         };
     }
 
-    /**
-     * @param  array<string, mixed>  $filters
-     * @return array<string, mixed>
-     */
     private function scholarInformation(array $filters): array
     {
         $rows = Student::query()
@@ -138,9 +139,11 @@ class ReportBuilderService
                 $masterlist->unenrolled_count,
                 $masterlist->duplicate_count,
                 $masterlist->invalid_count,
+                $masterlist->qualified_count,
+                $masterlist->unqualified_count,
             ]);
 
-        return $this->report('Scholarship Masterlist Report', ['ID', 'Agency', 'File', 'Status', 'Total', 'Enrolled', 'Unenrolled', 'Duplicate', 'Invalid'], $rows);
+        return $this->report('Scholarship Masterlist Report', ['ID', 'Agency', 'File', 'Status', 'Total', 'Enrolled', 'Unenrolled', 'Duplicate', 'Invalid', 'Qualified', 'Unqualified'], $rows);
     }
 
     private function renewalEvaluations(array $filters): array
@@ -254,6 +257,60 @@ class ReportBuilderService
             ]);
 
         return $this->report('Approved and Rejected Transactions Report', ['Type', 'ID', 'Subject', 'Result', 'Remarks', 'Date'], $certificateRows->concat($renewalRows)->concat($masterlistRows)->values());
+    }
+
+    private function enrollmentVerification(array $filters): array
+    {
+        $rows = MasterlistRecord::query()
+            ->with('masterlist.agency')
+            ->when($filters['status'] ?? null, fn ($query, string $status) => $query->where('verification_status', $status)->orWhere('eligibility_status', $status))
+            ->when($filters['student'] ?? null, fn ($query, string $student) => $query->where('student_id_number', 'like', "%{$student}%")->orWhere('student_name', 'like', "%{$student}%"))
+            ->when($filters['fund_source'] ?? null, fn ($query, string $fundSource) => $query->where('fund_source', $fundSource))
+            ->latest()
+            ->get()
+            ->map(fn (MasterlistRecord $record): array => [
+                $record->masterlist?->agency?->agency_name,
+                $record->student_id_number,
+                $record->student_name,
+                $record->scholarship_program,
+                $record->fund_source,
+                str($record->verification_status)->headline(),
+                str($record->eligibility_status)->headline(),
+                $record->remarks,
+            ]);
+
+        return $this->report('Enrollment Verification Report', ['Agency', 'Student ID', 'Student', 'Program', 'Fund Source', 'Enrollment Status', 'Eligibility', 'Remarks'], $rows);
+    }
+
+    private function agencySubmissions(array $filters): array
+    {
+        $masterlistRows = ScholarshipMasterlist::query()
+            ->with('agency')
+            ->when($filters['status'] ?? null, fn ($query, string $status) => $query->where('status', $status))
+            ->get()
+            ->map(fn (ScholarshipMasterlist $masterlist): array => [
+                $masterlist->agency->agency_name,
+                'Masterlist',
+                $masterlist->file_name,
+                str($masterlist->status)->headline(),
+                $masterlist->total_records.' records',
+                optional($masterlist->created_at)->format('Y-m-d'),
+            ]);
+
+        $policyRows = ScholarshipPolicy::query()
+            ->with(['agency', 'program'])
+            ->when($filters['status'] ?? null, fn ($query, string $status) => $query->where('status', $status))
+            ->get()
+            ->map(fn (ScholarshipPolicy $policy): array => [
+                $policy->agency->agency_name,
+                'Policy / Eligibility',
+                $policy->title,
+                str($policy->status)->headline(),
+                $policy->program?->name ?? 'General policy',
+                optional($policy->created_at)->format('Y-m-d'),
+            ]);
+
+        return $this->report('Agency Submission Report', ['Agency', 'Submission Type', 'Title/File', 'Status', 'Details', 'Submitted'], $masterlistRows->concat($policyRows)->values());
     }
 
     /**

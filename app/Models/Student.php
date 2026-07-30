@@ -21,6 +21,7 @@ class Student extends Model
         'last_name',
         'course',
         'year_level',
+        'section',
         'campus',
         'contact_number',
         'status',

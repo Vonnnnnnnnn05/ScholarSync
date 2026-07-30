@@ -31,4 +31,9 @@ class Agency extends Model
     {
         return $this->hasMany(ScholarshipMasterlist::class);
     }
+
+    public function policies(): HasMany
+    {
+        return $this->hasMany(ScholarshipPolicy::class);
+    }
 }

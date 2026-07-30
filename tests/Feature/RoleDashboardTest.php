@@ -1,6 +1,7 @@
 <?php
 
 use App\Enums\UserRole;
+use App\Models\Student;
 use App\Models\User;
 
 test('dashboard entry redirects each user to their role dashboard', function (UserRole $role) {
@@ -42,4 +43,29 @@ test('administrator dashboard includes monitoring charts', function () {
         ->assertSee('Request Status')
         ->assertSee('Evaluation Status')
         ->assertSee('User Role Distribution');
+});
+
+test('student dashboard displays personal details', function () {
+    $studentUser = User::factory()->role(UserRole::Student)->create(['email' => 'student@example.com']);
+    Student::factory()->for($studentUser)->create([
+        'student_id_number' => 'SKSU-2026-9301',
+        'first_name' => 'Maria',
+        'middle_name' => 'Santos',
+        'last_name' => 'Reyes',
+        'course' => 'BS Information Technology',
+        'year_level' => '4th Year',
+        'section' => 'IT-4A',
+        'campus' => 'ACCESS Campus',
+        'contact_number' => '09123456789',
+        'status' => 'active',
+    ]);
+
+    $this->actingAs($studentUser)
+        ->get(route(UserRole::Student->dashboardRouteName()))
+        ->assertOk()
+        ->assertSee('Personal Details')
+        ->assertSee('SKSU-2026-9301')
+        ->assertSee('Maria Santos Reyes')
+        ->assertSee('ACCESS Campus')
+        ->assertSee('IT-4A');
 });

@@ -9,6 +9,7 @@ enum UserRole: string
     case ScholarshipAgency = 'scholarship_agency';
     case Coordinator = 'coordinator';
     case ScholarshipChairman = 'scholarship_chairman';
+    case Registrar = 'registrar';
 
     /**
      * @return array<int, string>
@@ -26,6 +27,7 @@ enum UserRole: string
             self::ScholarshipAgency => 'Scholarship Agency',
             self::Coordinator => 'Coordinator',
             self::ScholarshipChairman => 'Scholarship Chairman',
+            self::Registrar => 'Registrar',
         };
     }
 
@@ -37,6 +39,7 @@ enum UserRole: string
             self::ScholarshipAgency => 'dashboard.scholarship-agency',
             self::Coordinator => 'dashboard.coordinator',
             self::ScholarshipChairman => 'dashboard.scholarship-chairman',
+            self::Registrar => 'dashboard.registrar',
         };
     }
 }

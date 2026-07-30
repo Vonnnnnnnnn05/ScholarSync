@@ -1,0 +1,143 @@
+{
+  "university": {
+    "name": "Sultan Kudarat State University",
+    "short_name": "SKSU",
+    "address": "EJC Montilla, Tacurong City, 9800, Province of Sultan Kudarat, Philippines",
+    "phone": "(064) 200 7336",
+    "email": "info@sksu.edu.ph"
+  },
+  "campuses": [
+    {
+      "name": "ACCESS Campus (Main)",
+      "programs": [
+        "Bachelor of Elementary Education",
+        "Bachelor of Secondary Education major in English",
+        "Bachelor of Secondary Education major in Filipino",
+        "Bachelor of Secondary Education major in Science",
+        "Bachelor of Secondary Education major in Mathematics",
+        "Bachelor of Secondary Education major in Social Studies",
+        "Bachelor of Physical Education",
+        "Bachelor of Science in Nursing",
+        "Bachelor of Science in Midwifery",
+        "Bachelor of Science in Medical Technology",
+        "Bachelor of Science in Criminology",
+        "Bachelor of Science in Industrial Security and Management",
+        "Doctor of Medicine"
+      ]
+    },
+    {
+      "name": "Isulan Campus",
+      "programs": [
+        "Bachelor of Science in Computer Science",
+        "Bachelor of Science in Information Technology",
+        "Bachelor of Science in Information Systems",
+        "Bachelor of Science in Civil Engineering major in Structural Engineering",
+        "Bachelor of Science in Computer Engineering",
+        "Bachelor of Science in Electronics Engineering",
+        "Bachelor of Industrial Technology major in Automotive Technology",
+        "Bachelor of Industrial Technology major in Electrical Technology",
+        "Bachelor of Industrial Technology major in Drafting Technology",
+        "Bachelor of Industrial Technology major in Civil Technology",
+        "Bachelor of Industrial Technology major in Electronics Technology",
+        "Bachelor of Industrial Technology major in Food Innovation and Culinary Technology",
+        "Bachelor of Technical-Vocational Teacher Education major in Automotive Technology",
+        "Bachelor of Technical-Vocational Teacher Education major in Electrical Technology",
+        "Bachelor of Technical-Vocational Teacher Education major in Drafting Technology",
+        "Bachelor of Technical-Vocational Teacher Education major in Civil Technology",
+        "Bachelor of Technical-Vocational Teacher Education major in Electronics Technology",
+        "Bachelor of Technical-Vocational Teacher Education major in Food and Service Management"
+      ]
+    },
+    {
+      "name": "Tacurong Campus",
+      "programs": [
+        "Bachelor of Arts in Economics",
+        "Bachelor of Arts in Political Science",
+        "Bachelor of Science in Accountancy",
+        "Bachelor of Science in Accounting Information System",
+        "Bachelor of Science in Biology",
+        "Bachelor of Science in Entrepreneurship",
+        "Bachelor of Science in Environmental Science",
+        "Bachelor of Science in Hospitality Management",
+        "Bachelor of Science in Management Accounting",
+        "Bachelor of Science in Tourism Management"
+      ]
+    },
+    {
+      "name": "Kalamansig Campus",
+      "programs": [
+        "Bachelor of Science in Biology major in Plant Biology",
+        "Bachelor of Science in Criminology",
+        "Bachelor of Science in Fisheries",
+        "Bachelor of Science in Information Technology",
+        "Bachelor of Elementary Education",
+        "Bachelor of Secondary Education major in Filipino",
+        "Bachelor of Secondary Education major in English",
+        "Bachelor of Secondary Education major in Science",
+        "Bachelor of Secondary Education major in Mathematics"
+      ]
+    },
+    {
+      "name": "Lutayan Campus",
+      "programs": [
+        "Bachelor of Elementary Education",
+        "Bachelor of Science in Agriculture major in Crop Science",
+        "Bachelor of Science in Agriculture major in Soil Science",
+        "Bachelor of Science in Agriculture major in Crop Protection",
+        "Bachelor of Science in Agriculture major in Animal Science"
+      ]
+    },
+    {
+      "name": "Palimbang Campus",
+      "programs": [
+        "Bachelor in Elementary Education",
+        "Bachelor of Science in Agribusiness"
+      ]
+    },
+    {
+      "name": "Bagumbayan Campus",
+      "programs": [
+        "Bachelor of Science in Agribusiness",
+        "Bachelor of Technology and Livelihood Education major in Agri-Fishery Arts"
+      ]
+    }
+  ],
+  "graduate_programs": [
+    "Doctor of Education major in Educational Management and Leadership (PhD-EML)",
+    "Doctor of Philosophy in Institutional Development and Management major in Public Management (PhD IDM-PM)",
+    "Master in Public Management (MPM)",
+    "Master of Arts in Educational Management (MaEd-EM)",
+    "Master of Arts in Teaching Major in English",
+    "Master of Arts in Teaching Major in Filipino",
+    "Master of Arts in Teaching Major in Science",
+    "Master of Arts in Teaching Major in Mathematics",
+    "Master of Arts in Teaching Major in Social Studies",
+    "Master of Arts in Teaching major in Physical Education",
+    "Master of Arts in Teaching Major in Livelihood and Technology Education",
+    "Master in Information Technology"
+  ],
+  "dropdowns": {
+    "campuses": [
+      "ACCESS Campus (Main)",
+      "Isulan Campus",
+      "Tacurong Campus",
+      "Kalamansig Campus",
+      "Bagumbayan Campus",
+      "Palimbang Campus",
+      "Lutayan Campus"
+    ],
+    "year_levels": [
+      "1st Year",
+      "2nd Year",
+      "3rd Year",
+      "4th Year",
+      "5th Year",
+      "Graduate"
+    ],
+    "enrollment_statuses": [
+      "enrolled",
+      "not_enrolled",
+      "inactive"
+    ]
+  }
+}

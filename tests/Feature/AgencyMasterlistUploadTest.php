@@ -3,6 +3,7 @@
 use App\Enums\UserRole;
 use App\Models\Agency;
 use App\Models\MasterlistRecord;
+use App\Models\RegistrarStudent;
 use App\Models\ScholarshipMasterlist;
 use App\Models\Student;
 use App\Models\User;
@@ -109,9 +110,14 @@ test('laravel sends masterlist records to python verifier and stores verificatio
         'last_name' => 'Cruz',
         'status' => 'active',
     ]);
+    RegistrarStudent::create([
+        'student_id_number' => 'SKSU-2026-1001',
+        'student_name' => 'Ana Cruz',
+        'enrollment_status' => 'enrolled',
+    ]);
 
     Http::fake([
-        'python-verifier.test/verify-masterlist' => function (Request $request) use ($student) {
+        'http://python-verifier.test/verify-masterlist' => function (Request $request) use ($student) {
             $payload = $request->data();
 
             expect($payload['records'])->toHaveCount(2)
@@ -134,17 +140,21 @@ test('laravel sends masterlist records to python verifier and stores verificatio
                     'unenrolled_count' => 1,
                     'duplicate_count' => 0,
                     'invalid_count' => 0,
+                    'qualified_count' => 1,
+                    'unqualified_count' => 1,
                 ],
                 'records' => [
                     [
                         'row_id' => $payload['records'][0]['row_id'],
                         'status' => 'enrolled',
+                        'eligibility_status' => 'qualified',
                         'matched_student_id' => $student->id,
                         'remarks' => 'Matched enrolled student record.',
                     ],
                     [
                         'row_id' => $payload['records'][1]['row_id'],
                         'status' => 'unenrolled',
+                        'eligibility_status' => 'unqualified',
                         'matched_student_id' => null,
                         'remarks' => 'No matching enrolled student record found.',
                     ],

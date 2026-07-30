@@ -21,6 +21,7 @@
                         <thead class="bg-gray-50"><tr>
                             <th class="px-6 py-3 text-left text-xs font-semibold uppercase text-gray-600">{{ __('Student') }}</th>
                             <th class="px-6 py-3 text-left text-xs font-semibold uppercase text-gray-600">{{ __('Course') }}</th>
+                            <th class="px-6 py-3 text-left text-xs font-semibold uppercase text-gray-600">{{ __('Section') }}</th>
                             <th class="px-6 py-3 text-left text-xs font-semibold uppercase text-gray-600">{{ __('Campus') }}</th>
                             <th class="px-6 py-3 text-left text-xs font-semibold uppercase text-gray-600">{{ __('Status') }}</th>
                             <th class="px-6 py-3 text-right text-xs font-semibold uppercase text-gray-600">{{ __('Action') }}</th>
@@ -30,12 +31,13 @@
                                 <tr>
                                     <td class="px-6 py-4 text-sm"><div class="font-semibold text-gray-950">{{ $student->fullName() }}</div><div class="text-xs text-gray-500">{{ $student->student_id_number }}</div></td>
                                     <td class="px-6 py-4 text-sm text-gray-700">{{ $student->course ?: __('Not set') }}</td>
+                                    <td class="px-6 py-4 text-sm text-gray-700">{{ $student->section ?: __('Not set') }}</td>
                                     <td class="px-6 py-4 text-sm text-gray-700">{{ $student->campus ?: __('Not set') }}</td>
                                     <td class="px-6 py-4 text-sm text-gray-700">{{ Str::headline($student->status) }}</td>
                                     <td class="px-6 py-4 text-right text-sm"><a href="{{ route('admin.monitoring.students.show', $student) }}" class="font-semibold text-emerald-800 hover:text-emerald-950">{{ __('Manage') }}</a></td>
                                 </tr>
                             @empty
-                                <tr><td colspan="5" class="px-6 py-12 text-center text-sm text-gray-600">{{ __('No students found.') }}</td></tr>
+                                <tr><td colspan="6" class="px-6 py-12 text-center text-sm text-gray-600">{{ __('No students found.') }}</td></tr>
                             @endforelse
                         </tbody>
                     </table>

@@ -5,6 +5,7 @@ from pydantic import BaseModel, Field
 
 
 VerificationStatus = Literal["enrolled", "unenrolled", "duplicate", "invalid"]
+EligibilityStatus = Literal["qualified", "unqualified"]
 
 
 class MasterlistRecordIn(BaseModel):
@@ -15,7 +16,7 @@ class MasterlistRecordIn(BaseModel):
     fund_source: str | None = None
 
 
-class EnrolledStudentIn(BaseModel): 
+class EnrolledStudentIn(BaseModel):
     id: int
     student_id_number: str
     student_name: str | None = None
@@ -29,6 +30,7 @@ class VerifyMasterlistRequest(BaseModel):
 class MasterlistRecordOut(BaseModel):
     row_id: int
     status: VerificationStatus
+    eligibility_status: EligibilityStatus
     matched_student_id: int | None = None
     remarks: str | None = None
 
@@ -39,6 +41,8 @@ class VerificationSummary(BaseModel):
     unenrolled_count: int
     duplicate_count: int
     invalid_count: int
+    qualified_count: int
+    unqualified_count: int
 
 
 class VerifyMasterlistResponse(BaseModel):
@@ -46,7 +50,7 @@ class VerifyMasterlistResponse(BaseModel):
     records: list[MasterlistRecordOut]
 
 
-app = FastAPI(title="ScholarSync Masterlist Verifier", version="1.0.0")
+app = FastAPI(title="ScholarSync Masterlist Verifier", version="1.1.0")
 
 
 @app.get("/health-check")
@@ -81,6 +85,7 @@ def verify_masterlist(payload: VerifyMasterlistRequest) -> VerifyMasterlistRespo
                 MasterlistRecordOut(
                     row_id=record.row_id,
                     status="invalid",
+                    eligibility_status="unqualified",
                     remarks=" ".join(errors),
                 )
             )
@@ -91,6 +96,7 @@ def verify_masterlist(payload: VerifyMasterlistRequest) -> VerifyMasterlistRespo
                 MasterlistRecordOut(
                     row_id=record.row_id,
                     status="duplicate",
+                    eligibility_status="unqualified",
                     remarks="Duplicate student ID in uploaded file.",
                 )
             )
@@ -103,6 +109,7 @@ def verify_masterlist(payload: VerifyMasterlistRequest) -> VerifyMasterlistRespo
                 MasterlistRecordOut(
                     row_id=record.row_id,
                     status="unenrolled",
+                    eligibility_status="unqualified",
                     remarks="No matching enrolled student record found.",
                 )
             )
@@ -112,8 +119,9 @@ def verify_masterlist(payload: VerifyMasterlistRequest) -> VerifyMasterlistRespo
             MasterlistRecordOut(
                 row_id=record.row_id,
                 status="enrolled",
+                eligibility_status="qualified",
                 matched_student_id=matched_student.id,
-                remarks="Matched enrolled student record.",
+                remarks="Matched registrar enrolled-student record.",
             )
         )
 
@@ -124,6 +132,8 @@ def verify_masterlist(payload: VerifyMasterlistRequest) -> VerifyMasterlistRespo
             unenrolled_count=count_status(verified_records, "unenrolled"),
             duplicate_count=count_status(verified_records, "duplicate"),
             invalid_count=count_status(verified_records, "invalid"),
+            qualified_count=count_eligibility(verified_records, "qualified"),
+            unqualified_count=count_eligibility(verified_records, "unqualified"),
         ),
         records=verified_records,
     )
@@ -148,6 +158,10 @@ def required_field_errors(record: MasterlistRecordIn) -> list[str]:
 
 def count_status(records: list[MasterlistRecordOut], status: VerificationStatus) -> int:
     return sum(1 for record in records if record.status == status)
+
+
+def count_eligibility(records: list[MasterlistRecordOut], status: EligibilityStatus) -> int:
+    return sum(1 for record in records if record.eligibility_status == status)
 
 
 def normalize(value: str | None) -> str:

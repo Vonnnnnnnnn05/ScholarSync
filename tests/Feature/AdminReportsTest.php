@@ -9,6 +9,7 @@ use App\Models\MasterlistRecord;
 use App\Models\Report;
 use App\Models\ScholarshipApplication;
 use App\Models\ScholarshipMasterlist;
+use App\Models\ScholarshipPolicy;
 use App\Models\ScholarshipProgram;
 use App\Models\ScholarshipRequirement;
 use App\Models\Student;
@@ -55,10 +56,18 @@ function seedReportRecords(): Student
     ScholarshipRequirement::factory()->for($application, 'application')->create([
         'requirement_name' => 'Latest Grades',
     ]);
-    ScholarshipProgram::factory()->create([
+    $program = ScholarshipProgram::factory()->create([
         'name' => 'Tertiary Education Subsidy',
         'fund_source' => 'CHED',
         'agency_name' => 'CHED Office',
+    ]);
+    ScholarshipPolicy::create([
+        'agency_id' => $agency->id,
+        'scholarship_program_id' => $program->id,
+        'title' => 'CHED Merit Guidelines',
+        'eligibility_requirements' => 'Must be enrolled.',
+        'documentary_requirements' => 'Grades and ID.',
+        'status' => 'published',
     ]);
 
     return $student;
@@ -143,6 +152,8 @@ test('all configured report types can be previewed', function (string $type) {
     'requirement_submissions',
     'fund_sources',
     'approved_rejected',
+    'enrollment_verification',
+    'agency_submissions',
 ]);
 
 test('non administrators cannot access reports module', function () {

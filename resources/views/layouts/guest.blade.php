@@ -24,7 +24,7 @@
                 <p class="mt-1 text-xs font-medium text-emerald-800/75">ScholarSync Portal</p>
             </div>
 
-            <div class="w-full sm:max-w-md mt-6 border-t-4 border-emerald-700 bg-white/95 px-6 py-5 shadow-xl shadow-emerald-950/10 ring-1 ring-emerald-900/10 sm:rounded-lg">
+            <div class="mt-6 w-full border-t-4 border-emerald-700 bg-white/95 px-6 py-5 shadow-xl shadow-emerald-950/10 ring-1 ring-emerald-900/10 sm:rounded-lg {{ request()->routeIs('register') ? 'sm:max-w-3xl' : 'sm:max-w-md' }}">
                 {{ $slot }}
             </div>
         </div>

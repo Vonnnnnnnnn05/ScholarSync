@@ -11,12 +11,15 @@ use App\Http\Controllers\Admin\OfficialReceiptVerificationController;
 use App\Http\Controllers\Admin\Reports\ReportController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Agency\MasterlistController;
+use App\Http\Controllers\Agency\ScholarshipPolicyController;
 use App\Http\Controllers\Chairman\MasterlistApprovalController;
 use App\Http\Controllers\Coordinator\MasterlistValidationController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Evaluator\ScholarshipRenewalEvaluationController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\Registrar\EnrolledStudentController;
 use App\Http\Controllers\Student\CertificateRequestController;
+use App\Http\Controllers\Student\ScholarshipDiscoveryController;
 use App\Http\Controllers\Student\ScholarshipRenewalController;
 use App\Http\Controllers\WelcomeController;
 use Illuminate\Support\Facades\Route;
@@ -46,6 +49,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->middleware('role:scholarship_chairman')
         ->name('dashboard.scholarship-chairman');
 
+    Route::get('/registrar/dashboard', [DashboardController::class, 'registrar'])
+        ->middleware('role:registrar')
+        ->name('dashboard.registrar');
+
     Route::middleware('role:administrator')
         ->prefix('admin/users')
         ->name('admin.users.')
@@ -54,6 +61,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::post('/', [UserController::class, 'store'])->name('store');
         });
 
+    Route::middleware('role:student')
+        ->prefix('student/scholarships')
+        ->name('student.scholarships.')
+        ->group(function () {
+            Route::get('/', [ScholarshipDiscoveryController::class, 'index'])->name('index');
+            Route::get('/{policy}/download', [ScholarshipDiscoveryController::class, 'download'])->name('download');
+        });
     Route::middleware('role:student')
         ->prefix('student/certificate-requests')
         ->name('student.certificate-requests.')
@@ -137,6 +151,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
         });
 
     Route::middleware('role:scholarship_agency')
+        ->prefix('agency/policies')
+        ->name('agency.policies.')
+        ->group(function () {
+            Route::get('/', [ScholarshipPolicyController::class, 'index'])->name('index');
+            Route::post('/', [ScholarshipPolicyController::class, 'store'])->name('store');
+            Route::get('/{policy}/download', [ScholarshipPolicyController::class, 'download'])->name('download');
+        });
+    Route::middleware('role:scholarship_agency')
         ->prefix('agency/masterlists')
         ->name('agency.masterlists.')
         ->group(function () {
@@ -168,11 +190,21 @@ Route::middleware(['auth', 'verified'])->group(function () {
                 ->name('records.update');
             Route::post('/{masterlist}/release', [MasterlistApprovalController::class, 'release'])->name('release');
         });
+    Route::middleware('role:registrar')
+        ->prefix('registrar/enrolled-students')
+        ->name('registrar.enrolled-students.')
+        ->group(function () {
+            Route::get('/', [EnrolledStudentController::class, 'index'])->name('index');
+            Route::post('/', [EnrolledStudentController::class, 'store'])->name('store');
+            Route::post('/import', [EnrolledStudentController::class, 'import'])->name('import');
+            Route::patch('/{enrolledStudent}', [EnrolledStudentController::class, 'update'])->name('update');
+        });
 });
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::patch('/profile/student-details', [ProfileController::class, 'updateStudentDetails'])->name('profile.student-details.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 

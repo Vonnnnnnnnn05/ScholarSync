@@ -16,6 +16,7 @@ test('role account seeder creates one login account for each role', function () 
         'agency@scholarsync.test' => UserRole::ScholarshipAgency,
         'coordinator@scholarsync.test' => UserRole::Coordinator,
         'chairman@scholarsync.test' => UserRole::ScholarshipChairman,
+        'registrar@scholarsync.test' => UserRole::Registrar,
     ];
 
     foreach ($accounts as $email => $role) {

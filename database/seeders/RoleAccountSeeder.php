@@ -40,6 +40,11 @@ class RoleAccountSeeder extends Seeder
             'email' => 'chairman@scholarsync.test',
             'role' => UserRole::ScholarshipChairman,
         ],
+        'registrar' => [
+            'name' => 'ScholarSync Registrar',
+            'email' => 'registrar@scholarsync.test',
+            'role' => UserRole::Registrar,
+        ],
     ];
 
     public function run(): void

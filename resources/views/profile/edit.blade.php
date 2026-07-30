@@ -13,6 +13,14 @@
                 </div>
             </div>
 
+            @if ($user->hasRole(\App\Enums\UserRole::Student))
+                <div class="p-4 sm:p-8 bg-white shadow sm:rounded-lg">
+                    <div class="max-w-4xl">
+                        @include('profile.partials.update-student-details-form')
+                    </div>
+                </div>
+            @endif
+
             <div class="p-4 sm:p-8 bg-white dark:bg-gray-800 shadow sm:rounded-lg">
                 <div class="max-w-xl">
                     @include('profile.partials.update-password-form')

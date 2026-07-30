@@ -23,6 +23,8 @@ class ScholarshipMasterlist extends Model
         'unenrolled_count',
         'duplicate_count',
         'invalid_count',
+        'qualified_count',
+        'unqualified_count',
         'validated_by',
         'validated_at',
         'approved_by',
