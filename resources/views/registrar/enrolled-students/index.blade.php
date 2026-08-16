@@ -11,7 +11,7 @@
         <section class="rounded-md border border-emerald-900/10 bg-white p-6 shadow-sm">
             <div class="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
                 <div>
-                    <h2 class="text-lg font-semibold text-gray-950">Import Enrollment CSV</h2>
+                    <h2 class="text-lg font-semibold text-gray-950">Upload Enrollment Records</h2>
                     <p class="mt-1 text-sm text-gray-600">Upload official registrar enrollment data. Required columns: student_id_number, student_name.</p>
                 </div>
                 <span class="rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-emerald-800">Registrar only</span>
@@ -20,60 +20,12 @@
             <form method="POST" action="{{ route('registrar.enrolled-students.import') }}" enctype="multipart/form-data" class="mt-5 grid gap-4 lg:grid-cols-[1fr_auto] lg:items-end">
                 @csrf
                 <div>
-                    <x-input-label for="enrollment_csv" :value="__('CSV File')" />
-                    <input id="enrollment_csv" name="enrollment_csv" type="file" accept=".csv,text/csv" class="mt-1 block w-full rounded-md border border-emerald-900/20 bg-white px-3 py-2 text-sm shadow-sm file:mr-4 file:rounded-md file:border-0 file:bg-emerald-50 file:px-3 file:py-2 file:text-sm file:font-semibold file:text-emerald-800 hover:file:bg-emerald-100" required />
-                    <x-input-error :messages="$errors->get('enrollment_csv')" class="mt-2" />
+                    <x-input-label for="enrollment_file" :value="__('Excel File')" />
+                    <input id="enrollment_file" name="enrollment_file" type="file" accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" class="mt-1 block w-full rounded-md border border-emerald-900/20 bg-white px-3 py-2 text-sm shadow-sm file:mr-4 file:rounded-md file:border-0 file:bg-emerald-50 file:px-3 file:py-2 file:text-sm file:font-semibold file:text-emerald-800 hover:file:bg-emerald-100" required />
+                    <x-input-error :messages="$errors->get('enrollment_file')" class="mt-2" />
                     <p class="mt-1 text-xs text-gray-500">Optional columns: course, year_level, campus, enrollment_status, academic_year, semester.</p>
                 </div>
-                <x-primary-button class="min-h-11 justify-center">{{ __('Import CSV') }}</x-primary-button>
-            </form>
-        </section>
-
-        <section class="rounded-md border border-emerald-900/10 bg-white p-6 shadow-sm">
-            <h2 class="text-lg font-semibold text-gray-950">Add Enrolled Student</h2>
-            <form method="POST" action="{{ route('registrar.enrolled-students.store') }}" class="mt-5 grid gap-4 lg:grid-cols-3">
-                @csrf
-                <div>
-                    <x-input-label for="student_id_number" :value="__('Student ID Number')" />
-                    <x-text-input id="student_id_number" name="student_id_number" class="mt-1 block w-full" :value="old('student_id_number')" required />
-                    <x-input-error :messages="$errors->get('student_id_number')" class="mt-2" />
-                </div>
-                <div>
-                    <x-input-label for="student_name" :value="__('Student Name')" />
-                    <x-text-input id="student_name" name="student_name" class="mt-1 block w-full" :value="old('student_name')" required />
-                    <x-input-error :messages="$errors->get('student_name')" class="mt-2" />
-                </div>
-                <div>
-                    <x-input-label for="course" :value="__('Course')" />
-                    <x-text-input id="course" name="course" class="mt-1 block w-full" :value="old('course')" />
-                </div>
-                <div>
-                    <x-input-label for="year_level" :value="__('Year Level')" />
-                    <x-text-input id="year_level" name="year_level" class="mt-1 block w-full" :value="old('year_level')" />
-                </div>
-                <div>
-                    <x-input-label for="campus" :value="__('Campus')" />
-                    <x-text-input id="campus" name="campus" class="mt-1 block w-full" :value="old('campus')" />
-                </div>
-                <div>
-                    <x-input-label for="enrollment_status" :value="__('Enrollment Status')" />
-                    <select id="enrollment_status" name="enrollment_status" class="mt-1 block min-h-11 w-full rounded-md border-emerald-900/20 bg-white text-sm shadow-sm focus:border-emerald-700 focus:ring-emerald-700">
-                        <option value="enrolled">Enrolled</option>
-                        <option value="not_enrolled">Not Enrolled</option>
-                        <option value="inactive">Inactive</option>
-                    </select>
-                </div>
-                <div>
-                    <x-input-label for="academic_year" :value="__('Academic Year')" />
-                    <x-text-input id="academic_year" name="academic_year" class="mt-1 block w-full" :value="old('academic_year')" placeholder="2026-2027" />
-                </div>
-                <div>
-                    <x-input-label for="semester" :value="__('Semester')" />
-                    <x-text-input id="semester" name="semester" class="mt-1 block w-full" :value="old('semester')" placeholder="1st Semester" />
-                </div>
-                <div class="flex items-end">
-                    <x-primary-button class="min-h-11 w-full justify-center">{{ __('Save Record') }}</x-primary-button>
-                </div>
+                <x-primary-button class="min-h-11 justify-center">{{ __('Upload and Validate') }}</x-primary-button>
             </form>
         </section>
 

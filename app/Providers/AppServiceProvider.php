@@ -2,9 +2,7 @@
 
 namespace App\Providers;
 
-use App\Models\Certificate;
 use App\Models\CertificateRequest;
-use App\Observers\CertificateObserver;
 use App\Observers\CertificateRequestObserver;
 use Illuminate\Support\ServiceProvider;
 
@@ -24,6 +22,5 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         CertificateRequest::observe(CertificateRequestObserver::class);
-        Certificate::observe(CertificateObserver::class);
     }
 }

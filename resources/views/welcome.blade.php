@@ -940,7 +940,7 @@
                             <span>ScholarSync</span>
                         </h1>
                         <p class="hero-copy">
-                            A unified portal for certificate requests, official receipt verification, agency masterlists, microservice-based scholar validation, continuing scholarship evaluation, and administrative reporting.
+                            A unified portal for certificate requests, official receipt verification, scholarship opportunities, campus-based masterlist validation, and administrative reporting.
                         </p>
 
                         <div class="hero-actions" aria-label="Primary actions">
@@ -1029,7 +1029,7 @@
                                 <i class="fa-solid fa-chart-line"></i>
                             </div>
                             <h3>Monitoring and Reports</h3>
-                            <p>Dashboards and exports summarize requests, scholars, masterlists, evaluations, fund sources, and decisions.</p>
+                            <p>Dashboards and exports summarize requests, scholars, masterlists, validation, scholarship agencies, and decisions.</p>
                         </article>
                     </div>
                 </div>
@@ -1051,7 +1051,7 @@
                         <article class="step">
                             <span class="step-number">1</span>
                             <h3>Submit</h3>
-                            <p>Students request certificates or upload continuing scholarship requirements.</p>
+                            <p>Students request certificates and browse published scholarship opportunities.</p>
                         </article>
                         <article class="step">
                             <span class="step-number">2</span>
@@ -1102,8 +1102,8 @@
                             </div>
                             <ul class="role-functions">
                                 <li>Request Certificate of No Scholarship.</li>
-                                <li>Upload Official Receipt and renewal requirements.</li>
-                                <li>Track request, certificate, and renewal status.</li>
+                                <li>Upload Official Receipts for certificate requests.</li>
+                                <li>Track request and certificate status.</li>
                                 <li>Download approved generated certificates.</li>
                             </ul>
                         </article>
@@ -1119,7 +1119,7 @@
                             </div>
                             <ul class="role-functions">
                                 <li>Verify or reject Official Receipt uploads.</li>
-                                <li>Monitor scholars, transactions, programs, and fund sources.</li>
+                                <li>Monitor scholars, transactions, programs, and scholarship agencies.</li>
                                 <li>Generate certificate, masterlist, evaluation, and fund reports.</li>
                                 <li>Review audit trail and system activity.</li>
                             </ul>
@@ -1130,15 +1130,15 @@
                                     <i class="fa-solid fa-building-columns"></i>
                                 </span>
                                 <div>
-                                    <strong>Scholarship Agency</strong>
-                                    <p>Masterlist source and result receiver</p>
+                                    <strong>Campus Registrar</strong>
+                                    <p>Campus enrollment verifier</p>
                                 </div>
                             </div>
                             <ul class="role-functions">
-                                <li>Upload scholar masterlist CSV files.</li>
-                                <li>Preview records and review missing or duplicate entries.</li>
-                                <li>Submit masterlists for verification and validation.</li>
-                                <li>View released final scholar records.</li>
+                                <li>Access enrollment records for the assigned campus.</li>
+                                <li>Verify unmatched or inconsistent scholar information.</li>
+                                <li>Use the validation microservice with campus-scoped data.</li>
+                                <li>Provide verification results to the Coordinator.</li>
                             </ul>
                         </article>
                         <article class="role-card">
@@ -1147,7 +1147,7 @@
                                     <i class="fa-solid fa-clipboard-check"></i>
                                 </span>
                                 <div>
-                                    <strong>Coordinator</strong>
+                                    <strong>Campus Scholarship Coordinator</strong>
                                     <p>Validation reviewer</p>
                                 </div>
                             </div>
@@ -1170,6 +1170,7 @@
                             </div>
                             <ul class="role-functions">
                                 <li>Review coordinator-submitted masterlists.</li>
+                                <li>Upload agency-provided masterlists and distribute records by campus.</li>
                                 <li>Approve valid scholar records.</li>
                                 <li>Reject invalid records with required remarks.</li>
                                 <li>Release final scholar records to agencies.</li>
@@ -1185,7 +1186,7 @@
                         <p class="section-kicker">Reports</p>
                         <h2 id="monitoring-title">Decision-ready records for scholarship operations.</h2>
                         <p>
-                            Export-ready reporting supports scholar information, certificate requests, OR verification, masterlists, evaluations, fund sources, and approved or rejected transactions.
+                            Export-ready reporting supports scholar information, certificate requests, OR verification, masterlists, validation, scholarship agencies, and approved or rejected transactions.
                         </p>
 
                         <ul class="report-list">
@@ -1228,7 +1229,7 @@
                     <div>
                         <p class="section-kicker" style="color: #ffe28a;">Ready for implementation</p>
                         <h2 id="cta-title">Start with role-based access, then build each module phase by phase.</h2>
-                        <p>Phase tracking can follow the project plan from setup, certificates, verification, masterlists, microservice validation, approvals, evaluations, monitoring, and reports.</p>
+                        <p>Phase tracking can follow the project plan from setup, certificates, verification, masterlists, microservice validation, approvals, monitoring, and reports.</p>
                     </div>
                     @if (Route::has('login'))
                         @auth

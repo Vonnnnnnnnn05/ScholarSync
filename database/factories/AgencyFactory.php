@@ -2,9 +2,7 @@
 
 namespace Database\Factories;
 
-use App\Enums\UserRole;
 use App\Models\Agency;
-use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -18,7 +16,7 @@ class AgencyFactory extends Factory
     public function definition(): array
     {
         return [
-            'user_id' => User::factory()->role(UserRole::ScholarshipAgency),
+            'user_id' => null,
             'agency_name' => fake()->company().' Scholarship Office',
             'contact_person' => fake()->name(),
             'email' => fake()->unique()->safeEmail(),

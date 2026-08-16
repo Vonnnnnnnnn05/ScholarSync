@@ -1,6 +1,7 @@
 <?php
 
 use App\Enums\UserRole;
+use App\Models\Campus;
 use App\Models\User;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Schema;
@@ -17,6 +18,32 @@ beforeEach(function () {
 
 test('users table has a role column', function () {
     expect(Schema::hasColumn('users', 'role'))->toBeTrue();
+});
+
+test('system exposes exactly the five approved user roles', function () {
+    expect(array_column(UserRole::cases(), 'value'))->toBe([
+        'student',
+        'administrator',
+        'coordinator',
+        'scholarship_chairman',
+        'registrar',
+    ])->and(UserRole::Coordinator->label())->toBe('Campus Scholarship Coordinator')
+        ->and(UserRole::Registrar->label())->toBe('Campus Registrar');
+});
+
+test('campus roles require a campus while university roles do not', function () {
+    expect(UserRole::Coordinator->requiresCampus())->toBeTrue()
+        ->and(UserRole::Registrar->requiresCampus())->toBeTrue()
+        ->and(UserRole::Student->requiresCampus())->toBeFalse()
+        ->and(UserRole::Administrator->requiresCampus())->toBeFalse()
+        ->and(UserRole::ScholarshipChairman->requiresCampus())->toBeFalse();
+});
+
+test('users can be assigned to a campus', function () {
+    $campus = Campus::factory()->create();
+    $user = User::factory()->role(UserRole::Coordinator)->create(['campus_id' => $campus->id]);
+
+    expect($user->campus->is($campus))->toBeTrue();
 });
 
 test('new users default to the student role', function () {

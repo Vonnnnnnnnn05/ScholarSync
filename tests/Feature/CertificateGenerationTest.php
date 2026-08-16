@@ -10,6 +10,38 @@ use App\Models\User;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 
+test('certificate template follows the temporary sample and names the requesting student', function () {
+    $student = Student::factory()->create([
+        'first_name' => 'Juan',
+        'middle_name' => 'Santos',
+        'last_name' => 'Dela Cruz',
+        'year_level' => '4th Year',
+        'course' => 'BS Information Technology',
+    ]);
+    $certificateRequest = CertificateRequest::factory()->for($student)->create([
+        'purpose' => 'an external scholarship application',
+    ]);
+    $issuedAt = now()->setDate(2026, 8, 14);
+
+    $html = view('certificates.pdf.no-scholarship', [
+        'certificateRequest' => $certificateRequest,
+        'student' => $student,
+        'certificateNumber' => 'CERT-2026-000001',
+        'issuedAt' => $issuedAt,
+        'semester' => 'First',
+        'academicYear' => '2026-2027',
+    ])->render();
+
+    expect($html)
+        ->toContain('SULTAN KUDARAT STATE UNIVERSITY')
+        ->toContain('TO WHOM IT MAY CONCERN:')
+        ->toContain('JUAN SANTOS DELA CRUZ')
+        ->toContain('First Semester, Academic Year 2026-2027')
+        ->toContain('Certificate No.: CERT-2026-000001')
+        ->toContain('Date Issued: August 14, 2026')
+        ->not->toContain('This sample layout may be replaced');
+});
+
 function verifiedCertificateRequest(): CertificateRequest
 {
     $studentUser = User::factory()->role(UserRole::Student)->create();
@@ -83,6 +115,16 @@ test('student can download own generated certificate pdf only', function () {
     $this->actingAs($otherStudent)
         ->get(route('student.certificate-requests.certificate.download', $certificateRequest))
         ->assertNotFound();
+
+    $response = $this->actingAs($studentUser)
+        ->get(route('student.certificate-requests.certificate.view', $certificateRequest))
+        ->assertOk();
+
+    expect($response->headers->get('content-disposition'))->toStartWith('inline;');
+
+    $this->actingAs($otherStudent)
+        ->get(route('student.certificate-requests.certificate.view', $certificateRequest))
+        ->assertNotFound();
 });
 
 test('administrator can view certificate history and download records', function () {
@@ -114,6 +156,12 @@ test('administrator can view certificate history and download records', function
         ->get(route('admin.certificates.download', $certificate))
         ->assertOk()
         ->assertHeader('content-disposition');
+
+    $response = $this->actingAs($administrator)
+        ->get(route('admin.certificates.view', $certificate))
+        ->assertOk();
+
+    expect($response->headers->get('content-disposition'))->toStartWith('inline;');
 });
 
 test('non administrators cannot view certificate history', function () {

@@ -29,12 +29,16 @@ class CertificateGenerationService
 
             $certificateNumber = $this->nextCertificateNumber();
             $filePath = 'certificates/generated/'.Str::slug($certificateNumber).'.pdf';
+            $issuedAt = now();
+            [$semester, $academicYear] = $this->academicPeriod($issuedAt);
 
             $pdf = Pdf::loadView('certificates.pdf.no-scholarship', [
                 'certificateRequest' => $certificateRequest,
                 'student' => $certificateRequest->student,
                 'certificateNumber' => $certificateNumber,
-                'issuedAt' => now(),
+                'issuedAt' => $issuedAt,
+                'semester' => $semester,
+                'academicYear' => $academicYear,
             ])->setPaper('letter', 'portrait');
 
             Storage::disk('local')->put($filePath, $pdf->output());
@@ -75,5 +79,22 @@ class CertificateGenerationService
         } while (Certificate::where('certificate_number', $certificateNumber)->exists());
 
         return $certificateNumber;
+    }
+
+    /** @return array{0: string, 1: string} */
+    private function academicPeriod(\DateTimeInterface $issuedAt): array
+    {
+        $month = (int) $issuedAt->format('n');
+        $year = (int) $issuedAt->format('Y');
+
+        if ($month >= 8) {
+            return ['First', $year.'-'.($year + 1)];
+        }
+
+        if ($month <= 5) {
+            return ['Second', ($year - 1).'-'.$year];
+        }
+
+        return ['Midyear', ($year - 1).'-'.$year];
     }
 }

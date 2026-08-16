@@ -1,17 +1,14 @@
 <?php
 
 use App\Enums\CertificateRequestStatus;
-use App\Enums\ScholarshipApplicationStatus;
 use App\Enums\UserRole;
 use App\Models\Agency;
 use App\Models\CertificateRequest;
 use App\Models\MasterlistRecord;
 use App\Models\Report;
-use App\Models\ScholarshipApplication;
 use App\Models\ScholarshipMasterlist;
 use App\Models\ScholarshipPolicy;
 use App\Models\ScholarshipProgram;
-use App\Models\ScholarshipRequirement;
 use App\Models\Student;
 use App\Models\User;
 use Illuminate\Support\Facades\Storage;
@@ -47,15 +44,6 @@ function seedReportRecords(): Student
         'chairman_status' => 'approved',
     ]);
 
-    $application = ScholarshipApplication::factory()->for($student)->create([
-        'scholarship_program' => 'Continuing Merit Scholarship',
-        'fund_source' => 'CHED',
-        'status' => ScholarshipApplicationStatus::Approved,
-        'remarks' => 'Qualified.',
-    ]);
-    ScholarshipRequirement::factory()->for($application, 'application')->create([
-        'requirement_name' => 'Latest Grades',
-    ]);
     $program = ScholarshipProgram::factory()->create([
         'name' => 'Tertiary Education Subsidy',
         'fund_source' => 'CHED',
@@ -111,9 +99,9 @@ test('administrator can export reports as csv excel and pdf', function () {
 
     $this->actingAs($administrator)
         ->get(route('admin.reports.export', [
-            'type' => 'fund_sources',
+            'type' => 'scholarship_agencies',
             'format' => 'excel',
-            'fund_source' => 'CHED',
+            'agency' => 'CHED',
         ]))
         ->assertOk()
         ->assertHeader('content-type', 'application/vnd.ms-excel');
@@ -148,9 +136,7 @@ test('all configured report types can be previewed', function (string $type) {
     'certificate_requests',
     'or_verification',
     'masterlists',
-    'renewal_evaluations',
-    'requirement_submissions',
-    'fund_sources',
+    'scholarship_agencies',
     'approved_rejected',
     'enrollment_verification',
     'agency_submissions',

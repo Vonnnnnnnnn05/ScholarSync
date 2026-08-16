@@ -43,9 +43,14 @@
                                         {{ $certificate->generated_at?->format('M d, Y h:i A') ?? $certificate->created_at->format('M d, Y h:i A') }}
                                     </td>
                                     <td class="whitespace-nowrap px-6 py-4 text-right text-sm">
-                                        <a href="{{ route('admin.certificates.download', $certificate) }}" class="font-semibold text-emerald-800 hover:text-emerald-950">
-                                            {{ __('Download PDF') }}
-                                        </a>
+                                        <div class="flex items-center justify-end gap-3">
+                                            <a href="{{ route('admin.certificates.view', $certificate) }}" target="_blank" rel="noopener noreferrer" class="font-semibold text-emerald-800 hover:text-emerald-950">
+                                                {{ __('View Certificate') }}
+                                            </a>
+                                            <a href="{{ route('admin.certificates.download', $certificate) }}" class="text-xs font-medium text-gray-500 hover:text-gray-900">
+                                                {{ __('Download') }}
+                                            </a>
+                                        </div>
                                     </td>
                                 </tr>
                             @empty

@@ -41,7 +41,7 @@ test('administrator dashboard includes monitoring charts', function () {
         ->assertSee('Certificate Request Trend')
         ->assertSee('Verification Mix')
         ->assertSee('Request Status')
-        ->assertSee('Evaluation Status')
+        ->assertDontSee('Evaluation Status')
         ->assertSee('User Role Distribution');
 });
 

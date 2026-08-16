@@ -97,7 +97,7 @@
                                     </td>
                                     <td class="px-6 py-4 text-sm text-gray-800">
                                         <div>{{ $record->scholarship_program ?: __('Missing program') }}</div>
-                                        <div class="text-xs text-gray-500">{{ $record->fund_source ?: __('Missing fund source') }}</div>
+                                        <div class="text-xs text-gray-500">{{ $masterlist->agency?->agency_name ?: __('No scholarship agency') }}</div>
                                     </td>
                                     <td class="px-6 py-4 text-sm text-gray-700">
                                         <span class="inline-flex rounded-md bg-gray-100 px-2.5 py-1 text-xs font-semibold text-gray-900">
@@ -150,7 +150,7 @@
             @if ($canEdit)
                 <form method="POST" action="{{ route('chairman.masterlists.release', $masterlist) }}" class="mt-6 flex justify-end">
                     @csrf
-                    <x-confirm-submit message="Release final scholar records to the scholarship agency?" class="min-h-11 px-4">
+                    <x-confirm-submit message="Approve and finalize these scholar records?" class="min-h-11 px-4">
                         {{ __('Release Final Records') }}
                     </x-confirm-submit>
                 </form>

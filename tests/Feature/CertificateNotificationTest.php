@@ -11,7 +11,7 @@ use App\Models\UserNotification;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 
-test('approved certificate requests send student notifications', function () {
+test('approving and generating a certificate sends exactly one ready email', function () {
     Mail::fake();
     Storage::fake('local');
 
@@ -25,9 +25,12 @@ test('approved certificate requests send student notifications', function () {
         'approved_at' => now(),
     ]);
 
+    Mail::assertSentCount(1);
     Mail::assertSent(CertificateRequestStatusMail::class, function (CertificateRequestStatusMail $mail) use ($certificateRequest) {
         return $mail->certificateRequest->is($certificateRequest)
-            && $mail->mailSubject === 'Certificate request approved';
+            && $mail->mailSubject === 'Certificate approved and ready'
+            && $mail->actionText === null
+            && $mail->actionUrl === null;
     });
 
     $certificateRequest->refresh();
@@ -40,7 +43,7 @@ test('approved certificate requests send student notifications', function () {
         ->and(Storage::disk('local')->exists($certificateRequest->certificate->file_path))->toBeTrue();
 });
 
-test('generated certificates send student notifications', function () {
+test('creating a certificate does not send a second email', function () {
     Mail::fake();
 
     $studentUser = User::factory()->role(UserRole::Student)->create();
@@ -58,13 +61,7 @@ test('generated certificates send student notifications', function () {
         'generated_at' => now(),
     ]);
 
-    Mail::assertSent(CertificateRequestStatusMail::class, function (CertificateRequestStatusMail $mail) use ($certificateRequest) {
-        return $mail->certificateRequest->is($certificateRequest)
-            && $mail->mailSubject === 'Certificate generated';
-    });
+    Mail::assertNothingSent();
 
-    expect($certificate->exists)->toBeTrue()
-        ->and(UserNotification::where('user_id', $studentUser->id)
-            ->where('type', 'certificate_generated')
-            ->exists())->toBeTrue();
+    expect($certificate->exists)->toBeTrue();
 });

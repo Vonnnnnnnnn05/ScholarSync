@@ -11,6 +11,7 @@ class RegistrarStudent extends Model
 
     protected $fillable = [
         'student_id_number',
+        'campus_id',
         'student_name',
         'course',
         'year_level',

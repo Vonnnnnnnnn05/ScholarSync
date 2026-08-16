@@ -18,6 +18,7 @@ class ScholarshipPolicy extends Model
         'eligibility_requirements',
         'documentary_requirements',
         'deadline',
+        'application_link',
         'file_path',
         'status',
     ];

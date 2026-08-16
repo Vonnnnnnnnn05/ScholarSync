@@ -40,6 +40,6 @@
 </div>
 
 <div>
-    <x-input-label for="fund_source" :value="__('Fund Source')" />
-    <x-text-input id="fund_source" name="fund_source" class="mt-1 block w-full" :value="old('fund_source', request('fund_source'))" placeholder="CHED, LGU, agency fund..." />
+    <x-input-label for="agency" :value="__('Scholarship Agency')" />
+    <x-text-input id="agency" name="agency" class="mt-1 block w-full" :value="old('agency', request('agency'))" placeholder="Agency name" />
 </div>

@@ -140,27 +140,6 @@ test('chairman can release final scholar records to agency', function () {
         ->and($masterlist->approved_at)->not->toBeNull();
 });
 
-test('agencies can view released final results', function () {
-    $agencyUser = User::factory()->role(UserRole::ScholarshipAgency)->create();
-    $agency = Agency::factory()->for($agencyUser)->create();
-    $masterlist = ScholarshipMasterlist::factory()->for($agency)->create([
-        'status' => 'released',
-        'total_records' => 1,
-        'approved_at' => now(),
-    ]);
-    MasterlistRecord::factory()->for($masterlist, 'masterlist')->create([
-        'student_name' => 'Ana Cruz',
-        'verification_status' => 'enrolled',
-        'chairman_status' => 'approved',
-    ]);
-
-    $this->actingAs($agencyUser)
-        ->get(route('agency.masterlists.show', $masterlist))
-        ->assertOk()
-        ->assertSee('Ana Cruz')
-        ->assertSee('Approved');
-});
-
 test('non chairman users cannot access chairman approval workflow', function () {
     $coordinator = User::factory()->role(UserRole::Coordinator)->create();
 

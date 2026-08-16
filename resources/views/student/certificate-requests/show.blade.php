@@ -15,12 +15,6 @@
 
     <div class="py-10">
         <div class="mx-auto max-w-5xl space-y-6 px-4 sm:px-6 lg:px-8">
-            @if (session('status'))
-                <div class="rounded-md border border-emerald-700/20 bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-900">
-                    {{ session('status') }}
-                </div>
-            @endif
-
             <section class="rounded-lg bg-white p-6 shadow-sm ring-1 ring-gray-200">
                 <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                     <div>
@@ -31,11 +25,22 @@
                         </p>
                     </div>
 
-                    @if ($certificateRequest->isCertificateAvailable())
-                        <a href="{{ route('student.certificate-requests.certificate.download', $certificateRequest) }}" class="inline-flex min-h-11 items-center justify-center rounded-md bg-emerald-800 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:ring-offset-2">
-                            {{ __('Download Certificate PDF') }}
+                    <div class="flex flex-wrap items-center gap-2">
+                        <a href="{{ route('student.certificate-requests.official-receipt.view', $certificateRequest) }}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center justify-center rounded-md bg-emerald-800 px-3 py-2 text-xs font-semibold text-white shadow-sm transition hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:ring-offset-2">
+                            {{ __('View OR') }}
                         </a>
-                    @endif
+                        <a href="{{ route('student.certificate-requests.official-receipt.download', $certificateRequest) }}" class="inline-flex items-center justify-center rounded-md border border-gray-300 bg-white px-3 py-2 text-xs font-semibold text-gray-700 transition hover:bg-gray-50">
+                            {{ __('Download OR') }}
+                        </a>
+                        @if ($certificateRequest->isCertificateAvailable())
+                            <a href="{{ route('student.certificate-requests.certificate.view', $certificateRequest) }}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center justify-center rounded-md bg-emerald-800 px-3 py-2 text-xs font-semibold text-white shadow-sm transition hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:ring-offset-2">
+                                {{ __('View Certificate') }}
+                            </a>
+                            <a href="{{ route('student.certificate-requests.certificate.download', $certificateRequest) }}" class="inline-flex items-center justify-center rounded-md border border-gray-300 bg-white px-3 py-2 text-xs font-semibold text-gray-700 transition hover:bg-gray-50">
+                                {{ __('Download') }}
+                            </a>
+                        @endif
+                    </div>
                 </div>
 
                 <div class="mt-8 grid gap-4 sm:grid-cols-3">
@@ -73,7 +78,7 @@
                             <dd class="mt-1 text-sm text-gray-900">{{ $certificateRequest->created_at->format('M d, Y h:i A') }}</dd>
                         </div>
                         <div>
-                            <dt class="text-xs font-semibold uppercase text-gray-500">{{ __('Certificate Download') }}</dt>
+                            <dt class="text-xs font-semibold uppercase text-gray-500">{{ __('Certificate') }}</dt>
                             <dd class="mt-1 text-sm text-gray-900">
                                 {{ $certificateRequest->isCertificateAvailable() ? __('Available') : __('Not available yet') }}
                             </dd>

@@ -35,6 +35,7 @@ class CertificateRequestController extends Controller
     {
         return view('student.certificate-requests.create', [
             'student' => $request->user()->student,
+            'academicOptions' => $this->academicOptions(),
         ]);
     }
 
@@ -86,11 +87,73 @@ class CertificateRequestController extends Controller
         );
     }
 
+    public function viewCertificate(Request $request, CertificateRequest $certificateRequest): StreamedResponse
+    {
+        $this->ensureOwnsRequest($request, $certificateRequest);
+
+        abort_unless($certificateRequest->isCertificateAvailable(), 404);
+
+        $certificateRequest->loadMissing('certificate');
+        $path = $certificateRequest->certificate->file_path;
+
+        abort_unless(Storage::disk('local')->exists($path), 404);
+
+        return Storage::disk('local')->response(
+            $path,
+            'certificate-of-no-scholarship-'.$certificateRequest->certificate->certificate_number.'.pdf',
+            [],
+            'inline'
+        );
+    }
+
+    public function viewOfficialReceipt(Request $request, CertificateRequest $certificateRequest): StreamedResponse
+    {
+        $this->ensureOwnsRequest($request, $certificateRequest);
+        $path = $this->officialReceiptPath($certificateRequest);
+
+        return Storage::disk('local')->response($path, basename($path), [], 'inline');
+    }
+
+    public function downloadOfficialReceipt(Request $request, CertificateRequest $certificateRequest): StreamedResponse
+    {
+        $this->ensureOwnsRequest($request, $certificateRequest);
+        $path = $this->officialReceiptPath($certificateRequest);
+
+        return Storage::disk('local')->download($path, basename($path));
+    }
+
+    private function officialReceiptPath(CertificateRequest $certificateRequest): string
+    {
+        abort_unless($certificateRequest->official_receipt, 404);
+        abort_unless(Storage::disk('local')->exists($certificateRequest->official_receipt), 404);
+
+        return $certificateRequest->official_receipt;
+    }
+
     private function ensureOwnsRequest(Request $request, CertificateRequest $certificateRequest): void
     {
         abort_unless(
             $certificateRequest->student()->where('user_id', $request->user()->id)->exists(),
             404
         );
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function academicOptions(): array
+    {
+        $path = public_path('data/sksu-academic-options.json');
+        $fallback = [
+            'campuses' => [],
+            'graduate_programs' => [],
+            'dropdowns' => ['year_levels' => []],
+        ];
+
+        if (! file_exists($path)) {
+            return $fallback;
+        }
+
+        return json_decode((string) file_get_contents($path), true) ?: $fallback;
     }
 }

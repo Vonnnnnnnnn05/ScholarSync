@@ -17,7 +17,7 @@ test('layout shell is role specific and keeps navigation presentable', function 
         ->assertOk()
         ->assertSee('id="role-sidebar"', false)
         ->assertDontSee('id="role-navbar"', false)
-        ->assertSee('Renewals')
+        ->assertDontSee('Renewals')
         ->assertSee('Certificates')
         ->assertDontSee('Monitoring')
         ->assertDontSee('Reports');
@@ -30,18 +30,21 @@ test('layout shell is role specific and keeps navigation presentable', function 
         ->assertSee('id="role-sidebar"', false)
         ->assertDontSee('id="role-navbar"', false)
         ->assertSee('Monitoring')
+        ->assertSee('Certificate Management')
+        ->assertDontSee(route('admin.certificates.index'))
         ->assertSee('Student Profiles')
         ->assertSee('Scholar Records')
         ->assertSee('Transactions')
-        ->assertSee('Fund Sources')
+        ->assertDontSee('Scholarship Agencies')
+        ->assertDontSee('Fund Sources')
         ->assertSee('Audit Trail')
         ->assertSee('Reports')
         ->assertSee('Reports Home')
         ->assertSee('Scholar Information')
         ->assertSee('Certificate Requests')
-        ->assertSee('Requirement Submissions')
+        ->assertDontSee('Requirement Submissions')
         ->assertSee('Approved and Rejected')
-        ->assertSee('Evaluations')
+        ->assertDontSee('Evaluations')
         ->assertSee('Log Out');
 });
 

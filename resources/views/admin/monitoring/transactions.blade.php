@@ -14,7 +14,6 @@
             @foreach ([
                 'Certificate Requests and OR Verification' => $certificateRequests,
                 'Masterlist Uploads' => $masterlists,
-                'Renewal Evaluations' => $evaluations,
             ] as $title => $items)
                 <section class="overflow-hidden rounded-lg bg-white shadow-sm ring-1 ring-gray-200">
                     <div class="border-b border-gray-200 px-6 py-4"><h3 class="text-base font-semibold text-gray-950">{{ __($title) }}</h3></div>

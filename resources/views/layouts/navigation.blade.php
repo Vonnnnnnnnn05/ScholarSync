@@ -21,9 +21,6 @@
                             {{ __('Certificates') }}
                         </x-nav-link>
 
-                        <x-nav-link :href="route('student.scholarship-renewals.index')" :active="request()->routeIs('student.scholarship-renewals.*')">
-                            {{ __('Renewals') }}
-                        </x-nav-link>
                     @endif
 
                     @if (Auth::user()->hasRole(\App\Enums\UserRole::Administrator))
@@ -35,9 +32,6 @@
                             {{ __('Certificates') }}
                         </x-nav-link>
 
-                        <x-nav-link :href="route('evaluator.scholarship-renewals.index')" :active="request()->routeIs('evaluator.scholarship-renewals.*')">
-                            {{ __('Evaluations') }}
-                        </x-nav-link>
 
                         <x-nav-link :href="route('admin.monitoring.dashboard')" :active="request()->routeIs('admin.monitoring.*')">
                             {{ __('Monitoring') }}
@@ -48,20 +42,11 @@
                         </x-nav-link>
                     @endif
 
-                    @if (Auth::user()->hasRole(\App\Enums\UserRole::ScholarshipAgency))
-                        <x-nav-link :href="route('agency.masterlists.index')" :active="request()->routeIs('agency.masterlists.*')">
-                            {{ __('Masterlists') }}
-                        </x-nav-link>
-                    @endif
-
                     @if (Auth::user()->hasRole(\App\Enums\UserRole::Coordinator))
                         <x-nav-link :href="route('coordinator.masterlists.index')" :active="request()->routeIs('coordinator.masterlists.*')">
                             Validation
                         </x-nav-link>
 
-                        <x-nav-link :href="route('evaluator.scholarship-renewals.index')" :active="request()->routeIs('evaluator.scholarship-renewals.*')">
-                            {{ __('Evaluations') }}
-                        </x-nav-link>
                     @endif
 
                     @if (Auth::user()->hasRole(\App\Enums\UserRole::ScholarshipChairman))
@@ -130,9 +115,6 @@
                     {{ __('Certificates') }}
                 </x-responsive-nav-link>
 
-                <x-responsive-nav-link :href="route('student.scholarship-renewals.index')" :active="request()->routeIs('student.scholarship-renewals.*')">
-                    {{ __('Renewals') }}
-                </x-responsive-nav-link>
             @endif
 
             @if (Auth::user()->hasRole(\App\Enums\UserRole::Administrator))
@@ -144,9 +126,6 @@
                     {{ __('Certificates') }}
                 </x-responsive-nav-link>
 
-                <x-responsive-nav-link :href="route('evaluator.scholarship-renewals.index')" :active="request()->routeIs('evaluator.scholarship-renewals.*')">
-                    {{ __('Evaluations') }}
-                </x-responsive-nav-link>
 
                 <x-responsive-nav-link :href="route('admin.monitoring.dashboard')" :active="request()->routeIs('admin.monitoring.*')">
                     {{ __('Monitoring') }}
@@ -157,20 +136,11 @@
                 </x-responsive-nav-link>
             @endif
 
-            @if (Auth::user()->hasRole(\App\Enums\UserRole::ScholarshipAgency))
-                <x-responsive-nav-link :href="route('agency.masterlists.index')" :active="request()->routeIs('agency.masterlists.*')">
-                    {{ __('Masterlists') }}
-                </x-responsive-nav-link>
-            @endif
-
             @if (Auth::user()->hasRole(\App\Enums\UserRole::Coordinator))
                 <x-responsive-nav-link :href="route('coordinator.masterlists.index')" :active="request()->routeIs('coordinator.masterlists.*')">
                     Validation
                 </x-responsive-nav-link>
 
-                <x-responsive-nav-link :href="route('evaluator.scholarship-renewals.index')" :active="request()->routeIs('evaluator.scholarship-renewals.*')">
-                    {{ __('Evaluations') }}
-                </x-responsive-nav-link>
             @endif
 
             @if (Auth::user()->hasRole(\App\Enums\UserRole::ScholarshipChairman))

@@ -38,7 +38,6 @@
                         'slate' => 'bg-slate-50 text-slate-800 ring-slate-700/15',
                     ];
                     $certificateColors = ['bg-amber-500', 'bg-blue-600', 'bg-rose-600', 'bg-emerald-700'];
-                    $renewalColors = ['bg-blue-500', 'bg-amber-500', 'bg-emerald-700', 'bg-rose-600', 'bg-slate-600'];
                     $verificationColors = ['#047857', '#1d4ed8', '#d97706', '#dc2626', '#64748b'];
                     $verificationTotal = collect($adminDashboard['verificationStatuses'])->sum('value');
                     $currentAngle = 0;
@@ -53,7 +52,6 @@
                         return $verificationColors[$index].' '.$start.'deg '.$currentAngle.'deg';
                     })->filter()->implode(', ') ?: '#e5e7eb 0deg 360deg';
                     $certificateMax = max(1, collect($adminDashboard['certificateStatuses'])->max('value'));
-                    $renewalMax = max(1, collect($adminDashboard['renewalStatuses'])->max('value'));
                     $roleMax = max(1, collect($adminDashboard['roleDistribution'])->max('value'));
                     $trendValues = collect($adminDashboard['monthlyCertificateRequests']);
                     $trendMax = max(1, $trendValues->max('value'));
@@ -162,20 +160,6 @@
                         </div>
                     </div>
 
-                    <div class="rounded-lg bg-white p-6 shadow-sm ring-1 ring-gray-200">
-                        <p class="text-sm font-medium text-emerald-700">{{ __('Renewals') }}</p>
-                        <h3 class="text-base font-semibold text-gray-950">{{ __('Evaluation Status') }}</h3>
-                        <div class="mt-6 flex h-64 items-end gap-3 border-b border-l border-gray-200 px-3 pb-3">
-                            @foreach ($adminDashboard['renewalStatuses'] as $status)
-                                @php($height = max(8, ($status['value'] / $renewalMax) * 100))
-                                <div class="flex min-w-0 flex-1 flex-col items-center justify-end gap-2">
-                                    <span class="text-xs font-semibold text-gray-700">{{ number_format($status['value']) }}</span>
-                                    <div class="w-full max-w-12 rounded-t-md {{ $renewalColors[$loop->index] }}" style="height: {{ $height }}%"></div>
-                                    <span class="min-h-10 text-center text-xs font-medium leading-tight text-gray-600">{{ __($status['label']) }}</span>
-                                </div>
-                            @endforeach
-                        </div>
-                    </div>
                 </section>
 
                 <section class="mt-6 rounded-lg bg-white p-6 shadow-sm ring-1 ring-gray-200">

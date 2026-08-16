@@ -6,7 +6,6 @@ enum UserRole: string
 {
     case Student = 'student';
     case Administrator = 'administrator';
-    case ScholarshipAgency = 'scholarship_agency';
     case Coordinator = 'coordinator';
     case ScholarshipChairman = 'scholarship_chairman';
     case Registrar = 'registrar';
@@ -24,10 +23,9 @@ enum UserRole: string
         return match ($this) {
             self::Student => 'Student',
             self::Administrator => 'Administrator',
-            self::ScholarshipAgency => 'Scholarship Agency',
-            self::Coordinator => 'Coordinator',
+            self::Coordinator => 'Campus Scholarship Coordinator',
             self::ScholarshipChairman => 'Scholarship Chairman',
-            self::Registrar => 'Registrar',
+            self::Registrar => 'Campus Registrar',
         };
     }
 
@@ -36,10 +34,14 @@ enum UserRole: string
         return match ($this) {
             self::Student => 'dashboard.student',
             self::Administrator => 'dashboard.administrator',
-            self::ScholarshipAgency => 'dashboard.scholarship-agency',
             self::Coordinator => 'dashboard.coordinator',
             self::ScholarshipChairman => 'dashboard.scholarship-chairman',
             self::Registrar => 'dashboard.registrar',
         };
+    }
+
+    public function requiresCampus(): bool
+    {
+        return in_array($this, [self::Coordinator, self::Registrar], true);
     }
 }

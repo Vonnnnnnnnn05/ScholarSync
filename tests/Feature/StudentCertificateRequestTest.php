@@ -35,6 +35,36 @@ test('students can view the certificate request form', function () {
         ->assertSee('Official Receipt');
 });
 
+test('certificate request form selects campus before campus-specific course', function () {
+    $user = User::factory()->role(UserRole::Student)->create();
+    Student::factory()->for($user)->create([
+        'campus' => 'ACCESS Campus',
+        'course' => 'BS Information Technology',
+    ]);
+
+    $response = $this->actingAs($user)
+        ->get(route('student.certificate-requests.create'))
+        ->assertOk()
+        ->assertSee('Select campus')
+        ->assertSee('Select campus first');
+
+    $html = $response->getContent();
+
+    expect(strpos($html, 'for="campus"'))->toBeLessThan(strpos($html, 'for="course"'));
+});
+
+test('certificate request form uses the registration year level dropdown', function () {
+    $user = User::factory()->role(UserRole::Student)->create();
+    Student::factory()->for($user)->create(['year_level' => '4th Year']);
+
+    $this->actingAs($user)
+        ->get(route('student.certificate-requests.create'))
+        ->assertOk()
+        ->assertSee('Select year')
+        ->assertSee('1st Year')
+        ->assertSee('4th Year');
+});
+
 test('students can submit certificate requests with official receipt upload', function () {
     Storage::fake('local');
 
@@ -52,6 +82,20 @@ test('students can submit certificate requests with official receipt upload', fu
         ->and($certificateRequest->student->user_id)->toBe($student->id);
 
     Storage::disk('local')->assertExists($certificateRequest->official_receipt);
+});
+
+test('certificate request success message is shown only once', function () {
+    $user = User::factory()->role(UserRole::Student)->create();
+    $student = Student::factory()->for($user)->create();
+    $certificateRequest = CertificateRequest::factory()->for($student)->create();
+
+    $response = $this->actingAs($user)
+        ->withSession(['status' => 'Certificate request submitted successfully.'])
+        ->get(route('student.certificate-requests.show', $certificateRequest));
+
+    $response->assertOk();
+
+    expect(substr_count($response->getContent(), 'Certificate request submitted successfully.'))->toBe(1);
 });
 
 test('official receipt upload validates file type and size', function () {
@@ -103,6 +147,33 @@ test('students cannot view another students certificate request', function () {
 
     $this->actingAs($other)
         ->get(route('student.certificate-requests.show', $certificateRequest))
+        ->assertNotFound();
+});
+
+test('students can view and optionally download their own official receipt', function () {
+    Storage::fake('local');
+
+    $owner = User::factory()->role(UserRole::Student)->create();
+    $other = User::factory()->role(UserRole::Student)->create();
+    $student = Student::factory()->for($owner)->create();
+    $certificateRequest = CertificateRequest::factory()->for($student)->create([
+        'official_receipt' => 'certificate-requests/official-receipts/receipt.pdf',
+    ]);
+    Storage::disk('local')->put($certificateRequest->official_receipt, '%PDF-1.4');
+
+    $response = $this->actingAs($owner)
+        ->get(route('student.certificate-requests.official-receipt.view', $certificateRequest))
+        ->assertOk();
+
+    expect($response->headers->get('content-disposition'))->toStartWith('inline;');
+
+    $this->actingAs($owner)
+        ->get(route('student.certificate-requests.official-receipt.download', $certificateRequest))
+        ->assertOk()
+        ->assertHeader('content-disposition');
+
+    $this->actingAs($other)
+        ->get(route('student.certificate-requests.official-receipt.view', $certificateRequest))
         ->assertNotFound();
 });
 

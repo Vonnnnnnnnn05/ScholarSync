@@ -1,10 +1,8 @@
 <?php
 
 use App\Enums\CertificateRequestStatus;
-use App\Enums\ScholarshipApplicationStatus;
 use App\Models\CertificateRequest;
 use App\Models\MasterlistRecord;
-use App\Models\ScholarshipApplication;
 use App\Models\ScholarshipMasterlist;
 use App\Models\Student;
 
@@ -25,12 +23,6 @@ it('shows exact live monitoring details on the welcome page', function () {
         'status' => CertificateRequestStatus::Verified,
         'verified_at' => now(),
     ]);
-    ScholarshipApplication::factory()->for($students->first())->create([
-        'status' => ScholarshipApplicationStatus::Submitted,
-    ]);
-    ScholarshipApplication::factory()->for($students->last())->create([
-        'status' => ScholarshipApplicationStatus::UnderEvaluation,
-    ]);
     MasterlistRecord::factory()->for($masterlist, 'masterlist')->create([
         'chairman_status' => 'approved',
     ]);
@@ -42,7 +34,6 @@ it('shows exact live monitoring details on the welcome page', function () {
         ->assertSee('Pending certificate requests')
         ->assertSee('Verified official receipts')
         ->assertSee('Uploaded masterlists')
-        ->assertSee('Pending evaluations')
         ->assertSee('Approved scholar records')
         ->assertSee('2')
         ->assertSee('1');

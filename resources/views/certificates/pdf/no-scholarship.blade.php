@@ -4,135 +4,57 @@
     <meta charset="utf-8">
     <title>{{ $certificateNumber }}</title>
     <style>
-        @page {
-            margin: 54px;
-        }
-
-        body {
-            color: #111827;
-            font-family: DejaVu Sans, sans-serif;
-            font-size: 13px;
-            line-height: 1.65;
-        }
-
-        .document {
-            border: 3px solid #047857;
-            padding: 38px 42px;
-            min-height: 840px;
-        }
-
-        .header {
-            border-bottom: 4px solid #facc15;
-            padding-bottom: 18px;
-            text-align: center;
-        }
-
-        .university {
-            color: #047857;
-            font-size: 18px;
-            font-weight: bold;
-            letter-spacing: .5px;
-            text-transform: uppercase;
-        }
-
-        .office {
-            color: #374151;
-            font-size: 12px;
-            margin-top: 4px;
-            text-transform: uppercase;
-        }
-
-        .title {
-            font-family: DejaVu Serif, serif;
-            font-size: 26px;
-            font-weight: bold;
-            margin: 48px 0 8px;
-            text-align: center;
-            text-transform: uppercase;
-        }
-
-        .number {
-            color: #4b5563;
-            font-size: 12px;
-            text-align: center;
-        }
-
-        .body {
-            margin-top: 48px;
-            text-align: justify;
-        }
-
-        .name {
-            font-weight: bold;
-            text-transform: uppercase;
-        }
-
-        .purpose {
-            font-style: italic;
-        }
-
-        .signature {
-            margin-top: 86px;
-            text-align: right;
-        }
-
-        .signature-line {
-            border-top: 1px solid #111827;
-            display: inline-block;
-            min-width: 240px;
-            padding-top: 8px;
-            text-align: center;
-        }
-
-        .meta {
-            color: #4b5563;
-            font-size: 11px;
-            margin-top: 64px;
-        }
+        @page { margin: 46.8pt 61.2pt; }
+        body { color: #000; font-family: "Times New Roman", DejaVu Serif, serif; font-size: 12pt; line-height: 1.5; }
+        .header { line-height: 1.25; text-align: center; }
+        .university { font-size: 14pt; font-weight: bold; }
+        .campus, .location { font-size: 11pt; }
+        .title { font-size: 16pt; font-weight: bold; margin: 34pt 0 22pt; text-align: center; }
+        .salutation { font-weight: bold; margin: 0 0 14pt; }
+        .body-copy { text-align: justify; }
+        .body-copy p { margin: 0 0 12pt; }
+        .student-name { font-weight: bold; text-transform: uppercase; }
+        .issued { margin-top: 4pt; }
+        .metadata { font-size: 11pt; font-weight: bold; margin-top: 64pt; }
+        .metadata div { margin-bottom: 3pt; }
     </style>
 </head>
 <body>
-    <main class="document">
-        <section class="header">
-            <div class="university">Sultan Kudarat State University</div>
-            <div class="office">Scholarship Office</div>
-        </section>
+    <header class="header">
+        <div class="university">SULTAN KUDARAT STATE UNIVERSITY</div>
+        <div class="campus">Isulan Campus</div>
+        <div class="location">Isulan, Sultan Kudarat, Philippines</div>
+    </header>
 
-        <section>
-            <div class="title">Certificate of No Scholarship</div>
-            <div class="number">Certificate No. {{ $certificateNumber }}</div>
-        </section>
+    <main>
+        <h1 class="title">CERTIFICATE OF NO SCHOLARSHIP</h1>
+        <p class="salutation">TO WHOM IT MAY CONCERN:</p>
 
-        <section class="body">
+        <section class="body-copy">
             <p>
-                This is to certify that <span class="name">{{ $student->fullName() }}</span>,
-                with Student ID Number <strong>{{ $student->student_id_number }}</strong>,
-                enrolled in <strong>{{ $student->course }}</strong>
-                {{ $student->year_level ? '('.$student->year_level.')' : '' }} at
-                <strong>{{ $student->campus }}</strong>, has no recorded active scholarship
-                under this office as of the date of issuance of this certificate.
+                This is to certify that <span class="student-name">{{ str($student->fullName())->upper() }}</span>,
+                a {{ $student->year_level ?: 'student' }} student currently enrolled in the
+                {{ $student->course ?: 'program/course recorded by the University' }} at Sultan Kudarat State
+                University - Isulan Campus for the {{ $semester }} Semester, Academic Year {{ $academicYear }},
+                is not currently a recipient of any scholarship grant or financial assistance administered
+                through the University, based on the records available in this office.
             </p>
 
             <p>
-                This certification is issued upon the request of the student for the purpose of
-                <span class="purpose">{{ $certificateRequest->purpose }}</span>.
+                This certification is issued upon the request of the above-named student for
+                {{ $certificateRequest->purpose }} and for whatever lawful purpose it may serve.
             </p>
 
-            <p>
-                Issued this {{ $issuedAt->format('jS') }} day of {{ $issuedAt->format('F Y') }}
-                at Sultan Kudarat State University.
+            <p class="issued">
+                Issued this {{ $issuedAt->format('jS') }} day of {{ $issuedAt->format('F') }},
+                {{ $issuedAt->format('Y') }} at Sultan Kudarat State University - Isulan Campus,
+                Isulan, Sultan Kudarat, Philippines.
             </p>
         </section>
 
-        <section class="signature">
-            <div class="signature-line">
-                Authorized Signatory
-            </div>
-        </section>
-
-        <section class="meta">
-            Generated by ScholarSync on {{ $issuedAt->format('M d, Y h:i A') }}.
-            This sample layout may be replaced once the official office certificate format is provided.
+        <section class="metadata">
+            <div>Certificate No.: {{ $certificateNumber }}</div>
+            <div>Date Issued: {{ $issuedAt->format('F d, Y') }}</div>
         </section>
     </main>
 </body>

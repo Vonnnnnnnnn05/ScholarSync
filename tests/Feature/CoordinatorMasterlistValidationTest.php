@@ -2,6 +2,7 @@
 
 use App\Enums\UserRole;
 use App\Models\Agency;
+use App\Models\Campus;
 use App\Models\MasterlistRecord;
 use App\Models\ScholarshipMasterlist;
 use App\Models\User;
@@ -126,5 +127,17 @@ test('non coordinator users cannot access coordinator validation workflow', func
 
     $this->actingAs($administrator)
         ->get(route('coordinator.masterlists.index'))
+        ->assertForbidden();
+});
+
+test('coordinators cannot access records assigned to another campus', function () {
+    $ownCampus = Campus::factory()->create();
+    $otherCampus = Campus::factory()->create();
+    $coordinator = User::factory()->role(UserRole::Coordinator)->create(['campus_id' => $ownCampus->id]);
+    $masterlist = verifiedMasterlistForCoordinator();
+    $masterlist->records()->update(['campus_id' => $otherCampus->id]);
+
+    $this->actingAs($coordinator)
+        ->get(route('coordinator.masterlists.show', $masterlist))
         ->assertForbidden();
 });

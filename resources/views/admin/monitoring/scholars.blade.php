@@ -23,7 +23,6 @@
                         <thead class="bg-gray-50"><tr>
                             <th class="px-6 py-3 text-left text-xs font-semibold uppercase text-gray-600">{{ __('Scholar') }}</th>
                             <th class="px-6 py-3 text-left text-xs font-semibold uppercase text-gray-600">{{ __('Program') }}</th>
-                            <th class="px-6 py-3 text-left text-xs font-semibold uppercase text-gray-600">{{ __('Fund Source') }}</th>
                             <th class="px-6 py-3 text-left text-xs font-semibold uppercase text-gray-600">{{ __('Agency') }}</th>
                             <th class="px-6 py-3 text-left text-xs font-semibold uppercase text-gray-600">{{ __('Status') }}</th>
                         </tr></thead>
@@ -32,12 +31,11 @@
                                 <tr>
                                     <td class="px-6 py-4 text-sm"><div class="font-semibold text-gray-950">{{ $record->student_name ?: __('Missing') }}</div><div class="text-xs text-gray-500">{{ $record->student_id_number ?: __('No student ID') }}</div></td>
                                     <td class="px-6 py-4 text-sm text-gray-700">{{ $record->scholarship_program ?: __('Missing') }}</td>
-                                    <td class="px-6 py-4 text-sm text-gray-700">{{ $record->fund_source ?: __('Missing') }}</td>
                                     <td class="px-6 py-4 text-sm text-gray-700">{{ $record->masterlist?->agency?->agency_name ?: __('No agency') }}</td>
                                     <td class="px-6 py-4 text-sm"><span class="inline-flex rounded-md bg-gray-100 px-2.5 py-1 text-xs font-semibold text-gray-900">{{ Str::headline($record->chairman_status) }}</span></td>
                                 </tr>
                             @empty
-                                <tr><td colspan="5" class="px-6 py-12 text-center text-sm text-gray-600">{{ __('No scholar records found.') }}</td></tr>
+                                <tr><td colspan="4" class="px-6 py-12 text-center text-sm text-gray-600">{{ __('No scholar records found.') }}</td></tr>
                             @endforelse
                         </tbody>
                     </table>

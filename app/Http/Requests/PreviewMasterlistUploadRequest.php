@@ -10,7 +10,7 @@ class PreviewMasterlistUploadRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return $this->user()?->hasRole(UserRole::ScholarshipAgency) ?? false;
+        return $this->user()?->hasRole(UserRole::ScholarshipChairman) ?? false;
     }
 
     /**
@@ -19,7 +19,7 @@ class PreviewMasterlistUploadRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'agency_name' => ['required', 'string', 'max:255'],
+            'agency_id' => ['required', 'integer', 'exists:agencies,id'],
             'masterlist' => [
                 'required',
                 File::types(['csv', 'txt'])->max(5 * 1024),

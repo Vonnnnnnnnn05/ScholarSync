@@ -30,7 +30,7 @@
                                 <th class="px-6 py-3 text-left text-xs font-semibold uppercase text-gray-600">{{ __('Purpose') }}</th>
                                 <th class="px-6 py-3 text-left text-xs font-semibold uppercase text-gray-600">{{ __('Status') }}</th>
                                 <th class="px-6 py-3 text-left text-xs font-semibold uppercase text-gray-600">{{ __('Remarks') }}</th>
-                                <th class="px-6 py-3 text-left text-xs font-semibold uppercase text-gray-600">{{ __('Certificate') }}</th>
+                                <th class="px-6 py-3 text-left text-xs font-semibold uppercase text-gray-600">{{ __('Files') }}</th>
                                 <th class="px-6 py-3 text-right text-xs font-semibold uppercase text-gray-600">{{ __('Action') }}</th>
                             </tr>
                         </thead>
@@ -60,13 +60,16 @@
                                         {{ $certificateRequest->remarks ?: __('No remarks yet') }}
                                     </td>
                                     <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-700">
-                                        @if ($certificateRequest->isCertificateAvailable())
-                                            <a href="{{ route('student.certificate-requests.certificate.download', $certificateRequest) }}" class="font-semibold text-emerald-800 underline hover:text-emerald-950">
-                                                {{ __('Download PDF') }}
+                                        <div class="flex flex-wrap items-center gap-x-3 gap-y-1">
+                                            <a href="{{ route('student.certificate-requests.official-receipt.view', $certificateRequest) }}" target="_blank" rel="noopener noreferrer" class="font-semibold text-emerald-800 hover:text-emerald-950">
+                                                {{ __('View OR') }}
                                             </a>
-                                        @else
-                                            {{ __('Not available') }}
+                                        @if ($certificateRequest->isCertificateAvailable())
+                                            <a href="{{ route('student.certificate-requests.certificate.view', $certificateRequest) }}" target="_blank" rel="noopener noreferrer" class="font-semibold text-emerald-800 hover:text-emerald-950">
+                                                {{ __('View Certificate') }}
+                                            </a>
                                         @endif
+                                        </div>
                                     </td>
                                     <td class="whitespace-nowrap px-6 py-4 text-right text-sm">
                                         <a href="{{ route('student.certificate-requests.show', $certificateRequest) }}" class="font-semibold text-emerald-800 hover:text-emerald-950">

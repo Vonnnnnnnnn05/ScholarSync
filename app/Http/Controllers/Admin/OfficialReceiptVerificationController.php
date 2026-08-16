@@ -50,6 +50,19 @@ class OfficialReceiptVerificationController extends Controller
         return Storage::disk('local')->download($certificateRequest->official_receipt);
     }
 
+    public function view(CertificateRequest $certificateRequest): StreamedResponse
+    {
+        abort_unless($certificateRequest->official_receipt, 404);
+        abort_unless(Storage::disk('local')->exists($certificateRequest->official_receipt), 404);
+
+        return Storage::disk('local')->response(
+            $certificateRequest->official_receipt,
+            basename($certificateRequest->official_receipt),
+            [],
+            'inline'
+        );
+    }
+
     public function verify(Request $request, CertificateRequest $certificateRequest, AuditTrailService $audit): RedirectResponse
     {
         $certificateRequest->update([

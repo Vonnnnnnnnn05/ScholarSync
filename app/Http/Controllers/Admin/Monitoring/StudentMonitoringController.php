@@ -35,7 +35,6 @@ class StudentMonitoringController extends Controller
             'student' => $student->load([
                 'user',
                 'certificateRequests.certificate',
-                'scholarshipApplications.requirements',
             ]),
         ]);
     }

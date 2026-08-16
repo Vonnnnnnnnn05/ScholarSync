@@ -25,7 +25,7 @@ class ScholarshipDiscoveryController extends Controller
                         $query->where('title', 'like', "%{$search}%")
                             ->orWhere('description', 'like', "%{$search}%")
                             ->orWhereHas('agency', fn ($query) => $query->where('agency_name', 'like', "%{$search}%"))
-                            ->orWhereHas('program', fn ($query) => $query->where('name', 'like', "%{$search}%")->orWhere('fund_source', 'like', "%{$search}%"));
+                            ->orWhereHas('program', fn ($query) => $query->where('name', 'like', "%{$search}%"));
                     });
                 })
                 ->latest()

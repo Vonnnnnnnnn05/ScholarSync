@@ -3,12 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Enums\CertificateRequestStatus;
-use App\Enums\ScholarshipApplicationStatus;
 use App\Enums\UserRole;
 use App\Models\CertificateRequest;
 use App\Models\MasterlistRecord;
 use App\Models\RegistrarStudent;
-use App\Models\ScholarshipApplication;
 use App\Models\ScholarshipMasterlist;
 use App\Models\Student;
 use App\Models\User;
@@ -32,11 +30,6 @@ class DashboardController extends Controller
     public function administrator(): View
     {
         return $this->show(UserRole::Administrator);
-    }
-
-    public function scholarshipAgency(): View
-    {
-        return $this->show(UserRole::ScholarshipAgency);
     }
 
     public function coordinator(): View
@@ -78,25 +71,19 @@ class DashboardController extends Controller
     {
         return match ($role) {
             UserRole::Student => [
-                'Track scholarship applications',
+                'View available scholarships and official application links',
                 'Request certificates',
                 'View scholarship eligibility and agency policies',
-                'Submit renewal requirements',
             ],
             UserRole::Administrator => [
                 'Manage user accounts and roles',
-                'Evaluate scholarship renewals',
+                'Publish scholarship opportunities',
                 'Monitor reports and activity',
-            ],
-            UserRole::ScholarshipAgency => [
-                'Upload scholarship masterlists',
-                'Publish scholarship rules and eligibility policies',
-                'Track duplicate records for review',
             ],
             UserRole::Coordinator => [
                 'Review enrolled scholar records',
                 'Validate unenrolled scholar records',
-                'Evaluate continuing scholarship renewals',
+                'Coordinate campus enrollment discrepancies',
             ],
             UserRole::ScholarshipChairman => [
                 'Review coordinator-submitted masterlists',
@@ -116,7 +103,6 @@ class DashboardController extends Controller
         return match ($role) {
             UserRole::Student => 'Your student workspace for scholarships, requests, and updates.',
             UserRole::Administrator => 'Administrative overview for managing ScholarSync access and records.',
-            UserRole::ScholarshipAgency => 'Agency workspace for scholarship program coordination.',
             UserRole::Coordinator => 'Coordinator dashboard for reviewing and preparing scholarship records.',
             UserRole::ScholarshipChairman => 'Chairman dashboard for final scholarship review and approvals.',
             UserRole::Registrar => 'Registrar dashboard for maintaining official enrollment records used in validation.',
@@ -143,17 +129,9 @@ class DashboardController extends Controller
                 [
                     'title' => 'Scholarship Discovery',
                     'details' => [
-                        'View scholarship details posted by agencies.',
+                        'View scholarship details published by administrators.',
                         'Review eligibility requirements, documentary requirements, and deadlines.',
-                        'Download published agency policies and guidelines.',
-                    ],
-                ],
-                [
-                    'title' => 'Continuing Scholarship Renewal',
-                    'details' => [
-                        'Upload scholarship renewal requirements.',
-                        'Track Submitted, Under Evaluation, Approved, Rejected, and Need Revision statuses.',
-                        'Resubmit requirements when revisions are requested.',
+                        'Use official external scholarship application links.',
                     ],
                 ],
             ],
@@ -170,42 +148,15 @@ class DashboardController extends Controller
                     'title' => 'Monitoring and Reports',
                     'details' => [
                         'View central monitoring dashboard charts and summaries.',
-                        'Monitor student profiles, scholar records, transactions, fund sources, and audit trail.',
+                        'Monitor student profiles, scholar records, transactions, and audit trail.',
                         'Generate and export reports as PDF, Excel, or CSV.',
                     ],
                 ],
                 [
-                    'title' => 'Evaluation',
+                    'title' => 'Scholarship Opportunities',
                     'details' => [
-                        'Review continuing scholarship renewal applications.',
-                        'Add evaluation remarks and approval, rejection, or revision decisions.',
-                    ],
-                ],
-            ],
-            UserRole::ScholarshipAgency => [
-                [
-                    'title' => 'Masterlist Management',
-                    'details' => [
-                        'Upload scholar masterlist CSV files.',
-                        'Preview CSV rows before final submission.',
-                        'Review missing, invalid, and duplicate fields.',
-                        'Submit masterlists for system verification.',
-                    ],
-                ],
-                [
-                    'title' => 'Scholarship Policies',
-                    'details' => [
-                        'Publish scholarship rules, policies, and guidelines.',
-                        'Set eligibility and documentary requirements visible to students.',
-                        'Upload downloadable policy files.',
-                    ],
-                ],
-                [
-                    'title' => 'Released Results',
-                    'details' => [
-                        'View uploaded masterlist history.',
-                        'Track validation results.',
-                        'View final released scholar records after chairman approval.',
+                        'Enter agency and program details when publishing opportunities.',
+                        'Publish qualifications, requirements, deadlines, and official application links.',
                     ],
                 ],
             ],
@@ -219,18 +170,12 @@ class DashboardController extends Controller
                         'Submit fully reviewed masterlists to the Scholarship Chairman.',
                     ],
                 ],
-                [
-                    'title' => 'Renewal Evaluation',
-                    'details' => [
-                        'Evaluate continuing scholarship renewal applications.',
-                        'Add evaluation remarks and decisions.',
-                    ],
-                ],
             ],
             UserRole::ScholarshipChairman => [
                 [
                     'title' => 'Final Masterlist Approval',
                     'details' => [
+                        'Upload agency-provided masterlists and distribute records by campus.',
                         'View masterlists submitted by coordinators.',
                         'Review enrolled, unenrolled, duplicate, invalid, qualified, and unqualified records.',
                         'Approve valid scholar records.',
@@ -267,13 +212,6 @@ class DashboardController extends Controller
             ->map(fn (CertificateRequestStatus $status): array => [
                 'label' => $status->label(),
                 'value' => CertificateRequest::query()->where('status', $status)->count(),
-            ])
-            ->all();
-
-        $renewalStatuses = collect(ScholarshipApplicationStatus::cases())
-            ->map(fn (ScholarshipApplicationStatus $status): array => [
-                'label' => $status->label(),
-                'value' => ScholarshipApplication::query()->where('status', $status)->count(),
             ])
             ->all();
 
@@ -314,10 +252,8 @@ class DashboardController extends Controller
                 ['label' => 'Registrar Enrolled', 'value' => RegistrarStudent::query()->where('enrollment_status', 'enrolled')->count(), 'accent' => 'emerald'],
                 ['label' => 'Certificate Requests', 'value' => CertificateRequest::query()->count(), 'accent' => 'blue'],
                 ['label' => 'Uploaded Masterlists', 'value' => ScholarshipMasterlist::query()->count(), 'accent' => 'amber'],
-                ['label' => 'Renewal Applications', 'value' => ScholarshipApplication::query()->count(), 'accent' => 'slate'],
             ],
             'certificateStatuses' => $certificateStatuses,
-            'renewalStatuses' => $renewalStatuses,
             'verificationStatuses' => $verificationStatuses,
             'roleDistribution' => $roleDistribution,
             'monthlyCertificateRequests' => $monthlyCertificateRequests,

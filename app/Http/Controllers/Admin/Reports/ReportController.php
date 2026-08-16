@@ -58,7 +58,7 @@ class ReportController extends Controller
             'format' => ['required', 'string', 'in:pdf,excel,csv'],
             'status' => ['nullable', 'string', 'max:255'],
             'student' => ['nullable', 'string', 'max:255'],
-            'fund_source' => ['nullable', 'string', 'max:255'],
+            'agency' => ['nullable', 'string', 'max:255'],
             'date_from' => ['nullable', 'date'],
             'date_to' => ['nullable', 'date', 'after_or_equal:date_from'],
         ]);

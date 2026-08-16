@@ -32,4 +32,16 @@ class CertificateController extends Controller
             'certificate-of-no-scholarship-'.$certificate->certificate_number.'.pdf'
         );
     }
+
+    public function view(Request $request, Certificate $certificate): StreamedResponse
+    {
+        abort_unless(Storage::disk('local')->exists($certificate->file_path), 404);
+
+        return Storage::disk('local')->response(
+            $certificate->file_path,
+            'certificate-of-no-scholarship-'.$certificate->certificate_number.'.pdf',
+            [],
+            'inline'
+        );
+    }
 }

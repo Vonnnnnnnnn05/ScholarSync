@@ -14,7 +14,7 @@ use Illuminate\View\View;
 
 class MasterlistValidationController extends Controller
 {
-    public function index(): View
+    public function index(Request $request): View
     {
         return view('coordinator.masterlists.index', [
             'masterlists' => ScholarshipMasterlist::query()
@@ -25,6 +25,7 @@ class MasterlistValidationController extends Controller
                     'records as reviewed_records_count' => fn ($query) => $query->where('coordinator_status', '!=', 'pending'),
                 ])
                 ->whereIn('status', ['verified', 'coordinator_validation'])
+                ->when($request->user()->campus_id, fn ($query, $campusId) => $query->whereHas('records', fn ($query) => $query->where('campus_id', $campusId)))
                 ->latest('validated_at')
                 ->paginate(10),
         ]);
@@ -33,10 +34,12 @@ class MasterlistValidationController extends Controller
     public function show(Request $request, ScholarshipMasterlist $masterlist): View
     {
         abort_unless(in_array($masterlist->status, ['verified', 'coordinator_validation', 'submitted_to_chairman'], true), 404);
+        $this->ensureCampusAccess($request, $masterlist);
 
         $activeStatus = $request->string('status')->toString();
         $recordsQuery = $masterlist->records()
             ->with('matchedStudent')
+            ->when($request->user()->campus_id, fn ($query, $campusId) => $query->where('campus_id', $campusId))
             ->when(
                 in_array($activeStatus, ['enrolled', 'unenrolled', 'duplicate', 'invalid'], true),
                 fn ($query) => $query->where('verification_status', $activeStatus),
@@ -59,6 +62,7 @@ class MasterlistValidationController extends Controller
         AuditTrailService $audit,
     ): RedirectResponse {
         abort_unless($record->masterlist_id === $masterlist->id, 404);
+        abort_if($request->user()->campus_id && $record->campus_id !== $request->user()->campus_id, 403);
         abort_unless(in_array($masterlist->status, ['verified', 'coordinator_validation'], true), 404);
 
         $record->update($request->validated());
@@ -75,8 +79,9 @@ class MasterlistValidationController extends Controller
         return back()->with('status', 'Record validation saved.');
     }
 
-    public function submit(ScholarshipMasterlist $masterlist, AuditTrailService $audit): RedirectResponse
+    public function submit(Request $request, ScholarshipMasterlist $masterlist, AuditTrailService $audit): RedirectResponse
     {
+        $this->ensureCampusAccess($request, $masterlist);
         abort_unless(in_array($masterlist->status, ['verified', 'coordinator_validation'], true), 404);
 
         $pendingRecords = $masterlist->records()
@@ -108,5 +113,12 @@ class MasterlistValidationController extends Controller
         return redirect()
             ->route('coordinator.masterlists.show', $masterlist)
             ->with('status', 'Masterlist submitted to the scholarship chairman.');
+    }
+
+    private function ensureCampusAccess(Request $request, ScholarshipMasterlist $masterlist): void
+    {
+        if ($request->user()->campus_id) {
+            abort_unless($masterlist->records()->where('campus_id', $request->user()->campus_id)->exists(), 403);
+        }
     }
 }

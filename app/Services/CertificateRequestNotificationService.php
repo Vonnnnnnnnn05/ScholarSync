@@ -29,11 +29,10 @@ class CertificateRequestNotificationService
     {
         $this->send(
             certificateRequest: $certificateRequest,
-            subject: 'Certificate request approved',
-            title: 'Certificate request approved',
-            message: 'Your Certificate of No Scholarship request has been approved. You may now download the certificate when it is available.',
+            subject: 'Certificate approved and ready',
+            title: 'Certificate approved and ready',
+            message: 'Your Certificate of No Scholarship request has been approved. Your certificate has been generated and is ready to view, download, or print.',
             type: 'certificate_request_approved',
-            actionText: 'View request',
         );
     }
 
@@ -63,7 +62,6 @@ class CertificateRequestNotificationService
     ): void {
         $certificateRequest->loadMissing('student.user');
         $studentUser = $certificateRequest->student->user;
-        $actionUrl ??= route('student.certificate-requests.show', $certificateRequest);
 
         UserNotification::create([
             'user_id' => $studentUser->id,
@@ -79,7 +77,7 @@ class CertificateRequestNotificationService
                 title: $title,
                 bodyMessage: $message,
                 actionUrl: $actionUrl,
-                actionText: $actionText ?? 'View request',
+                actionText: $actionText,
             ));
         } catch (Throwable $exception) {
             Log::warning('Certificate request email notification could not be sent.', [

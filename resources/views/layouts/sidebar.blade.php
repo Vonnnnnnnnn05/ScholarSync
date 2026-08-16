@@ -3,16 +3,13 @@
     $links = [
         ['label' => 'Dashboard', 'route' => 'dashboard', 'active' => 'dashboard*', 'show' => true],
         ['label' => 'User Management', 'route' => 'admin.users.index', 'active' => 'admin.users.*', 'show' => $user->hasRole(\App\Enums\UserRole::Administrator)],
+         ['label' => 'Certificate Management', 'route' => 'admin.official-receipts.index', 'active' => 'admin.official-receipts.*', 'show' => $user->hasRole(\App\Enums\UserRole::Administrator)],
+        ['label' => 'Scholarship Opportunities', 'route' => 'admin.scholarships.index', 'active' => 'admin.scholarships.*', 'show' => $user->hasRole(\App\Enums\UserRole::Administrator)],
+         ['label' => 'Certificates', 'route' => 'student.certificate-requests.index', 'active' => 'student.certificate-requests.*', 'show' => $user->hasRole(\App\Enums\UserRole::Student)],
         ['label' => 'Scholarships', 'route' => 'student.scholarships.index', 'active' => 'student.scholarships.*', 'show' => $user->hasRole(\App\Enums\UserRole::Student)],
-        ['label' => 'Certificates', 'route' => 'student.certificate-requests.index', 'active' => 'student.certificate-requests.*', 'show' => $user->hasRole(\App\Enums\UserRole::Student)],
-        ['label' => 'Renewals', 'route' => 'student.scholarship-renewals.index', 'active' => 'student.scholarship-renewals.*', 'show' => $user->hasRole(\App\Enums\UserRole::Student)],
-        ['label' => 'OR Verification', 'route' => 'admin.official-receipts.index', 'active' => 'admin.official-receipts.*', 'show' => $user->hasRole(\App\Enums\UserRole::Administrator)],
-        ['label' => 'Certificates', 'route' => 'admin.certificates.index', 'active' => 'admin.certificates.*', 'show' => $user->hasRole(\App\Enums\UserRole::Administrator)],
-        ['label' => 'Evaluations', 'route' => 'evaluator.scholarship-renewals.index', 'active' => 'evaluator.scholarship-renewals.*', 'show' => $user->hasAnyRole([\App\Enums\UserRole::Administrator, \App\Enums\UserRole::Coordinator])],
-        ['label' => 'Scholarship Policies', 'route' => 'agency.policies.index', 'active' => 'agency.policies.*', 'show' => $user->hasRole(\App\Enums\UserRole::ScholarshipAgency)],
-        ['label' => 'Masterlists', 'route' => 'agency.masterlists.index', 'active' => 'agency.masterlists.*', 'show' => $user->hasRole(\App\Enums\UserRole::ScholarshipAgency)],
         ['label' => 'Validation', 'route' => 'coordinator.masterlists.index', 'active' => 'coordinator.masterlists.*', 'show' => $user->hasRole(\App\Enums\UserRole::Coordinator)],
         ['label' => 'Approvals', 'route' => 'chairman.masterlists.index', 'active' => 'chairman.masterlists.*', 'show' => $user->hasRole(\App\Enums\UserRole::ScholarshipChairman)],
+        ['label' => 'Masterlist Uploads', 'route' => 'chairman.uploads.index', 'active' => 'chairman.uploads.*', 'show' => $user->hasRole(\App\Enums\UserRole::ScholarshipChairman)],
         ['label' => 'Enrollment Records', 'route' => 'registrar.enrolled-students.index', 'active' => 'registrar.enrolled-students.*', 'show' => $user->hasRole(\App\Enums\UserRole::Registrar)],
         ['label' => 'Profile', 'route' => 'profile.edit', 'active' => 'profile.*', 'show' => true],
     ];
@@ -20,7 +17,6 @@
         ['label' => 'Student Profiles', 'route' => 'admin.monitoring.students.index', 'active' => 'admin.monitoring.students.*'],
         ['label' => 'Scholar Records', 'route' => 'admin.monitoring.scholars.index', 'active' => 'admin.monitoring.scholars.*'],
         ['label' => 'Transactions', 'route' => 'admin.monitoring.transactions.index', 'active' => 'admin.monitoring.transactions.*'],
-        ['label' => 'Fund Sources', 'route' => 'admin.monitoring.programs.index', 'active' => 'admin.monitoring.programs.*'],
         ['label' => 'Audit Trail', 'route' => 'admin.monitoring.audit.index', 'active' => 'admin.monitoring.audit.*'],
     ];
     $reportLinks = [
@@ -29,9 +25,6 @@
         ['label' => 'Certificate Requests', 'route' => 'admin.reports.preview', 'type' => 'certificate_requests'],
         ['label' => 'OR Verification', 'route' => 'admin.reports.preview', 'type' => 'or_verification'],
         ['label' => 'Masterlists', 'route' => 'admin.reports.preview', 'type' => 'masterlists'],
-        ['label' => 'Renewal Evaluations', 'route' => 'admin.reports.preview', 'type' => 'renewal_evaluations'],
-        ['label' => 'Requirement Submissions', 'route' => 'admin.reports.preview', 'type' => 'requirement_submissions'],
-        ['label' => 'Fund Sources', 'route' => 'admin.reports.preview', 'type' => 'fund_sources'],
         ['label' => 'Approved and Rejected', 'route' => 'admin.reports.preview', 'type' => 'approved_rejected'],
         ['label' => 'Enrollment Verification', 'route' => 'admin.reports.preview', 'type' => 'enrollment_verification'],
         ['label' => 'Agency Submissions', 'route' => 'admin.reports.preview', 'type' => 'agency_submissions'],
@@ -57,7 +50,7 @@
                         {{ $link['label'] }}
                     </x-sidebar-link>
 
-                    @if ($link['label'] === 'Evaluations' && $user->hasRole(\App\Enums\UserRole::Administrator))
+                    @if ($link['label'] === 'Scholarship Opportunities' && $user->hasRole(\App\Enums\UserRole::Administrator))
                         <details class="group" @if (request()->routeIs('admin.monitoring.*')) open @endif>
                             <summary class="{{ request()->routeIs('admin.monitoring.*') ? 'flex min-h-11 cursor-pointer list-none items-center justify-between rounded-md bg-emerald-800 px-3 py-2 text-sm font-semibold text-white shadow-sm' : 'flex min-h-11 cursor-pointer list-none items-center justify-between rounded-md px-3 py-2 text-sm font-semibold text-emerald-950 transition hover:bg-emerald-50 focus:outline-none focus:ring-2 focus:ring-emerald-700' }}">
                                 <span>{{ __('Monitoring') }}</span>

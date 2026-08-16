@@ -29,6 +29,10 @@ class StoreUserRequest extends FormRequest
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'max:255', 'unique:users,email'],
             'role' => ['required', Rule::enum(UserRole::class)],
+            'campus_id' => [
+                Rule::requiredIf(fn (): bool => UserRole::tryFrom((string) $this->input('role'))?->requiresCampus() === true),
+                'nullable', 'integer', 'exists:campuses,id',
+            ],
             'password' => ['required', 'confirmed', Password::defaults()],
         ];
     }

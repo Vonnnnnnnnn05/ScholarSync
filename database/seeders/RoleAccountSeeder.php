@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use App\Enums\UserRole;
 use App\Models\Agency;
+use App\Models\Campus;
 use App\Models\Student;
 use App\Models\User;
 use Illuminate\Database\Seeder;
@@ -25,11 +26,6 @@ class RoleAccountSeeder extends Seeder
             'email' => 'admin@scholarsync.test',
             'role' => UserRole::Administrator,
         ],
-        'agency' => [
-            'name' => 'ScholarSync Scholarship Agency',
-            'email' => 'agency@scholarsync.test',
-            'role' => UserRole::ScholarshipAgency,
-        ],
         'coordinator' => [
             'name' => 'ScholarSync Coordinator',
             'email' => 'coordinator@scholarsync.test',
@@ -49,6 +45,9 @@ class RoleAccountSeeder extends Seeder
 
     public function run(): void
     {
+        $this->call(CampusSeeder::class);
+        $campus = Campus::query()->where('code', 'access')->firstOrFail();
+
         foreach ($this->accounts as $account) {
             $user = User::updateOrCreate(
                 ['email' => $account['email']],
@@ -56,12 +55,18 @@ class RoleAccountSeeder extends Seeder
                     'name' => $account['name'],
                     'password' => Hash::make('password'),
                     'role' => $account['role'],
+                    'campus_id' => $account['role']->requiresCampus() ? $campus->id : null,
                     'email_verified_at' => now(),
                 ],
             );
 
             $this->createRelatedProfile($user);
         }
+
+        Agency::firstOrCreate(
+            ['agency_name' => 'ScholarSync Partner Agency'],
+            ['contact_person' => 'ScholarSync Contact', 'email' => 'agency@scholarsync.test', 'status' => 'active'],
+        );
     }
 
     private function createRelatedProfile(User $user): void
@@ -83,17 +88,5 @@ class RoleAccountSeeder extends Seeder
             );
         }
 
-        if ($user->hasRole(UserRole::ScholarshipAgency)) {
-            Agency::updateOrCreate(
-                ['user_id' => $user->id],
-                [
-                    'agency_name' => 'ScholarSync Partner Agency',
-                    'contact_person' => $user->name,
-                    'email' => $user->email,
-                    'contact_number' => '09987654321',
-                    'status' => 'active',
-                ],
-            );
-        }
     }
 }

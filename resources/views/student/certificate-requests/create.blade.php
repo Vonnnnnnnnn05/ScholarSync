@@ -15,7 +15,22 @@
 
     <div class="py-10">
         <div class="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
-            <form method="POST" action="{{ route('student.certificate-requests.store') }}" enctype="multipart/form-data" class="space-y-6">
+            <form
+                method="POST"
+                action="{{ route('student.certificate-requests.store') }}"
+                enctype="multipart/form-data"
+                class="space-y-6"
+                x-data="{
+                    campuses: @js($academicOptions['campuses'] ?? []),
+                    selectedCampus: @js(old('campus', $student?->campus ?? '')),
+                    selectedCourse: @js(old('course', $student?->course ?? '')),
+                    programsForCampus() {
+                        const campus = this.campuses.find((item) => item.name === this.selectedCampus);
+
+                        return campus ? campus.programs : [];
+                    },
+                }"
+            >
                 @csrf
 
                 <section class="rounded-lg bg-white p-6 shadow-sm ring-1 ring-gray-200">
@@ -52,21 +67,57 @@
                         </div>
 
                         <div>
+                            <x-input-label for="campus" :value="__('Campus')" />
+                            <select
+                                id="campus"
+                                name="campus"
+                                x-model="selectedCampus"
+                                @change="selectedCourse = ''"
+                                class="mt-1 block min-h-11 w-full rounded-md border-emerald-900/20 bg-white text-sm shadow-sm focus:border-emerald-700 focus:ring-emerald-700"
+                                required
+                            >
+                                <option value="">{{ __('Select campus') }}</option>
+                                @foreach ($academicOptions['campuses'] ?? [] as $campus)
+                                    <option value="{{ $campus['name'] }}">{{ $campus['name'] }}</option>
+                                @endforeach
+                            </select>
+                            <x-input-error :messages="$errors->get('campus')" class="mt-2" />
+                        </div>
+
+                        <div>
                             <x-input-label for="course" :value="__('Course')" />
-                            <x-text-input id="course" name="course" class="mt-1 block w-full" :value="old('course', $student?->course)" required />
+                            <select
+                                id="course"
+                                name="course"
+                                x-model="selectedCourse"
+                                :disabled="! selectedCampus"
+                                class="mt-1 block min-h-11 w-full rounded-md border-emerald-900/20 bg-white text-sm shadow-sm disabled:bg-gray-100 disabled:text-gray-500 focus:border-emerald-700 focus:ring-emerald-700"
+                                required
+                            >
+                                <option value="" x-text="selectedCampus ? 'Select course' : 'Select campus first'"></option>
+                                <template x-for="program in programsForCampus()" :key="program">
+                                    <option :value="program" x-text="program"></option>
+                                </template>
+                            </select>
                             <x-input-error :messages="$errors->get('course')" class="mt-2" />
                         </div>
 
                         <div>
                             <x-input-label for="year_level" :value="__('Year Level')" />
-                            <x-text-input id="year_level" name="year_level" class="mt-1 block w-full" :value="old('year_level', $student?->year_level)" required />
+                            <select
+                                id="year_level"
+                                name="year_level"
+                                class="mt-1 block min-h-11 w-full rounded-md border-emerald-900/20 bg-white text-sm shadow-sm focus:border-emerald-700 focus:ring-emerald-700"
+                                required
+                            >
+                                <option value="">{{ __('Select year') }}</option>
+                                @foreach ($academicOptions['dropdowns']['year_levels'] ?? [] as $yearLevel)
+                                    <option value="{{ $yearLevel }}" @selected(old('year_level', $student?->year_level) === $yearLevel)>
+                                        {{ $yearLevel }}
+                                    </option>
+                                @endforeach
+                            </select>
                             <x-input-error :messages="$errors->get('year_level')" class="mt-2" />
-                        </div>
-
-                        <div>
-                            <x-input-label for="campus" :value="__('Campus')" />
-                            <x-text-input id="campus" name="campus" class="mt-1 block w-full" :value="old('campus', $student?->campus)" required />
-                            <x-input-error :messages="$errors->get('campus')" class="mt-2" />
                         </div>
                     </div>
                 </section>

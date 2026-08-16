@@ -14,7 +14,6 @@
                     'Pending Certificate Requests' => $summary['pending_certificate_requests'],
                     'Verified ORs' => $summary['verified_ors'],
                     'Uploaded Masterlists' => $summary['uploaded_masterlists'],
-                    'Pending Evaluations' => $summary['pending_evaluations'],
                     'Approved Records' => $summary['approved_records'],
                 ] as $label => $value)
                     <div class="rounded-lg bg-white p-5 shadow-sm ring-1 ring-gray-200">

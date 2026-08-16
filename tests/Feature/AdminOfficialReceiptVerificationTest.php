@@ -41,6 +41,19 @@ test('administrators can view submitted official receipt requests', function () 
         ->assertSee('For employment scholarship clearance.');
 });
 
+test('official receipt verification success message is shown only once', function () {
+    $administrator = User::factory()->role(UserRole::Administrator)->create();
+    $certificateRequest = certificateRequestForAdminReview();
+
+    $response = $this->actingAs($administrator)
+        ->withSession(['status' => 'Official Receipt verified successfully.'])
+        ->get(route('admin.official-receipts.show', $certificateRequest));
+
+    $response->assertOk();
+
+    expect(substr_count($response->getContent(), 'Official Receipt verified successfully.'))->toBe(1);
+});
+
 test('administrators can download uploaded official receipt files', function () {
     Storage::fake('local');
     Storage::disk('local')->put('certificate-requests/official-receipts/or.pdf', 'receipt');
@@ -52,6 +65,20 @@ test('administrators can download uploaded official receipt files', function () 
         ->get(route('admin.official-receipts.download', $certificateRequest))
         ->assertOk()
         ->assertHeader('content-disposition');
+});
+
+test('administrators can view uploaded official receipt files inline', function () {
+    Storage::fake('local');
+    Storage::disk('local')->put('certificate-requests/official-receipts/or.pdf', 'receipt');
+
+    $administrator = User::factory()->role(UserRole::Administrator)->create();
+    $certificateRequest = certificateRequestForAdminReview();
+
+    $response = $this->actingAs($administrator)
+        ->get(route('admin.official-receipts.view', $certificateRequest))
+        ->assertOk();
+
+    expect($response->headers->get('content-disposition'))->toStartWith('inline;');
 });
 
 test('administrators can verify valid official receipts', function () {
@@ -104,8 +131,11 @@ test('administrators can reject invalid official receipts and notify students', 
 
     Mail::assertSent(CertificateRequestStatusMail::class, function (CertificateRequestStatusMail $mail) {
         return $mail->mailSubject === 'Certificate request rejected'
-            && str_contains($mail->bodyMessage, 'unreadable');
+            && str_contains($mail->bodyMessage, 'unreadable')
+            && $mail->actionText === null
+            && $mail->actionUrl === null;
     });
+    Mail::assertSentCount(1);
 
     expect(UserNotification::where('type', 'certificate_request_rejected')->exists())->toBeTrue();
 });

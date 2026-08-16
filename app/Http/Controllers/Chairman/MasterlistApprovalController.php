@@ -105,6 +105,6 @@ class MasterlistApprovalController extends Controller
 
         return redirect()
             ->route('chairman.masterlists.show', $masterlist)
-            ->with('status', 'Final scholar records released to the scholarship agency.');
+            ->with('status', 'Final scholar records approved and finalized.');
     }
 }

@@ -94,7 +94,7 @@
                                     </td>
                                     <td class="px-6 py-4 text-sm text-gray-800">
                                         <div>{{ $record->scholarship_program ?: __('Missing program') }}</div>
-                                        <div class="text-xs text-gray-500">{{ $record->fund_source ?: __('Missing fund source') }}</div>
+                                        <div class="text-xs text-gray-500">{{ $masterlist->agency?->agency_name ?: __('No scholarship agency') }}</div>
                                     </td>
                                     <td class="px-6 py-4 text-sm">
                                         <span class="inline-flex rounded-md px-2.5 py-1 text-xs font-semibold {{ $verificationClass }}">

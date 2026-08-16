@@ -8,7 +8,7 @@
 
         <section class="rounded-md border border-emerald-900/10 bg-white p-5 shadow-sm">
             <form method="GET" class="flex flex-col gap-3 sm:flex-row">
-                <x-text-input name="search" class="w-full" :value="$search" placeholder="Search program, agency, fund source, or requirement" />
+                <x-text-input name="search" class="w-full" :value="$search" placeholder="Search program, agency, or requirement" />
                 <x-secondary-button class="min-h-11 justify-center">{{ __('Search') }}</x-secondary-button>
             </form>
         </section>
@@ -19,7 +19,7 @@
                     <div class="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
                         <div>
                             <h2 class="text-xl font-bold text-gray-950">{{ $policy->title }}</h2>
-                            <p class="mt-1 text-sm text-gray-600">{{ $policy->agency->agency_name }} · {{ $policy->program?->fund_source ?? 'Fund source not specified' }}</p>
+                            <p class="mt-1 text-sm text-gray-600">{{ $policy->agency->agency_name }}@if($policy->program) · {{ $policy->program->name }}@endif</p>
                         </div>
                         @if ($policy->deadline)
                             <span class="rounded-full bg-amber-50 px-3 py-1 text-sm font-semibold text-amber-800">Deadline {{ $policy->deadline->format('M d, Y') }}</span>
@@ -39,6 +39,7 @@
                     @if ($policy->file_path)
                         <a href="{{ route('student.scholarships.download', $policy) }}" class="mt-5 inline-flex min-h-10 items-center rounded-md bg-emerald-800 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-900">Download Guidelines</a>
                     @endif
+                    <a href="{{ $policy->application_link }}" target="_blank" rel="noopener noreferrer" class="mt-5 inline-flex min-h-10 items-center rounded-md bg-blue-700 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-800">Official Application Link</a>
                 </article>
             @empty
                 <div class="rounded-md border border-dashed border-gray-300 bg-white p-8 text-center text-gray-500">No published scholarship details yet.</div>
