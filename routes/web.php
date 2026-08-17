@@ -91,7 +91,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
                 ->name('certificate.download');
         });
 
-    Route::middleware('role:administrator')
+    Route::middleware('role:administrator,scholarship_chairman')
         ->prefix('admin/official-receipts')
         ->name('admin.official-receipts.')
         ->group(function () {
@@ -104,7 +104,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::patch('/{certificateRequest}/reject', [OfficialReceiptVerificationController::class, 'reject'])->name('reject');
         });
 
-    Route::middleware('role:administrator')
+    Route::middleware('role:administrator,scholarship_chairman')
         ->prefix('admin/certificates')
         ->name('admin.certificates.')
         ->group(function () {

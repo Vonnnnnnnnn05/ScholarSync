@@ -41,6 +41,60 @@ test('administrators can view submitted official receipt requests', function () 
         ->assertSee('For employment scholarship clearance.');
 });
 
+test('scholarship chairmen can manage submitted official receipt requests', function () {
+    Mail::fake();
+    Storage::fake('local');
+    Storage::disk('local')->put('certificate-requests/official-receipts/or.pdf', 'receipt');
+
+    $chairman = User::factory()->role(UserRole::ScholarshipChairman)->create();
+    $certificateRequest = certificateRequestForAdminReview();
+
+    $this->actingAs($chairman)
+        ->get(route('admin.official-receipts.index'))
+        ->assertOk()
+        ->assertSee($certificateRequest->student->fullName());
+
+    $this->actingAs($chairman)
+        ->get(route('admin.official-receipts.show', $certificateRequest))
+        ->assertOk()
+        ->assertSee('Download OR');
+
+    $this->actingAs($chairman)
+        ->get(route('admin.official-receipts.view', $certificateRequest))
+        ->assertOk();
+
+    $this->actingAs($chairman)
+        ->get(route('admin.official-receipts.download', $certificateRequest))
+        ->assertOk()
+        ->assertHeader('content-disposition');
+
+    $this->actingAs($chairman)
+        ->patch(route('admin.official-receipts.verify', $certificateRequest))
+        ->assertRedirect(route('admin.official-receipts.show', $certificateRequest));
+
+    expect($certificateRequest->fresh())
+        ->status->toBe(CertificateRequestStatus::Verified)
+        ->verified_by->toBe($chairman->id);
+});
+
+test('scholarship chairmen can reject submitted official receipt requests', function () {
+    Mail::fake();
+
+    $chairman = User::factory()->role(UserRole::ScholarshipChairman)->create();
+    $certificateRequest = certificateRequestForAdminReview();
+
+    $this->actingAs($chairman)
+        ->patch(route('admin.official-receipts.reject', $certificateRequest), [
+            'remarks' => 'The uploaded Official Receipt is unreadable.',
+        ])
+        ->assertRedirect(route('admin.official-receipts.show', $certificateRequest));
+
+    expect($certificateRequest->fresh())
+        ->status->toBe(CertificateRequestStatus::Rejected)
+        ->verified_by->toBe($chairman->id)
+        ->remarks->toBe('The uploaded Official Receipt is unreadable.');
+});
+
 test('official receipt verification success message is shown only once', function () {
     $administrator = User::factory()->role(UserRole::Administrator)->create();
     $certificateRequest = certificateRequestForAdminReview();

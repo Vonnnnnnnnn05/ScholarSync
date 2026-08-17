@@ -45,6 +45,16 @@ test('administrator dashboard includes monitoring charts', function () {
         ->assertSee('User Role Distribution');
 });
 
+test('scholarship chairman dashboard links to certificate management', function () {
+    $chairman = User::factory()->role(UserRole::ScholarshipChairman)->create();
+
+    $this->actingAs($chairman)
+        ->get(route(UserRole::ScholarshipChairman->dashboardRouteName()))
+        ->assertOk()
+        ->assertSee('Certificate Management')
+        ->assertSee(route('admin.official-receipts.index'));
+});
+
 test('student dashboard displays personal details', function () {
     $studentUser = User::factory()->role(UserRole::Student)->create(['email' => 'student@example.com']);
     Student::factory()->for($studentUser)->create([

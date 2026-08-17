@@ -164,6 +164,42 @@ test('administrator can view certificate history and download records', function
     expect($response->headers->get('content-disposition'))->toStartWith('inline;');
 });
 
+test('scholarship chairman can approve requests and access generated certificates', function () {
+    Mail::fake();
+    Storage::fake('local');
+
+    $chairman = User::factory()->role(UserRole::ScholarshipChairman)->create();
+    $certificateRequest = verifiedCertificateRequest();
+
+    $this->actingAs($chairman)
+        ->patch(route('admin.official-receipts.approve', $certificateRequest))
+        ->assertRedirect(route('admin.official-receipts.show', $certificateRequest));
+
+    $certificateRequest->refresh();
+    $certificate = $certificateRequest->certificate;
+
+    expect($certificateRequest)
+        ->status->toBe(CertificateRequestStatus::Approved)
+        ->approved_by->toBe($chairman->id)
+        ->and($certificate)->not->toBeNull();
+
+    $this->actingAs($chairman)
+        ->get(route('admin.certificates.index'))
+        ->assertOk()
+        ->assertSee($certificate->certificate_number);
+
+    $this->actingAs($chairman)
+        ->get(route('admin.certificates.download', $certificate))
+        ->assertOk()
+        ->assertHeader('content-disposition');
+
+    $response = $this->actingAs($chairman)
+        ->get(route('admin.certificates.view', $certificate))
+        ->assertOk();
+
+    expect($response->headers->get('content-disposition'))->toStartWith('inline;');
+});
+
 test('non administrators cannot view certificate history', function () {
     $student = User::factory()->role(UserRole::Student)->create();
 

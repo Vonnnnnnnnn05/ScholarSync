@@ -3,7 +3,7 @@
     $links = [
         ['label' => 'Dashboard', 'route' => 'dashboard', 'active' => 'dashboard*', 'show' => true],
         ['label' => 'User Management', 'route' => 'admin.users.index', 'active' => 'admin.users.*', 'show' => $user->hasRole(\App\Enums\UserRole::Administrator)],
-         ['label' => 'Certificate Management', 'route' => 'admin.official-receipts.index', 'active' => 'admin.official-receipts.*', 'show' => $user->hasRole(\App\Enums\UserRole::Administrator)],
+        ['label' => 'Certificate Management', 'route' => 'admin.official-receipts.index', 'active' => 'admin.official-receipts.*', 'show' => $user->hasAnyRole([\App\Enums\UserRole::Administrator, \App\Enums\UserRole::ScholarshipChairman])],
         ['label' => 'Scholarship Opportunities', 'route' => 'admin.scholarships.index', 'active' => 'admin.scholarships.*', 'show' => $user->hasRole(\App\Enums\UserRole::Administrator)],
          ['label' => 'Certificates', 'route' => 'student.certificate-requests.index', 'active' => 'student.certificate-requests.*', 'show' => $user->hasRole(\App\Enums\UserRole::Student)],
         ['label' => 'Scholarships', 'route' => 'student.scholarships.index', 'active' => 'student.scholarships.*', 'show' => $user->hasRole(\App\Enums\UserRole::Student)],
