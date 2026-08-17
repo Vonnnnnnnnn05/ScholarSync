@@ -21,7 +21,7 @@
                 </div>
             @endif
 
-            <div class="mb-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-6">
+            <div class="mb-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
                 <div class="rounded-lg bg-white p-5 shadow-sm ring-1 ring-gray-200">
                     <p class="text-sm font-medium text-gray-600">{{ __('Records') }}</p>
                     <p class="mt-2 text-2xl font-semibold text-gray-950">{{ $masterlist->total_records }}</p>
@@ -31,16 +31,12 @@
                     <p class="mt-2 text-2xl font-semibold text-emerald-800">{{ $masterlist->enrolled_count }}</p>
                 </div>
                 <div class="rounded-lg bg-white p-5 shadow-sm ring-1 ring-gray-200">
+                    <p class="text-sm font-medium text-gray-600">{{ __('No COR Printed') }}</p>
+                    <p class="mt-2 text-2xl font-semibold text-amber-800">{{ $masterlist->no_cor_printed_count }}</p>
+                </div>
+                <div class="rounded-lg bg-white p-5 shadow-sm ring-1 ring-gray-200">
                     <p class="text-sm font-medium text-gray-600">{{ __('Unenrolled') }}</p>
                     <p class="mt-2 text-2xl font-semibold text-blue-800">{{ $masterlist->unenrolled_count }}</p>
-                </div>
-                <div class="rounded-lg bg-white p-5 shadow-sm ring-1 ring-gray-200">
-                    <p class="text-sm font-medium text-gray-600">{{ __('Duplicates') }}</p>
-                    <p class="mt-2 text-2xl font-semibold text-yellow-800">{{ $masterlist->duplicate_count }}</p>
-                </div>
-                <div class="rounded-lg bg-white p-5 shadow-sm ring-1 ring-gray-200">
-                    <p class="text-sm font-medium text-gray-600">{{ __('Invalid') }}</p>
-                    <p class="mt-2 text-2xl font-semibold text-red-700">{{ $masterlist->invalid_count }}</p>
                 </div>
                 <div class="rounded-lg bg-white p-5 shadow-sm ring-1 ring-gray-200">
                     <p class="text-sm font-medium text-gray-600">{{ __('Status') }}</p>
@@ -53,9 +49,8 @@
                     <table class="min-w-full divide-y divide-gray-200">
                         <thead class="bg-gray-50">
                             <tr>
-                                <th class="px-6 py-3 text-left text-xs font-semibold uppercase text-gray-600">{{ __('Student ID') }}</th>
                                 <th class="px-6 py-3 text-left text-xs font-semibold uppercase text-gray-600">{{ __('Student') }}</th>
-                                <th class="px-6 py-3 text-left text-xs font-semibold uppercase text-gray-600">{{ __('Program') }}</th>
+                                <th class="px-6 py-3 text-left text-xs font-semibold uppercase text-gray-600">{{ __('Campus') }}</th>
                                 <th class="px-6 py-3 text-left text-xs font-semibold uppercase text-gray-600">{{ __('Verification') }}</th>
                                 <th class="px-6 py-3 text-left text-xs font-semibold uppercase text-gray-600">{{ __('Final Result') }}</th>
                                 <th class="px-6 py-3 text-left text-xs font-semibold uppercase text-gray-600">{{ __('Remarks') }}</th>
@@ -66,16 +61,14 @@
                                 @php
                                     $statusClass = match ($record->verification_status) {
                                         'enrolled' => 'bg-emerald-100 text-emerald-900',
+                                        'no_cor_printed' => 'bg-amber-100 text-amber-900',
                                         'unenrolled' => 'bg-blue-100 text-blue-900',
-                                        'duplicate' => 'bg-yellow-100 text-yellow-900',
-                                        'invalid' => 'bg-red-100 text-red-900',
                                         default => 'bg-gray-100 text-gray-900',
                                     };
                                 @endphp
                                 <tr>
-                                    <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-800">{{ $record->student_id_number ?: __('Missing') }}</td>
                                     <td class="px-6 py-4 text-sm font-semibold text-gray-950">{{ $record->student_name ?: __('Missing') }}</td>
-                                    <td class="px-6 py-4 text-sm text-gray-800">{{ $record->scholarship_program ?: __('Missing') }}</td>
+                                    <td class="px-6 py-4 text-sm text-gray-800">{{ $record->campus?->name ?: __('Needs manual assignment') }}</td>
                                     <td class="whitespace-nowrap px-6 py-4 text-sm">
                                         <span class="inline-flex rounded-md px-2.5 py-1 text-xs font-semibold {{ $statusClass }}">
                                             {{ Str::headline($record->verification_status) }}

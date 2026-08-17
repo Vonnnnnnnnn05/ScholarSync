@@ -81,6 +81,7 @@ class EnrolledStudentController extends Controller
                         'year_level' => $this->nullableValue($row['year_level'] ?? null),
                         'campus' => $request->user()->campus?->name ?? $this->nullableValue($row['campus'] ?? null),
                         'enrollment_status' => $this->validEnrollmentStatus($row['enrollment_status'] ?? null),
+                        'cor_printed' => $this->printedCor($row['cor_printed'] ?? null),
                         'academic_year' => $this->nullableValue($row['academic_year'] ?? null),
                         'semester' => $this->nullableValue($row['semester'] ?? null),
                     ],
@@ -136,7 +137,7 @@ class EnrolledStudentController extends Controller
             }
 
             $headers = array_map(fn ($header) => $this->normalizeHeader((string) $header), array_shift($values));
-            $allowedColumns = ['student_id_number', 'student_name', 'course', 'year_level', 'campus', 'enrollment_status', 'academic_year', 'semester'];
+            $allowedColumns = ['student_id_number', 'student_name', 'course', 'year_level', 'campus', 'enrollment_status', 'cor_printed', 'academic_year', 'semester'];
             $rows = [];
 
             foreach ($values as $valueRow) {
@@ -237,5 +238,10 @@ class EnrolledStudentController extends Controller
         $status = str($status ?: 'enrolled')->trim()->lower()->replace([' ', '-'], '_')->toString();
 
         return in_array($status, ['enrolled', 'not_enrolled', 'inactive'], true) ? $status : 'enrolled';
+    }
+
+    private function printedCor(?string $value): bool
+    {
+        return in_array(strtolower(trim((string) $value)), ['1', 'true', 'yes', 'printed'], true);
     }
 }

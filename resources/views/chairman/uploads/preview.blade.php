@@ -15,18 +15,10 @@
 
     <div class="py-10">
         <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <div class="mb-6 grid gap-4 sm:grid-cols-3">
+            <div class="mb-6">
                 <div class="rounded-lg bg-white p-5 shadow-sm ring-1 ring-gray-200">
                     <p class="text-sm font-medium text-gray-600">{{ __('Total Records') }}</p>
                     <p class="mt-2 text-2xl font-semibold text-gray-950">{{ $preview['total_records'] }}</p>
-                </div>
-                <div class="rounded-lg bg-white p-5 shadow-sm ring-1 ring-gray-200">
-                    <p class="text-sm font-medium text-gray-600">{{ __('Duplicate IDs') }}</p>
-                    <p class="mt-2 text-2xl font-semibold text-yellow-800">{{ $preview['duplicate_count'] }}</p>
-                </div>
-                <div class="rounded-lg bg-white p-5 shadow-sm ring-1 ring-gray-200">
-                    <p class="text-sm font-medium text-gray-600">{{ __('Invalid Rows') }}</p>
-                    <p class="mt-2 text-2xl font-semibold text-red-700">{{ $preview['invalid_count'] }}</p>
                 </div>
             </div>
 
@@ -42,19 +34,15 @@
                         <thead class="bg-gray-50">
                             <tr>
                                 <th class="px-6 py-3 text-left text-xs font-semibold uppercase text-gray-600">{{ __('Row') }}</th>
-                                <th class="px-6 py-3 text-left text-xs font-semibold uppercase text-gray-600">{{ __('Student ID') }}</th>
                                 <th class="px-6 py-3 text-left text-xs font-semibold uppercase text-gray-600">{{ __('Student Name') }}</th>
-                                <th class="px-6 py-3 text-left text-xs font-semibold uppercase text-gray-600">{{ __('Program') }}</th>
                                 <th class="px-6 py-3 text-left text-xs font-semibold uppercase text-gray-600">{{ __('Review') }}</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-200 bg-white">
                             @forelse ($preview['rows'] as $row)
-                                <tr class="{{ $row['is_invalid'] ? 'bg-red-50' : ($row['is_duplicate'] ? 'bg-yellow-50' : '') }}">
+                                <tr class="{{ $row['is_invalid'] ? 'bg-red-50' : '' }}">
                                     <td class="whitespace-nowrap px-6 py-4 text-sm font-semibold text-gray-950">{{ $row['row_number'] }}</td>
-                                    <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-800">{{ $row['student_id_number'] ?: __('Missing') }}</td>
                                     <td class="px-6 py-4 text-sm text-gray-800">{{ $row['student_name'] ?: __('Missing') }}</td>
-                                    <td class="px-6 py-4 text-sm text-gray-800">{{ $row['scholarship_program'] ?: __('Missing') }}</td>
                                     <td class="max-w-sm px-6 py-4 text-sm text-gray-700">
                                         @if ($row['errors'] === [])
                                             <span class="inline-flex rounded-md bg-emerald-100 px-2.5 py-1 text-xs font-semibold text-emerald-900">{{ __('Ready') }}</span>
@@ -65,7 +53,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="5" class="px-6 py-12 text-center text-sm text-gray-600">
+                                    <td colspan="3" class="px-6 py-12 text-center text-sm text-gray-600">
                                         {{ __('No records found in the CSV file.') }}
                                     </td>
                                 </tr>

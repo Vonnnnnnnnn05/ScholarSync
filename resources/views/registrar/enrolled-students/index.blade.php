@@ -23,7 +23,7 @@
                     <x-input-label for="enrollment_file" :value="__('Excel File')" />
                     <input id="enrollment_file" name="enrollment_file" type="file" accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" class="mt-1 block w-full rounded-md border border-emerald-900/20 bg-white px-3 py-2 text-sm shadow-sm file:mr-4 file:rounded-md file:border-0 file:bg-emerald-50 file:px-3 file:py-2 file:text-sm file:font-semibold file:text-emerald-800 hover:file:bg-emerald-100" required />
                     <x-input-error :messages="$errors->get('enrollment_file')" class="mt-2" />
-                    <p class="mt-1 text-xs text-gray-500">Optional columns: course, year_level, campus, enrollment_status, academic_year, semester.</p>
+                    <p class="mt-1 text-xs text-gray-500">Optional columns: course, year_level, campus, enrollment_status, cor_printed, academic_year, semester. Use yes or printed when a COR exists.</p>
                 </div>
                 <x-primary-button class="min-h-11 justify-center">{{ __('Upload and Validate') }}</x-primary-button>
             </form>
@@ -45,6 +45,7 @@
                             <th class="px-5 py-3">Course</th>
                             <th class="px-5 py-3">Campus</th>
                             <th class="px-5 py-3">Status</th>
+                            <th class="px-5 py-3">COR</th>
                             <th class="px-5 py-3">Term</th>
                         </tr>
                     </thead>
@@ -56,10 +57,11 @@
                                 <td class="px-5 py-4">{{ $student->course ?: 'Not set' }}</td>
                                 <td class="px-5 py-4">{{ $student->campus ?: 'Not set' }}</td>
                                 <td class="px-5 py-4">{{ str($student->enrollment_status)->headline() }}</td>
+                                <td class="px-5 py-4">{{ $student->cor_printed ? 'Printed' : 'No COR Printed' }}</td>
                                 <td class="px-5 py-4">{{ collect([$student->academic_year, $student->semester])->filter()->implode(' / ') ?: 'Not set' }}</td>
                             </tr>
                         @empty
-                            <tr><td colspan="6" class="px-5 py-8 text-center text-gray-500">No registrar records yet.</td></tr>
+                            <tr><td colspan="7" class="px-5 py-8 text-center text-gray-500">No registrar records yet.</td></tr>
                         @endforelse
                     </tbody>
                 </table>

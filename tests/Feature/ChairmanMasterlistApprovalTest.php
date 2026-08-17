@@ -15,17 +15,16 @@ function submittedMasterlistForChairman(): ScholarshipMasterlist
             'status' => 'submitted_to_chairman',
             'total_records' => 4,
             'enrolled_count' => 1,
-            'unenrolled_count' => 1,
-            'duplicate_count' => 1,
-            'invalid_count' => 1,
+            'no_cor_printed_count' => 1,
+            'unenrolled_count' => 2,
             'validated_at' => now(),
         ]);
 
     foreach ([
         ['SKSU-2026-0001', 'Ana Cruz', 'enrolled', 'for_chairman_review'],
         ['SKSU-2026-0002', 'Juan Dela Cruz', 'unenrolled', 'for_chairman_review'],
-        ['SKSU-2026-0003', 'Duplicate Scholar', 'duplicate', 'for_chairman_review'],
-        [null, 'Invalid Scholar', 'invalid', 'rejected'],
+        ['SKSU-2026-0003', 'Maria Santos', 'no_cor_printed', 'for_chairman_review'],
+        [null, 'Unknown Scholar', 'unenrolled', 'rejected'],
     ] as [$studentId, $name, $verificationStatus, $coordinatorStatus]) {
         MasterlistRecord::factory()->for($masterlist, 'masterlist')->create([
             'student_id_number' => $studentId,
@@ -48,10 +47,10 @@ test('chairman can view submitted masterlists for approval', function () {
         ->assertOk()
         ->assertSee('Masterlist Approvals')
         ->assertSee($masterlist->agency->agency_name)
-        ->assertSee('1 enrolled, 1 unenrolled, 1 duplicate, 1 invalid');
+        ->assertSee('1 enrolled, 1 no COR printed, 2 unenrolled');
 });
 
-test('chairman can review enrolled unenrolled duplicate and invalid records', function () {
+test('chairman can review enrolled no COR and unenrolled records', function () {
     $chairman = User::factory()->role(UserRole::ScholarshipChairman)->create();
     $masterlist = submittedMasterlistForChairman();
 
@@ -62,9 +61,9 @@ test('chairman can review enrolled unenrolled duplicate and invalid records', fu
         ->assertDontSee('Juan Dela Cruz');
 
     $this->actingAs($chairman)
-        ->get(route('chairman.masterlists.show', [$masterlist, 'status' => 'invalid']))
+        ->get(route('chairman.masterlists.show', [$masterlist, 'status' => 'no_cor_printed']))
         ->assertOk()
-        ->assertSee('Invalid Scholar')
+        ->assertSee('Maria Santos')
         ->assertDontSee('Ana Cruz');
 });
 
@@ -88,7 +87,7 @@ test('chairman can approve valid records', function () {
 test('chairman rejection requires remarks', function () {
     $chairman = User::factory()->role(UserRole::ScholarshipChairman)->create();
     $masterlist = submittedMasterlistForChairman();
-    $record = $masterlist->records()->where('verification_status', 'invalid')->firstOrFail();
+    $record = $masterlist->records()->where('student_name', 'Unknown Scholar')->firstOrFail();
 
     $this->actingAs($chairman)
         ->patch(route('chairman.masterlists.records.update', [$masterlist, $record]), [
@@ -100,12 +99,12 @@ test('chairman rejection requires remarks', function () {
     $this->actingAs($chairman)
         ->patch(route('chairman.masterlists.records.update', [$masterlist, $record]), [
             'chairman_status' => 'rejected',
-            'remarks' => 'Invalid record cannot be released.',
+            'remarks' => 'Unenrolled record cannot be released.',
         ])
         ->assertRedirect();
 
     expect($record->refresh()->chairman_status)->toBe('rejected')
-        ->and($record->remarks)->toBe('Invalid record cannot be released.');
+        ->and($record->remarks)->toBe('Unenrolled record cannot be released.');
 });
 
 test('chairman must review all records before release', function () {
@@ -123,10 +122,10 @@ test('chairman can release final scholar records to agency', function () {
     $chairman = User::factory()->role(UserRole::ScholarshipChairman)->create();
     $masterlist = submittedMasterlistForChairman();
 
-    $masterlist->records()->whereIn('verification_status', ['enrolled', 'unenrolled'])->update([
+    $masterlist->records()->whereIn('verification_status', ['enrolled', 'no_cor_printed'])->update([
         'chairman_status' => 'approved',
     ]);
-    $masterlist->records()->whereIn('verification_status', ['duplicate', 'invalid'])->update([
+    $masterlist->records()->where('verification_status', 'unenrolled')->update([
         'chairman_status' => 'rejected',
         'remarks' => 'Not included in final release.',
     ]);

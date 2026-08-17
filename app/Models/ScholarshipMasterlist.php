@@ -20,6 +20,7 @@ class ScholarshipMasterlist extends Model
         'status',
         'total_records',
         'enrolled_count',
+        'no_cor_printed_count',
         'unenrolled_count',
         'duplicate_count',
         'invalid_count',

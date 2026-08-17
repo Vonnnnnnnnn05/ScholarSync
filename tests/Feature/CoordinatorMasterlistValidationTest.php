@@ -16,9 +16,8 @@ function verifiedMasterlistForCoordinator(): ScholarshipMasterlist
             'status' => 'verified',
             'total_records' => 4,
             'enrolled_count' => 1,
-            'unenrolled_count' => 1,
-            'duplicate_count' => 1,
-            'invalid_count' => 1,
+            'no_cor_printed_count' => 1,
+            'unenrolled_count' => 2,
             'validated_at' => now(),
         ]);
 
@@ -34,13 +33,13 @@ function verifiedMasterlistForCoordinator(): ScholarshipMasterlist
     ]);
     MasterlistRecord::factory()->for($masterlist, 'masterlist')->create([
         'student_id_number' => 'SKSU-2026-0003',
-        'student_name' => 'Duplicate Scholar',
-        'verification_status' => 'duplicate',
+        'student_name' => 'Maria Santos',
+        'verification_status' => 'no_cor_printed',
     ]);
     MasterlistRecord::factory()->for($masterlist, 'masterlist')->create([
         'student_id_number' => null,
-        'student_name' => 'Invalid Scholar',
-        'verification_status' => 'invalid',
+        'student_name' => 'Unknown Scholar',
+        'verification_status' => 'unenrolled',
     ]);
 
     return $masterlist;
@@ -55,7 +54,7 @@ test('coordinators can view pending verified masterlists with validation summari
         ->assertOk()
         ->assertSee('Masterlist Validation')
         ->assertSee($masterlist->agency->agency_name)
-        ->assertSee('1 enrolled, 1 unenrolled, 1 duplicate, 1 invalid');
+        ->assertSee('1 enrolled, 1 no COR printed, 2 unenrolled');
 });
 
 test('coordinators can review enrolled and unenrolled scholar records', function () {

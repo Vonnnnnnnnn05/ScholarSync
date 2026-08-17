@@ -42,8 +42,8 @@ The study aims to design and develop **SKSUScholarSync: An Integrated Scholarshi
 
 ### 6. Allow the Scholarship Chairman to (Masterlist and Approval Flow)
 
-6.1 Upload scholarship masterlists received from scholarship agencies through CSV integration.  
-6.2 Associate uploaded masterlists with their corresponding scholarship programs and scholarship agencies.    
+6.1 Upload name-only scholarship masterlists received from scholarship agencies through CSV integration.
+6.2 Associate uploaded masterlists with their corresponding scholarship agencies; scholarship program and fund-source fields are not required for name validation.
 6.3 Distribute scholar records to their respective campuses for validation.  
 6.4 Monitor the validation progress of scholarship masterlists across the seven campuses.  
 6.5 Review validation results submitted by Campus Scholarship Coordinators.  

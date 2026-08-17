@@ -4,7 +4,6 @@ namespace App\Services;
 
 use App\Models\RegistrarStudent;
 use App\Models\ScholarshipMasterlist;
-use App\Models\Student;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\RequestException;
 use Illuminate\Support\Facades\DB;
@@ -34,9 +33,10 @@ class MasterlistVerificationService
                 }
 
                 $record->update([
-                    'matched_student_id' => $verifiedRecord['matched_student_id'] ?? null,
+                    'matched_student_id' => null,
+                    'registrar_student_id' => $verifiedRecord['matched_student_id'] ?? null,
+                    'campus_id' => $verifiedRecord['campus_id'] ?? null,
                     'verification_status' => $verifiedRecord['status'],
-                    'eligibility_status' => $verifiedRecord['eligibility_status'] ?? ($verifiedRecord['status'] === 'enrolled' ? 'qualified' : 'unqualified'),
                     'remarks' => $verifiedRecord['remarks'] ?? null,
                 ]);
             }
@@ -47,11 +47,8 @@ class MasterlistVerificationService
                 'status' => 'verified',
                 'total_records' => $summary['total_records'] ?? $masterlist->records()->count(),
                 'enrolled_count' => $summary['enrolled_count'] ?? 0,
+                'no_cor_printed_count' => $summary['no_cor_printed_count'] ?? 0,
                 'unenrolled_count' => $summary['unenrolled_count'] ?? 0,
-                'duplicate_count' => $summary['duplicate_count'] ?? 0,
-                'invalid_count' => $summary['invalid_count'] ?? 0,
-                'qualified_count' => $summary['qualified_count'] ?? 0,
-                'unqualified_count' => $summary['unqualified_count'] ?? 0,
                 'validated_at' => now(),
             ]);
 
@@ -86,33 +83,16 @@ class MasterlistVerificationService
      */
     private function payload(ScholarshipMasterlist $masterlist): array
     {
-        $enrolledStudents = RegistrarStudent::query()
-            ->where('enrollment_status', 'enrolled')
+        $registrarStudents = RegistrarStudent::query()
             ->oldest('id')
             ->get()
-            ->map(function (RegistrarStudent $student): array {
-                $studentProfileId = Student::query()
-                    ->where('student_id_number', $student->student_id_number)
-                    ->value('id');
-
-                return [
-                    'id' => $studentProfileId ?: $student->id,
-                    'student_id_number' => $student->student_id_number,
-                    'student_name' => $student->student_name,
-                ];
-            });
-
-        if ($enrolledStudents->isEmpty()) {
-            $enrolledStudents = Student::query()
-                ->where('status', 'active')
-                ->oldest('id')
-                ->get()
-                ->map(fn (Student $student): array => [
-                    'id' => $student->id,
-                    'student_id_number' => $student->student_id_number,
-                    'student_name' => $student->fullName(),
-                ]);
-        }
+            ->map(fn (RegistrarStudent $student): array => [
+                'id' => $student->id,
+                'student_name' => $student->student_name,
+                'campus_id' => $student->campus_id,
+                'enrollment_status' => $student->enrollment_status,
+                'cor_printed' => $student->cor_printed,
+            ]);
 
         return [
             'records' => $masterlist->records()
@@ -120,14 +100,11 @@ class MasterlistVerificationService
                 ->get()
                 ->map(fn ($record): array => [
                     'row_id' => $record->id,
-                    'student_id_number' => $record->student_id_number,
                     'student_name' => $record->student_name,
-                    'scholarship_program' => $record->scholarship_program,
-                    'fund_source' => $record->fund_source,
                 ])
                 ->values()
                 ->all(),
-            'enrolled_students' => $enrolledStudents
+            'registrar_students' => $registrarStudents
                 ->values()
                 ->all(),
         ];

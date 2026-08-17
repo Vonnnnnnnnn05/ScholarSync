@@ -14,7 +14,8 @@
 
 ## Scholarship Chairman
 
-- Upload agency-provided masterlists and distribute records by campus.
+- Upload name-only agency masterlists and automatically distribute matched records by campus.
+- Compare scholar names with Registrar data as enrolled, no COR printed, or unenrolled.
 - Monitor campus validation progress and review submitted results.
 - Approve, reject, and finalize scholar records.
 

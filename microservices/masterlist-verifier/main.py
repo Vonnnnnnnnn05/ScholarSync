@@ -1,48 +1,45 @@
-﻿from typing import Literal
+import re
+import unicodedata
+from collections import defaultdict
+from typing import Literal
 
 from fastapi import FastAPI
 from pydantic import BaseModel, Field
 
-
-VerificationStatus = Literal["enrolled", "unenrolled", "duplicate", "invalid"]
-EligibilityStatus = Literal["qualified", "unqualified"]
+VerificationStatus = Literal["enrolled", "no_cor_printed", "unenrolled"]
 
 
 class MasterlistRecordIn(BaseModel):
     row_id: int
-    student_id_number: str | None = None
     student_name: str | None = None
-    scholarship_program: str | None = None
-    fund_source: str | None = None
 
 
-class EnrolledStudentIn(BaseModel):
+class RegistrarStudentIn(BaseModel):
     id: int
-    student_id_number: str
     student_name: str | None = None
+    campus_id: int | None = None
+    enrollment_status: str = "enrolled"
+    cor_printed: bool = False
 
 
 class VerifyMasterlistRequest(BaseModel):
     records: list[MasterlistRecordIn] = Field(default_factory=list)
-    enrolled_students: list[EnrolledStudentIn] = Field(default_factory=list)
+    registrar_students: list[RegistrarStudentIn] = Field(default_factory=list)
 
 
 class MasterlistRecordOut(BaseModel):
     row_id: int
     status: VerificationStatus
-    eligibility_status: EligibilityStatus
     matched_student_id: int | None = None
+    campus_id: int | None = None
     remarks: str | None = None
 
 
 class VerificationSummary(BaseModel):
     total_records: int
     enrolled_count: int
+    no_cor_printed_count: int
     unenrolled_count: int
-    duplicate_count: int
-    invalid_count: int
-    qualified_count: int
-    unqualified_count: int
 
 
 class VerifyMasterlistResponse(BaseModel):
@@ -50,7 +47,7 @@ class VerifyMasterlistResponse(BaseModel):
     records: list[MasterlistRecordOut]
 
 
-app = FastAPI(title="ScholarSync Masterlist Verifier", version="1.1.0")
+app = FastAPI(title="ScholarSync Masterlist Verifier", version="2.0.0")
 
 
 @app.get("/health-check")
@@ -60,109 +57,59 @@ def health_check() -> dict[str, str]:
 
 @app.post("/verify-masterlist", response_model=VerifyMasterlistResponse)
 def verify_masterlist(payload: VerifyMasterlistRequest) -> VerifyMasterlistResponse:
-    student_id_counts: dict[str, int] = {}
+    enrolled_by_name: dict[str, list[RegistrarStudentIn]] = defaultdict(list)
 
-    for record in payload.records:
-        student_id = normalize(record.student_id_number)
-
-        if student_id:
-            student_id_counts[student_id] = student_id_counts.get(student_id, 0) + 1
-
-    enrolled_by_student_id = {
-        normalize(student.student_id_number): student
-        for student in payload.enrolled_students
-        if normalize(student.student_id_number)
-    }
+    for student in payload.registrar_students:
+        name = normalize_name(student.student_name)
+        status = normalize_value(student.enrollment_status).replace(" ", "_")
+        if name and status == "enrolled":
+            enrolled_by_name[name].append(student)
 
     verified_records: list[MasterlistRecordOut] = []
 
     for record in payload.records:
-        errors = required_field_errors(record)
-        student_id = normalize(record.student_id_number)
+        name = normalize_name(record.student_name)
+        matches = enrolled_by_name.get(name, []) if name else []
 
-        if errors:
-            verified_records.append(
-                MasterlistRecordOut(
-                    row_id=record.row_id,
-                    status="invalid",
-                    eligibility_status="unqualified",
-                    remarks=" ".join(errors),
-                )
-            )
-            continue
-
-        if student_id_counts.get(student_id, 0) > 1:
-            verified_records.append(
-                MasterlistRecordOut(
-                    row_id=record.row_id,
-                    status="duplicate",
-                    eligibility_status="unqualified",
-                    remarks="Duplicate student ID in uploaded file.",
-                )
-            )
-            continue
-
-        matched_student = enrolled_by_student_id.get(student_id)
-
-        if matched_student is None:
-            verified_records.append(
-                MasterlistRecordOut(
-                    row_id=record.row_id,
-                    status="unenrolled",
-                    eligibility_status="unqualified",
-                    remarks="No matching enrolled student record found.",
-                )
-            )
-            continue
-
-        verified_records.append(
-            MasterlistRecordOut(
+        if not name:
+            result = MasterlistRecordOut(row_id=record.row_id, status="unenrolled", remarks="Student name is required.")
+        elif len(matches) > 1:
+            result = MasterlistRecordOut(row_id=record.row_id, status="unenrolled", remarks="Multiple enrolled students have this name; manual checking is required.")
+        elif not matches:
+            result = MasterlistRecordOut(row_id=record.row_id, status="unenrolled", remarks="No matching enrolled student record found.")
+        else:
+            student = matches[0]
+            status: VerificationStatus = "enrolled" if student.cor_printed else "no_cor_printed"
+            result = MasterlistRecordOut(
                 row_id=record.row_id,
-                status="enrolled",
-                eligibility_status="qualified",
-                matched_student_id=matched_student.id,
-                remarks="Matched registrar enrolled-student record.",
+                status=status,
+                matched_student_id=student.id,
+                campus_id=student.campus_id,
+                remarks="Matched enrolled Registrar record with printed COR." if student.cor_printed else "Matched enrolled Registrar record; COR has not been printed.",
             )
-        )
+
+        verified_records.append(result)
 
     return VerifyMasterlistResponse(
         summary=VerificationSummary(
             total_records=len(verified_records),
             enrolled_count=count_status(verified_records, "enrolled"),
+            no_cor_printed_count=count_status(verified_records, "no_cor_printed"),
             unenrolled_count=count_status(verified_records, "unenrolled"),
-            duplicate_count=count_status(verified_records, "duplicate"),
-            invalid_count=count_status(verified_records, "invalid"),
-            qualified_count=count_eligibility(verified_records, "qualified"),
-            unqualified_count=count_eligibility(verified_records, "unqualified"),
         ),
         records=verified_records,
     )
 
 
-def required_field_errors(record: MasterlistRecordIn) -> list[str]:
-    errors: list[str] = []
+def normalize_name(value: str | None) -> str:
+    normalized = unicodedata.normalize("NFKD", value or "")
+    ascii_name = "".join(character for character in normalized if not unicodedata.combining(character))
+    return " ".join(sorted(re.findall(r"[a-z0-9]+", ascii_name.casefold())))
 
-    required_fields = {
-        "Student ID Number": record.student_id_number,
-        "Student Name": record.student_name,
-        "Scholarship Program": record.scholarship_program,
-        "Fund Source": record.fund_source,
-    }
 
-    for label, value in required_fields.items():
-        if not normalize(value):
-            errors.append(f"{label} is required.")
-
-    return errors
+def normalize_value(value: str | None) -> str:
+    return " ".join((value or "").strip().casefold().replace("-", " ").split())
 
 
 def count_status(records: list[MasterlistRecordOut], status: VerificationStatus) -> int:
     return sum(1 for record in records if record.status == status)
-
-
-def count_eligibility(records: list[MasterlistRecordOut], status: EligibilityStatus) -> int:
-    return sum(1 for record in records if record.eligibility_status == status)
-
-
-def normalize(value: str | None) -> str:
-    return (value or "").strip()

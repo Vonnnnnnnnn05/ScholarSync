@@ -35,11 +35,10 @@
                                     <td class="px-6 py-4 text-sm font-semibold text-gray-950">{{ $masterlist->agency->agency_name }}</td>
                                     <td class="px-6 py-4 text-sm text-gray-800">{{ $masterlist->file_name }}</td>
                                     <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-700">
-                                        {{ __(':enrolled enrolled, :unenrolled unenrolled, :duplicates duplicate, :invalid invalid', [
+                                        {{ __(':enrolled enrolled, :no_cor no COR printed, :unenrolled unenrolled', [
                                             'enrolled' => $masterlist->enrolled_count,
+                                            'no_cor' => $masterlist->no_cor_printed_count,
                                             'unenrolled' => $masterlist->unenrolled_count,
-                                            'duplicates' => $masterlist->duplicate_count,
-                                            'invalid' => $masterlist->invalid_count,
                                         ]) }}
                                     </td>
                                     <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-700">

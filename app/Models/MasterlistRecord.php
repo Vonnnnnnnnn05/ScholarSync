@@ -15,6 +15,7 @@ class MasterlistRecord extends Model
     protected $fillable = [
         'masterlist_id',
         'campus_id',
+        'registrar_student_id',
         'matched_student_id',
         'student_id_number',
         'student_name',
@@ -40,5 +41,10 @@ class MasterlistRecord extends Model
     public function matchedStudent(): BelongsTo
     {
         return $this->belongsTo(Student::class, 'matched_student_id');
+    }
+
+    public function registrarStudent(): BelongsTo
+    {
+        return $this->belongsTo(RegistrarStudent::class);
     }
 }

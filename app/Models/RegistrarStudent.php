@@ -17,7 +17,13 @@ class RegistrarStudent extends Model
         'year_level',
         'campus',
         'enrollment_status',
+        'cor_printed',
         'academic_year',
         'semester',
     ];
+
+    protected function casts(): array
+    {
+        return ['cor_printed' => 'boolean'];
+    }
 }

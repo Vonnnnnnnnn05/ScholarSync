@@ -13,10 +13,7 @@ use RuntimeException;
 class MasterlistCsvService
 {
     public const REQUIRED_COLUMNS = [
-        'student_id_number',
         'student_name',
-        'scholarship_program',
-        'fund_source',
     ];
 
     public function __construct(private readonly MasterlistVerificationService $verifier) {}
@@ -31,18 +28,8 @@ class MasterlistCsvService
         $dataRows = $rows['rows'];
         $missingColumns = array_values(array_diff(self::REQUIRED_COLUMNS, $headers));
 
-        $studentIdCounts = [];
-
-        foreach ($dataRows as $row) {
-            $studentId = trim((string) ($row['student_id_number'] ?? ''));
-
-            if ($studentId !== '') {
-                $studentIdCounts[$studentId] = ($studentIdCounts[$studentId] ?? 0) + 1;
-            }
-        }
-
         $previewRows = collect($dataRows)
-            ->map(function (array $row, int $index) use ($studentIdCounts, $missingColumns): array {
+            ->map(function (array $row, int $index) use ($missingColumns): array {
                 $fieldErrors = [];
 
                 foreach (self::REQUIRED_COLUMNS as $column) {
@@ -51,13 +38,7 @@ class MasterlistCsvService
                     }
                 }
 
-                $studentId = trim((string) ($row['student_id_number'] ?? ''));
-                $isDuplicate = $studentId !== '' && ($studentIdCounts[$studentId] ?? 0) > 1;
                 $errors = $fieldErrors;
-
-                if ($isDuplicate) {
-                    $errors[] = 'Duplicate student ID in uploaded file.';
-                }
 
                 if ($missingColumns !== []) {
                     $errors[] = 'CSV is missing required columns.';
@@ -65,11 +46,7 @@ class MasterlistCsvService
 
                 return [
                     'row_number' => $index + 2,
-                    'student_id_number' => $studentId,
                     'student_name' => trim((string) ($row['student_name'] ?? '')),
-                    'scholarship_program' => trim((string) ($row['scholarship_program'] ?? '')),
-                    'fund_source' => trim((string) ($row['fund_source'] ?? '')),
-                    'is_duplicate' => $isDuplicate,
                     'is_invalid' => $fieldErrors !== [] || $missingColumns !== [],
                     'errors' => $errors,
                 ];
@@ -82,8 +59,6 @@ class MasterlistCsvService
             'missing_columns' => $missingColumns,
             'rows' => $previewRows,
             'total_records' => count($previewRows),
-            'duplicate_count' => collect($previewRows)->where('is_duplicate', true)->count(),
-            'invalid_count' => collect($previewRows)->where('is_invalid', true)->count(),
         ];
     }
 
@@ -107,25 +82,13 @@ class MasterlistCsvService
                 'file_path' => $storedPath,
                 'status' => 'uploaded',
                 'total_records' => $preview['total_records'],
-                'duplicate_count' => $preview['duplicate_count'],
-                'invalid_count' => $preview['invalid_count'],
                 'uploaded_at' => now(),
             ]);
 
             foreach ($preview['rows'] as $row) {
-                $verificationStatus = match (true) {
-                    $row['is_invalid'] && $row['is_duplicate'] => 'duplicate',
-                    $row['is_duplicate'] => 'duplicate',
-                    $row['is_invalid'] => 'invalid',
-                    default => 'pending',
-                };
-
                 $masterlist->records()->create([
-                    'student_id_number' => $row['student_id_number'] ?: null,
                     'student_name' => $row['student_name'] ?: null,
-                    'scholarship_program' => $row['scholarship_program'] ?: null,
-                    'fund_source' => $row['fund_source'] ?: null,
-                    'verification_status' => $verificationStatus,
+                    'verification_status' => 'pending',
                     'remarks' => $row['errors'] !== [] ? implode(' ', $row['errors']) : null,
                 ]);
             }

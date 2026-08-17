@@ -41,7 +41,7 @@ class MasterlistValidationController extends Controller
             ->with('matchedStudent')
             ->when($request->user()->campus_id, fn ($query, $campusId) => $query->where('campus_id', $campusId))
             ->when(
-                in_array($activeStatus, ['enrolled', 'unenrolled', 'duplicate', 'invalid'], true),
+                in_array($activeStatus, ['enrolled', 'no_cor_printed', 'unenrolled'], true),
                 fn ($query) => $query->where('verification_status', $activeStatus),
             )
             ->oldest('id');
@@ -50,7 +50,7 @@ class MasterlistValidationController extends Controller
             'masterlist' => $masterlist->load('agency'),
             'records' => $recordsQuery->paginate(20)->withQueryString(),
             'activeStatus' => $activeStatus,
-            'verificationStatuses' => ['enrolled', 'unenrolled', 'duplicate', 'invalid'],
+            'verificationStatuses' => ['enrolled', 'no_cor_printed', 'unenrolled'],
             'canEdit' => $masterlist->status !== 'submitted_to_chairman',
         ]);
     }
