@@ -16,6 +16,7 @@ use App\Http\Controllers\Coordinator\MasterlistValidationController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Registrar\EnrolledStudentController;
+use App\Http\Controllers\Registrar\MasterlistVerificationController as RegistrarMasterlistVerificationController;
 use App\Http\Controllers\Student\CertificateRequestController;
 use App\Http\Controllers\Student\ScholarshipDiscoveryController;
 use App\Http\Controllers\WelcomeController;
@@ -140,11 +141,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->name('coordinator.masterlists.')
         ->group(function () {
             Route::get('/', [MasterlistValidationController::class, 'index'])->name('index');
-            Route::get('/{masterlist}', [MasterlistValidationController::class, 'show'])->name('show');
-            Route::patch('/{masterlist}/records/{record}', [MasterlistValidationController::class, 'updateRecord'])
-                ->name('records.update');
-            Route::post('/{masterlist}/submit', [MasterlistValidationController::class, 'submit'])->name('submit');
         });
+    Route::middleware('role:coordinator')->prefix('coordinator/masterlist-batches')->name('coordinator.batches.')->group(function () {
+        Route::get('/{batch}', [MasterlistValidationController::class, 'showBatch'])->name('show');
+        Route::post('/{batch}/submit-to-registrar', [MasterlistValidationController::class, 'submitToRegistrar'])->name('submit-to-registrar');
+        Route::post('/{batch}/submit-to-chairman', [MasterlistValidationController::class, 'submitToChairman'])->name('submit-to-chairman');
+    });
 
     Route::middleware('role:scholarship_chairman')
         ->prefix('chairman/uploads')
@@ -163,9 +165,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->group(function () {
             Route::get('/', [MasterlistApprovalController::class, 'index'])->name('index');
             Route::get('/{masterlist}', [MasterlistApprovalController::class, 'show'])->name('show');
-            Route::patch('/{masterlist}/records/{record}', [MasterlistApprovalController::class, 'updateRecord'])
-                ->name('records.update');
             Route::post('/{masterlist}/release', [MasterlistApprovalController::class, 'release'])->name('release');
+            Route::get('/{masterlist}/export', [MasterlistApprovalController::class, 'export'])->name('export');
         });
     Route::middleware('role:registrar')
         ->prefix('registrar/enrolled-students')
@@ -174,6 +175,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::get('/', [EnrolledStudentController::class, 'index'])->name('index');
             Route::post('/import', [EnrolledStudentController::class, 'import'])->name('import');
         });
+    Route::middleware('role:registrar')->prefix('registrar/masterlist-batches')->name('registrar.batches.')->group(function () {
+        Route::get('/', [RegistrarMasterlistVerificationController::class, 'index'])->name('index');
+        Route::get('/{batch}', [RegistrarMasterlistVerificationController::class, 'show'])->name('show');
+        Route::patch('/{batch}/records/{record}', [RegistrarMasterlistVerificationController::class, 'update'])->name('records.update');
+        Route::post('/{batch}/return', [RegistrarMasterlistVerificationController::class, 'return'])->name('return');
+    });
 });
 
 Route::middleware('auth')->group(function () {

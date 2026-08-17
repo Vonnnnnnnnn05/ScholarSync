@@ -16,7 +16,7 @@ class MasterlistUploadController extends Controller
     public function index(): View
     {
         return view('chairman.uploads.index', [
-            'masterlists' => ScholarshipMasterlist::query()->with('agency')->withCount('records')->latest()->paginate(10),
+            'masterlists' => ScholarshipMasterlist::query()->with('agency')->withCount(['records', 'campusBatches'])->latest()->paginate(10),
         ]);
     }
 
@@ -58,7 +58,7 @@ class MasterlistUploadController extends Controller
     {
         return view('chairman.uploads.show', [
             'agency' => $masterlist->agency,
-            'masterlist' => $masterlist->load('agency'),
+            'masterlist' => $masterlist->load(['agency', 'campusBatches.campus']),
             'records' => $masterlist->records()->latest()->paginate(25),
         ]);
     }

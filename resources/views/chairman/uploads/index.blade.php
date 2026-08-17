@@ -29,7 +29,7 @@
                                 <th class="px-6 py-3 text-left text-xs font-semibold uppercase text-gray-600">{{ __('File') }}</th>
                                 <th class="px-6 py-3 text-left text-xs font-semibold uppercase text-gray-600">{{ __('Agency') }}</th>
                                 <th class="px-6 py-3 text-left text-xs font-semibold uppercase text-gray-600">{{ __('Records') }}</th>
-                                <th class="px-6 py-3 text-left text-xs font-semibold uppercase text-gray-600">{{ __('Needs Review') }}</th>
+                                <th class="px-6 py-3 text-left text-xs font-semibold uppercase text-gray-600">{{ __('Campus Batches') }}</th>
                                 <th class="px-6 py-3 text-left text-xs font-semibold uppercase text-gray-600">{{ __('Status') }}</th>
                                 <th class="px-6 py-3 text-left text-xs font-semibold uppercase text-gray-600">{{ __('Uploaded') }}</th>
                                 <th class="px-6 py-3 text-right text-xs font-semibold uppercase text-gray-600">{{ __('Action') }}</th>
@@ -42,11 +42,7 @@
                                     <td class="px-6 py-4 text-sm text-gray-700">{{ $masterlist->agency->agency_name }}</td>
                                     <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-700">{{ $masterlist->total_records }}</td>
                                     <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-700">
-                                        {{ __(':enrolled enrolled, :no_cor no COR printed, :unenrolled unenrolled', [
-                                            'enrolled' => $masterlist->enrolled_count,
-                                            'no_cor' => $masterlist->no_cor_printed_count,
-                                            'unenrolled' => $masterlist->unenrolled_count,
-                                        ]) }}
+                                        {{ $masterlist->campus_batches_count }}
                                     </td>
                                     <td class="whitespace-nowrap px-6 py-4 text-sm">
                                         <span class="inline-flex rounded-md bg-yellow-100 px-2.5 py-1 text-xs font-semibold text-yellow-900">

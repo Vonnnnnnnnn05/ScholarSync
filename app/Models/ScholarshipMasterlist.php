@@ -51,4 +51,9 @@ class ScholarshipMasterlist extends Model
     {
         return $this->hasMany(MasterlistRecord::class, 'masterlist_id');
     }
+
+    public function campusBatches(): HasMany
+    {
+        return $this->hasMany(MasterlistCampusBatch::class, 'masterlist_id');
+    }
 }

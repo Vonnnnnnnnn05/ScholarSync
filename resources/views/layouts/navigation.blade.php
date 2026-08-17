@@ -44,14 +44,20 @@
 
                     @if (Auth::user()->hasRole(\App\Enums\UserRole::Coordinator))
                         <x-nav-link :href="route('coordinator.masterlists.index')" :active="request()->routeIs('coordinator.masterlists.*')">
-                            Validation
+                            Campus Routing
                         </x-nav-link>
 
                     @endif
 
                     @if (Auth::user()->hasRole(\App\Enums\UserRole::ScholarshipChairman))
                         <x-nav-link :href="route('chairman.masterlists.index')" :active="request()->routeIs('chairman.masterlists.*')">
-                            {{ __('Approvals') }}
+                            {{ __('Campus Progress') }}
+                        </x-nav-link>
+                    @endif
+
+                    @if (Auth::user()->hasRole(\App\Enums\UserRole::Registrar))
+                        <x-nav-link :href="route('registrar.batches.index')" :active="request()->routeIs('registrar.batches.*')">
+                            {{ __('Beneficiary Verification') }}
                         </x-nav-link>
                     @endif
                 </div>
@@ -138,14 +144,20 @@
 
             @if (Auth::user()->hasRole(\App\Enums\UserRole::Coordinator))
                 <x-responsive-nav-link :href="route('coordinator.masterlists.index')" :active="request()->routeIs('coordinator.masterlists.*')">
-                    Validation
+                    Campus Routing
                 </x-responsive-nav-link>
 
             @endif
 
             @if (Auth::user()->hasRole(\App\Enums\UserRole::ScholarshipChairman))
                 <x-responsive-nav-link :href="route('chairman.masterlists.index')" :active="request()->routeIs('chairman.masterlists.*')">
-                    {{ __('Approvals') }}
+                    {{ __('Campus Progress') }}
+                </x-responsive-nav-link>
+            @endif
+
+            @if (Auth::user()->hasRole(\App\Enums\UserRole::Registrar))
+                <x-responsive-nav-link :href="route('registrar.batches.index')" :active="request()->routeIs('registrar.batches.*')">
+                    {{ __('Beneficiary Verification') }}
                 </x-responsive-nav-link>
             @endif
         </div>

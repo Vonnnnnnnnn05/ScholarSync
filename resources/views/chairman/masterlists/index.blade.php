@@ -3,7 +3,7 @@
         <div>
             <p class="text-sm font-medium text-emerald-700">{{ __('Scholarship Chairman') }}</p>
             <h2 class="text-xl font-semibold leading-tight text-gray-900">
-                {{ __('Masterlist Approvals') }}
+                {{ __('Seven-Campus Masterlist Progress') }}
             </h2>
         </div>
     </x-slot>
@@ -23,8 +23,8 @@
                             <tr>
                                 <th class="px-6 py-3 text-left text-xs font-semibold uppercase text-gray-600">{{ __('Agency') }}</th>
                                 <th class="px-6 py-3 text-left text-xs font-semibold uppercase text-gray-600">{{ __('File') }}</th>
-                                <th class="px-6 py-3 text-left text-xs font-semibold uppercase text-gray-600">{{ __('Validation Summary') }}</th>
-                                <th class="px-6 py-3 text-left text-xs font-semibold uppercase text-gray-600">{{ __('Approval Progress') }}</th>
+                                <th class="px-6 py-3 text-left text-xs font-semibold uppercase text-gray-600">{{ __('Beneficiaries') }}</th>
+                                <th class="px-6 py-3 text-left text-xs font-semibold uppercase text-gray-600">{{ __('Campus Progress') }}</th>
                                 <th class="px-6 py-3 text-left text-xs font-semibold uppercase text-gray-600">{{ __('Status') }}</th>
                                 <th class="px-6 py-3 text-right text-xs font-semibold uppercase text-gray-600">{{ __('Action') }}</th>
                             </tr>
@@ -35,18 +35,10 @@
                                     <td class="px-6 py-4 text-sm font-semibold text-gray-950">{{ $masterlist->agency->agency_name }}</td>
                                     <td class="px-6 py-4 text-sm text-gray-800">{{ $masterlist->file_name }}</td>
                                     <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-700">
-                                        {{ __(':enrolled enrolled, :no_cor no COR printed, :unenrolled unenrolled', [
-                                            'enrolled' => $masterlist->enrolled_count,
-                                            'no_cor' => $masterlist->no_cor_printed_count,
-                                            'unenrolled' => $masterlist->unenrolled_count,
-                                        ]) }}
+                                        {{ $masterlist->records_count }}
                                     </td>
                                     <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-700">
-                                        {{ __(':approved approved, :rejected rejected, :pending pending', [
-                                            'approved' => $masterlist->approved_records_count,
-                                            'rejected' => $masterlist->rejected_records_count,
-                                            'pending' => $masterlist->pending_records_count,
-                                        ]) }}
+                                        {{ __(':complete of :total represented campuses submitted', ['complete' => $masterlist->completed_campus_batches_count, 'total' => $masterlist->campus_batches_count]) }}
                                     </td>
                                     <td class="whitespace-nowrap px-6 py-4 text-sm">
                                         <span class="inline-flex rounded-md bg-yellow-100 px-2.5 py-1 text-xs font-semibold text-yellow-900">
@@ -62,7 +54,7 @@
                             @empty
                                 <tr>
                                     <td colspan="6" class="px-6 py-12 text-center text-sm text-gray-600">
-                                        {{ __('No masterlists have been submitted for chairman approval.') }}
+                                        {{ __('No beneficiary master lists have been uploaded.') }}
                                     </td>
                                 </tr>
                             @endforelse

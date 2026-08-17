@@ -4,9 +4,11 @@ namespace App\Http\Controllers\Coordinator;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\UpdateCoordinatorMasterlistRecordRequest;
+use App\Models\MasterlistCampusBatch;
 use App\Models\MasterlistRecord;
 use App\Models\ScholarshipMasterlist;
 use App\Services\AuditTrailService;
+use App\Services\MasterlistCampusWorkflowService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -14,19 +16,37 @@ use Illuminate\View\View;
 
 class MasterlistValidationController extends Controller
 {
+    public function showBatch(Request $request, MasterlistCampusBatch $batch): View
+    {
+        abort_unless($request->user()->campus_id && $request->user()->campus_id === $batch->campus_id, 403);
+
+        return view('coordinator.masterlists.batch', [
+            'batch' => $batch->load(['masterlist.agency', 'campus']),
+            'records' => $batch->records()->oldest('id')->paginate(20),
+        ]);
+    }
+
+    public function submitToRegistrar(Request $request, MasterlistCampusBatch $batch, MasterlistCampusWorkflowService $workflow): RedirectResponse
+    {
+        $workflow->submitToRegistrar($batch, $request->user());
+
+        return back()->with('status', 'Campus batch submitted to the Registrar.');
+    }
+
+    public function submitToChairman(Request $request, MasterlistCampusBatch $batch, MasterlistCampusWorkflowService $workflow): RedirectResponse
+    {
+        $workflow->submitToChairman($batch, $request->user());
+
+        return back()->with('status', 'Verified campus batch submitted to the Chairman.');
+    }
+
     public function index(Request $request): View
     {
         return view('coordinator.masterlists.index', [
-            'masterlists' => ScholarshipMasterlist::query()
-                ->with('agency')
-                ->withCount([
-                    'records',
-                    'records as pending_records_count' => fn ($query) => $query->where('coordinator_status', 'pending'),
-                    'records as reviewed_records_count' => fn ($query) => $query->where('coordinator_status', '!=', 'pending'),
-                ])
-                ->whereIn('status', ['verified', 'coordinator_validation'])
-                ->when($request->user()->campus_id, fn ($query, $campusId) => $query->whereHas('records', fn ($query) => $query->where('campus_id', $campusId)))
-                ->latest('validated_at')
+            'batches' => MasterlistCampusBatch::query()
+                ->with(['masterlist.agency', 'campus'])
+                ->where('campus_id', $request->user()->campus_id)
+                ->latest()
                 ->paginate(10),
         ]);
     }

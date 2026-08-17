@@ -56,14 +56,16 @@ test('verification sends names and registrar COR data then persists no COR resul
         ->and($masterlist->refresh()->no_cor_printed_count)->toBe(1);
 });
 
-test('masterlist preview requires only the student name column', function () {
+test('masterlist preview requires student name and campus columns', function () {
     Storage::fake('local');
-    Storage::disk('local')->put('masterlists/tmp/names.csv', "student_name\nAna Cruz\nJuan Dela Cruz\n");
+    $campus = Campus::factory()->create(['name' => 'Isulan Campus', 'code' => 'isulan']);
+    Storage::disk('local')->put('masterlists/tmp/names.csv', "student_name,campus\nAna Cruz,Isulan Campus\nJuan Dela Cruz,isulan\n");
 
     $preview = app(MasterlistCsvService::class)->preview('masterlists/tmp/names.csv');
 
-    expect(MasterlistCsvService::REQUIRED_COLUMNS)->toBe(['student_name'])
+    expect(MasterlistCsvService::REQUIRED_COLUMNS)->toBe(['student_name', 'campus'])
         ->and($preview['missing_columns'])->toBe([])
         ->and($preview['total_records'])->toBe(2)
-        ->and($preview['rows'][0]['student_name'])->toBe('Ana Cruz');
+        ->and($preview['rows'][0]['student_name'])->toBe('Ana Cruz')
+        ->and($preview['rows'][0]['campus_id'])->toBe($campus->id);
 });

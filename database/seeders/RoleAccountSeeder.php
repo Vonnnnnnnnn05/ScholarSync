@@ -26,28 +26,19 @@ class RoleAccountSeeder extends Seeder
             'email' => 'admin@scholarsync.test',
             'role' => UserRole::Administrator,
         ],
-        'coordinator' => [
-            'name' => 'ScholarSync Coordinator',
-            'email' => 'coordinator@scholarsync.test',
-            'role' => UserRole::Coordinator,
-        ],
         'chairman' => [
             'name' => 'ScholarSync Scholarship Chairman',
             'email' => 'chairman@scholarsync.test',
             'role' => UserRole::ScholarshipChairman,
-        ],
-        'registrar' => [
-            'name' => 'ScholarSync Registrar',
-            'email' => 'registrar@scholarsync.test',
-            'role' => UserRole::Registrar,
         ],
     ];
 
     public function run(): void
     {
         $this->call(CampusSeeder::class);
-        $campus = Campus::query()->where('code', 'access')->firstOrFail();
-
+        User::query()
+            ->whereIn('email', ['coordinator@scholarsync.test', 'registrar@scholarsync.test'])
+            ->update(['status' => 'inactive']);
         foreach ($this->accounts as $account) {
             $user = User::updateOrCreate(
                 ['email' => $account['email']],
@@ -55,12 +46,28 @@ class RoleAccountSeeder extends Seeder
                     'name' => $account['name'],
                     'password' => Hash::make('password'),
                     'role' => $account['role'],
-                    'campus_id' => $account['role']->requiresCampus() ? $campus->id : null,
+                    'campus_id' => null,
                     'email_verified_at' => now(),
                 ],
             );
 
             $this->createRelatedProfile($user);
+        }
+
+        foreach (Campus::query()->where('is_active', true)->orderBy('id')->get() as $campus) {
+            foreach ([UserRole::Coordinator, UserRole::Registrar] as $role) {
+                User::updateOrCreate(
+                    ['email' => $role->value.'.'.$campus->code.'@scholarsync.test'],
+                    [
+                        'name' => $campus->name.' '.$role->label(),
+                        'password' => Hash::make('password'),
+                        'role' => $role,
+                        'campus_id' => $campus->id,
+                        'status' => 'active',
+                        'email_verified_at' => now(),
+                    ],
+                );
+            }
         }
 
         Agency::firstOrCreate(

@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Agency;
+use App\Models\Campus;
 use App\Models\ScholarshipMasterlist;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Arr;
@@ -14,9 +15,8 @@ class MasterlistCsvService
 {
     public const REQUIRED_COLUMNS = [
         'student_name',
+        'campus',
     ];
-
-    public function __construct(private readonly MasterlistVerificationService $verifier) {}
 
     /**
      * @return array<string, mixed>
@@ -28,8 +28,9 @@ class MasterlistCsvService
         $dataRows = $rows['rows'];
         $missingColumns = array_values(array_diff(self::REQUIRED_COLUMNS, $headers));
 
+        $campuses = Campus::query()->where('is_active', true)->get();
         $previewRows = collect($dataRows)
-            ->map(function (array $row, int $index) use ($missingColumns): array {
+            ->map(function (array $row, int $index) use ($missingColumns, $campuses): array {
                 $fieldErrors = [];
 
                 foreach (self::REQUIRED_COLUMNS as $column) {
@@ -39,6 +40,16 @@ class MasterlistCsvService
                 }
 
                 $errors = $fieldErrors;
+                $campusValue = trim((string) ($row['campus'] ?? ''));
+                $normalizedCampus = $this->normalizeCampus($campusValue);
+                $campus = $campuses->first(fn (Campus $candidate): bool => in_array($normalizedCampus, [
+                    $this->normalizeCampus($candidate->name),
+                    $this->normalizeCampus($candidate->code),
+                ], true));
+
+                if ($campusValue !== '' && $campus === null) {
+                    $errors[] = 'Campus must match one of the seven active SKSU campuses.';
+                }
 
                 if ($missingColumns !== []) {
                     $errors[] = 'CSV is missing required columns.';
@@ -47,7 +58,9 @@ class MasterlistCsvService
                 return [
                     'row_number' => $index + 2,
                     'student_name' => trim((string) ($row['student_name'] ?? '')),
-                    'is_invalid' => $fieldErrors !== [] || $missingColumns !== [],
+                    'campus' => $campus?->name ?? $campusValue,
+                    'campus_id' => $campus?->id,
+                    'is_invalid' => $errors !== [] || $missingColumns !== [],
                     'errors' => $errors,
                 ];
             })
@@ -72,6 +85,7 @@ class MasterlistCsvService
         abort_unless(Storage::disk('local')->exists($temporaryPath), 404);
 
         $preview = $this->preview($temporaryPath);
+        abort_if(collect($preview['rows'])->contains('is_invalid', true), 422, 'Masterlist contains invalid rows.');
         $storedPath = 'masterlists/uploads/'.basename($temporaryPath);
 
         Storage::disk('local')->copy($temporaryPath, $storedPath);
@@ -80,7 +94,7 @@ class MasterlistCsvService
             $masterlist = $agency->masterlists()->create([
                 'file_name' => $originalFileName,
                 'file_path' => $storedPath,
-                'status' => 'uploaded',
+                'status' => 'distributed',
                 'total_records' => $preview['total_records'],
                 'uploaded_at' => now(),
             ]);
@@ -88,15 +102,21 @@ class MasterlistCsvService
             foreach ($preview['rows'] as $row) {
                 $masterlist->records()->create([
                     'student_name' => $row['student_name'] ?: null,
+                    'campus_id' => $row['campus_id'],
                     'verification_status' => 'pending',
                     'remarks' => $row['errors'] !== [] ? implode(' ', $row['errors']) : null,
                 ]);
             }
 
+            foreach (collect($preview['rows'])->pluck('campus_id')->unique() as $campusId) {
+                $masterlist->campusBatches()->create([
+                    'campus_id' => $campusId,
+                    'status' => 'with_coordinator',
+                ]);
+            }
+
             return $masterlist;
         });
-
-        $this->verifier->verify($masterlist);
 
         return $masterlist->refresh();
     }
@@ -164,5 +184,10 @@ class MasterlistCsvService
     private function label(string $column): string
     {
         return str($column)->replace('_', ' ')->title()->toString();
+    }
+
+    private function normalizeCampus(string $value): string
+    {
+        return str($value)->lower()->replace('campus', '')->replaceMatches('/[^a-z0-9]/', '')->toString();
     }
 }

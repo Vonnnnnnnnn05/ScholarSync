@@ -81,19 +81,19 @@ class DashboardController extends Controller
                 'Monitor reports and activity',
             ],
             UserRole::Coordinator => [
-                'Review enrolled scholar records',
-                'Validate unenrolled scholar records',
-                'Coordinate campus enrollment discrepancies',
+                'Receive beneficiary records for the assigned campus',
+                'Route beneficiary batches to the Campus Registrar',
+                'Review and return Registrar results to the Chairman',
             ],
             UserRole::ScholarshipChairman => [
-                'Review coordinator-submitted masterlists',
-                'Approve or reject scholar records',
-                'Release final scholar records to agencies',
+                'Upload and distribute beneficiary master lists by campus',
+                'Monitor verification progress across all seven campuses',
+                'Export and forward consolidated verified lists',
             ],
             UserRole::Registrar => [
                 'Maintain official enrolled-student records',
-                'Support microservice enrollment matching',
-                'Provide reliable enrollment data for validation',
+                'Verify assigned-campus beneficiary records',
+                'Return Verified or Not Verified results to the Coordinator',
             ],
         };
     }
@@ -103,9 +103,9 @@ class DashboardController extends Controller
         return match ($role) {
             UserRole::Student => 'Your student workspace for scholarships, requests, and updates.',
             UserRole::Administrator => 'Administrative overview for managing ScholarSync access and records.',
-            UserRole::Coordinator => 'Coordinator dashboard for reviewing and preparing scholarship records.',
-            UserRole::ScholarshipChairman => 'Chairman dashboard for final scholarship review and approvals.',
-            UserRole::Registrar => 'Registrar dashboard for maintaining official enrollment records used in validation.',
+            UserRole::Coordinator => 'Coordinator dashboard for routing campus beneficiary records and reviewing Registrar results.',
+            UserRole::ScholarshipChairman => 'Chairman dashboard for campus progress, consolidation, and external export.',
+            UserRole::Registrar => 'Registrar dashboard for official campus beneficiary verification and enrollment records.',
         };
     }
 
@@ -162,41 +162,39 @@ class DashboardController extends Controller
             ],
             UserRole::Coordinator => [
                 [
-                    'title' => 'Masterlist Validation',
+                    'title' => 'Campus Beneficiary Routing',
                     'details' => [
-                        'View pending verified masterlists for validation.',
-                        'Review enrolled, unenrolled, duplicate, invalid, qualified, and unqualified records.',
-                        'Add remarks and save coordinator validation status.',
-                        'Submit fully reviewed masterlists to the Scholarship Chairman.',
+                        'Receive only beneficiary batches assigned to your campus.',
+                        'Submit batches to the Campus Registrar without changing verification results.',
+                        'Review returned results and submit them to the Scholarship Chairman.',
                     ],
                 ],
             ],
             UserRole::ScholarshipChairman => [
                 [
-                    'title' => 'Final Masterlist Approval',
+                    'title' => 'Campus Progress and Consolidation',
                     'details' => [
                         'Upload agency-provided masterlists and distribute records by campus.',
-                        'View masterlists submitted by coordinators.',
-                        'Review enrolled, unenrolled, duplicate, invalid, qualified, and unqualified records.',
-                        'Approve valid scholar records.',
-                        'Reject invalid records with required remarks.',
+                        'Monitor independent verification progress across all seven campuses.',
+                        'Consolidate only records verified by Campus Registrars.',
+                        'Export the final verified list for the external Scholarship Agency.',
                     ],
                 ],
                 [
                     'title' => 'Final Release',
                     'details' => [
-                        'Record final approval decisions and approval date.',
-                        'Release final scholar records to scholarship agencies.',
+                        'Download the verified-only beneficiary CSV.',
+                        'Record when the final list is forwarded to an external agency.',
                     ],
                 ],
             ],
             UserRole::Registrar => [
                 [
-                    'title' => 'Enrollment Records',
+                    'title' => 'Official Beneficiary Verification',
                     'details' => [
-                        'Add official enrolled-student records.',
-                        'Maintain enrollment status, course, campus, academic year, and semester.',
-                        'Provide the trusted enrollment source used by microservice verification.',
+                        'Maintain official enrollment records for your campus.',
+                        'Compare assigned beneficiaries with official student information.',
+                        'Mark each beneficiary Verified or Not Verified and return the results.',
                     ],
                 ],
             ],

@@ -23,4 +23,9 @@ class Campus extends Model
     {
         return $this->hasMany(User::class);
     }
+
+    public function masterlistBatches(): HasMany
+    {
+        return $this->hasMany(MasterlistCampusBatch::class);
+    }
 }

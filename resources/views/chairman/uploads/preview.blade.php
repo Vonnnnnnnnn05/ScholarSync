@@ -35,6 +35,7 @@
                             <tr>
                                 <th class="px-6 py-3 text-left text-xs font-semibold uppercase text-gray-600">{{ __('Row') }}</th>
                                 <th class="px-6 py-3 text-left text-xs font-semibold uppercase text-gray-600">{{ __('Student Name') }}</th>
+                                <th class="px-6 py-3 text-left text-xs font-semibold uppercase text-gray-600">{{ __('Campus') }}</th>
                                 <th class="px-6 py-3 text-left text-xs font-semibold uppercase text-gray-600">{{ __('Review') }}</th>
                             </tr>
                         </thead>
@@ -43,6 +44,7 @@
                                 <tr class="{{ $row['is_invalid'] ? 'bg-red-50' : '' }}">
                                     <td class="whitespace-nowrap px-6 py-4 text-sm font-semibold text-gray-950">{{ $row['row_number'] }}</td>
                                     <td class="px-6 py-4 text-sm text-gray-800">{{ $row['student_name'] ?: __('Missing') }}</td>
+                                    <td class="px-6 py-4 text-sm text-gray-800">{{ $row['campus'] ?: __('Missing') }}</td>
                                     <td class="max-w-sm px-6 py-4 text-sm text-gray-700">
                                         @if ($row['errors'] === [])
                                             <span class="inline-flex rounded-md bg-emerald-100 px-2.5 py-1 text-xs font-semibold text-emerald-900">{{ __('Ready') }}</span>
@@ -53,7 +55,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="3" class="px-6 py-12 text-center text-sm text-gray-600">
+                                    <td colspan="4" class="px-6 py-12 text-center text-sm text-gray-600">
                                         {{ __('No records found in the CSV file.') }}
                                     </td>
                                 </tr>
@@ -65,7 +67,7 @@
 
             <form method="POST" action="{{ route('chairman.uploads.store') }}" class="mt-6 flex justify-end">
                 @csrf
-                <x-primary-button>
+                <x-primary-button :disabled="collect($preview['rows'])->contains('is_invalid', true) || $preview['missing_columns'] !== []">
                     {{ __('Import Masterlist') }}
                 </x-primary-button>
             </form>

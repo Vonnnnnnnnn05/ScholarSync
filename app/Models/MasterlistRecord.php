@@ -22,11 +22,18 @@ class MasterlistRecord extends Model
         'scholarship_program',
         'fund_source',
         'verification_status',
+        'verified_by',
+        'verified_at',
         'eligibility_status',
         'coordinator_status',
         'chairman_status',
         'remarks',
     ];
+
+    protected function casts(): array
+    {
+        return ['verified_at' => 'datetime'];
+    }
 
     public function masterlist(): BelongsTo
     {
@@ -46,5 +53,10 @@ class MasterlistRecord extends Model
     public function registrarStudent(): BelongsTo
     {
         return $this->belongsTo(RegistrarStudent::class);
+    }
+
+    public function verifier(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'verified_by');
     }
 }

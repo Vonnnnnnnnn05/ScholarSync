@@ -149,6 +149,23 @@ test('campus roles require an assigned campus', function (UserRole $role) {
     ])->assertSessionHasErrors('campus_id');
 })->with([UserRole::Coordinator, UserRole::Registrar]);
 
+test('each campus permits only one active coordinator and registrar', function (UserRole $role) {
+    $administrator = User::factory()->role(UserRole::Administrator)->create();
+    $campus = Campus::factory()->create();
+    User::factory()->role($role)->create(['campus_id' => $campus->id, 'status' => 'active']);
+
+    $this->actingAs($administrator)
+        ->post(route('admin.users.store'), [
+            'name' => 'Duplicate Campus Officer',
+            'email' => 'duplicate-'.$role->value.'@example.com',
+            'role' => $role->value,
+            'campus_id' => $campus->id,
+            'password' => 'password',
+            'password_confirmation' => 'password',
+        ])
+        ->assertSessionHasErrors('campus_id');
+})->with([UserRole::Coordinator, UserRole::Registrar]);
+
 test('non administrators cannot manage users', function () {
     $coordinator = User::factory()->role(UserRole::Coordinator)->create();
 

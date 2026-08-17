@@ -7,10 +7,11 @@
         ['label' => 'Scholarship Opportunities', 'route' => 'admin.scholarships.index', 'active' => 'admin.scholarships.*', 'show' => $user->hasRole(\App\Enums\UserRole::Administrator)],
          ['label' => 'Certificates', 'route' => 'student.certificate-requests.index', 'active' => 'student.certificate-requests.*', 'show' => $user->hasRole(\App\Enums\UserRole::Student)],
         ['label' => 'Scholarships', 'route' => 'student.scholarships.index', 'active' => 'student.scholarships.*', 'show' => $user->hasRole(\App\Enums\UserRole::Student)],
-        ['label' => 'Validation', 'route' => 'coordinator.masterlists.index', 'active' => 'coordinator.masterlists.*', 'show' => $user->hasRole(\App\Enums\UserRole::Coordinator)],
-        ['label' => 'Approvals', 'route' => 'chairman.masterlists.index', 'active' => 'chairman.masterlists.*', 'show' => $user->hasRole(\App\Enums\UserRole::ScholarshipChairman)],
+        ['label' => 'Campus Routing', 'route' => 'coordinator.masterlists.index', 'active' => 'coordinator.masterlists.*', 'show' => $user->hasRole(\App\Enums\UserRole::Coordinator)],
+        ['label' => 'Campus Progress', 'route' => 'chairman.masterlists.index', 'active' => 'chairman.masterlists.*', 'show' => $user->hasRole(\App\Enums\UserRole::ScholarshipChairman)],
         ['label' => 'Masterlist Uploads', 'route' => 'chairman.uploads.index', 'active' => 'chairman.uploads.*', 'show' => $user->hasRole(\App\Enums\UserRole::ScholarshipChairman)],
         ['label' => 'Enrollment Records', 'route' => 'registrar.enrolled-students.index', 'active' => 'registrar.enrolled-students.*', 'show' => $user->hasRole(\App\Enums\UserRole::Registrar)],
+        ['label' => 'Beneficiary Verification', 'route' => 'registrar.batches.index', 'active' => 'registrar.batches.*', 'show' => $user->hasRole(\App\Enums\UserRole::Registrar)],
         ['label' => 'Profile', 'route' => 'profile.edit', 'active' => 'profile.*', 'show' => true],
     ];
     $monitoringLinks = [

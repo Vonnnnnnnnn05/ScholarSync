@@ -3,9 +3,11 @@
 namespace App\Http\Requests\Admin;
 
 use App\Enums\UserRole;
+use App\Models\User;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Password;
+use Illuminate\Validation\Validator;
 
 class UpdateUserRequest extends FormRequest
 {
@@ -40,5 +42,20 @@ class UpdateUserRequest extends FormRequest
             'status' => ['required', Rule::in(['active', 'inactive'])],
             'password' => ['nullable', 'confirmed', Password::defaults()],
         ];
+    }
+
+    public function withValidator(Validator $validator): void
+    {
+        $validator->after(function (Validator $validator): void {
+            $role = UserRole::tryFrom((string) $this->input('role'));
+            $campusId = $this->integer('campus_id');
+            $account = $this->route('user');
+
+            if ($this->input('status') === 'active' && $role?->requiresCampus() && $campusId && User::query()
+                ->whereKeyNot($account?->getKey())->where('role', $role->value)
+                ->where('campus_id', $campusId)->where('status', 'active')->exists()) {
+                $validator->errors()->add('campus_id', 'This campus already has an active '.$role->label().'.');
+            }
+        });
     }
 }

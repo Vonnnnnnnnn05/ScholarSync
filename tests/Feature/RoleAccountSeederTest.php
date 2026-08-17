@@ -14,9 +14,7 @@ test('role account seeder creates only approved login roles with campus assignme
     $accounts = [
         'student@scholarsync.test' => UserRole::Student,
         'admin@scholarsync.test' => UserRole::Administrator,
-        'coordinator@scholarsync.test' => UserRole::Coordinator,
         'chairman@scholarsync.test' => UserRole::ScholarshipChairman,
-        'registrar@scholarsync.test' => UserRole::Registrar,
     ];
 
     foreach ($accounts as $email => $role) {
@@ -29,8 +27,10 @@ test('role account seeder creates only approved login roles with campus assignme
 
     expect(User::where('email', 'agency@scholarsync.test')->exists())->toBeFalse()
         ->and(Campus::query()->count())->toBe(7)
-        ->and(User::where('email', 'coordinator@scholarsync.test')->firstOrFail()->campus_id)->not->toBeNull()
-        ->and(User::where('email', 'registrar@scholarsync.test')->firstOrFail()->campus_id)->not->toBeNull();
+        ->and(User::where('role', UserRole::Coordinator)->count())->toBe(7)
+        ->and(User::where('role', UserRole::Registrar)->count())->toBe(7)
+        ->and(User::where('email', 'coordinator.access@scholarsync.test')->exists())->toBeTrue()
+        ->and(User::where('email', 'registrar.access@scholarsync.test')->exists())->toBeTrue();
 
     expect(Student::whereRelation('user', 'email', 'student@scholarsync.test')->exists())->toBeTrue()
         ->and(Agency::query()->exists())->toBeTrue();

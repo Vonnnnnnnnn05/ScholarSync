@@ -4,13 +4,16 @@ namespace App\Http\Controllers\Chairman;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\UpdateChairmanMasterlistRecordRequest;
+use App\Models\Campus;
 use App\Models\MasterlistRecord;
 use App\Models\ScholarshipMasterlist;
 use App\Services\AuditTrailService;
+use App\Services\VerifiedMasterlistExportService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class MasterlistApprovalController extends Controller
 {
@@ -21,11 +24,13 @@ class MasterlistApprovalController extends Controller
                 ->with('agency')
                 ->withCount([
                     'records',
+                    'campusBatches',
+                    'campusBatches as completed_campus_batches_count' => fn ($query) => $query->where('status', 'submitted_to_chairman'),
                     'records as pending_records_count' => fn ($query) => $query->where('chairman_status', 'pending'),
                     'records as approved_records_count' => fn ($query) => $query->where('chairman_status', 'approved'),
                     'records as rejected_records_count' => fn ($query) => $query->where('chairman_status', 'rejected'),
                 ])
-                ->whereIn('status', ['submitted_to_chairman', 'chairman_review'])
+                ->whereIn('status', ['distributed', 'campus_verification', 'submitted_to_chairman', 'chairman_review', 'ready_for_consolidation', 'released'])
                 ->latest('validated_at')
                 ->paginate(10),
         ]);
@@ -33,7 +38,7 @@ class MasterlistApprovalController extends Controller
 
     public function show(Request $request, ScholarshipMasterlist $masterlist): View
     {
-        abort_unless(in_array($masterlist->status, ['submitted_to_chairman', 'chairman_review', 'released'], true), 404);
+        abort_unless(in_array($masterlist->status, ['distributed', 'campus_verification', 'submitted_to_chairman', 'chairman_review', 'ready_for_consolidation', 'released'], true), 404);
 
         $activeStatus = $request->string('status')->toString();
         $recordsQuery = $masterlist->records()
@@ -50,7 +55,19 @@ class MasterlistApprovalController extends Controller
             'activeStatus' => $activeStatus,
             'verificationStatuses' => ['enrolled', 'no_cor_printed', 'unenrolled'],
             'canEdit' => $masterlist->status !== 'released',
+            'campusProgress' => Campus::query()->where('is_active', true)->orderBy('name')->get()->map(function (Campus $campus) use ($masterlist): array {
+                $batch = $masterlist->campusBatches()->where('campus_id', $campus->id)->first();
+
+                return ['campus' => $campus, 'status' => $batch?->status ?? 'no_records', 'records' => $batch?->records()->count() ?? 0];
+            }),
         ]);
+    }
+
+    public function export(ScholarshipMasterlist $masterlist, VerifiedMasterlistExportService $exporter): StreamedResponse
+    {
+        abort_unless(in_array($masterlist->status, ['ready_for_consolidation', 'released'], true), 422);
+
+        return $exporter->download($masterlist);
     }
 
     public function updateRecord(
@@ -78,15 +95,9 @@ class MasterlistApprovalController extends Controller
 
     public function release(ScholarshipMasterlist $masterlist, AuditTrailService $audit): RedirectResponse
     {
-        abort_unless(in_array($masterlist->status, ['submitted_to_chairman', 'chairman_review'], true), 404);
-
-        $pendingRecords = $masterlist->records()
-            ->where('chairman_status', 'pending')
-            ->count();
-
-        if ($pendingRecords > 0) {
+        if ($masterlist->campusBatches()->doesntExist() || $masterlist->campusBatches()->where('status', '!=', 'submitted_to_chairman')->exists()) {
             return back()->withErrors([
-                'release' => 'Review all records before releasing the final scholar records.',
+                'release' => 'Every represented campus must submit its Registrar-verified batch before release.',
             ]);
         }
 
@@ -99,12 +110,12 @@ class MasterlistApprovalController extends Controller
         });
 
         $audit->record('masterlist_released', $masterlist, [
-            'approved_records' => $masterlist->records()->where('chairman_status', 'approved')->count(),
-            'rejected_records' => $masterlist->records()->where('chairman_status', 'rejected')->count(),
+            'verified_records' => $masterlist->records()->where('verification_status', 'verified')->count(),
+            'not_verified_records' => $masterlist->records()->where('verification_status', 'not_verified')->count(),
         ]);
 
         return redirect()
             ->route('chairman.masterlists.show', $masterlist)
-            ->with('status', 'Final scholar records approved and finalized.');
+            ->with('status', 'Final verified beneficiary list marked as forwarded to the external agency.');
     }
 }
