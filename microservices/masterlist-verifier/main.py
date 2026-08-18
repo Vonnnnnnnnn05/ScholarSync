@@ -1,6 +1,7 @@
 import re
 import unicodedata
 from collections import defaultdict
+from difflib import SequenceMatcher
 from typing import Literal
 
 from fastapi import FastAPI
@@ -9,7 +10,7 @@ from pydantic import BaseModel, Field
 EnrollmentStatus = Literal["enrolled", "not_enrolled", "needs_review"]
 CorStatus = Literal["cor_printed", "no_cor_printed", "needs_review"]
 QualificationStatus = Literal["qualified", "not_qualified", "needs_review"]
-MatchStatus = Literal["matched", "unmatched", "ambiguous", "inconsistent"]
+MatchStatus = Literal["matched", "possible_match", "unmatched", "ambiguous", "inconsistent"]
 
 
 class MasterlistRecordIn(BaseModel):
@@ -40,6 +41,7 @@ class MasterlistRecordOut(BaseModel):
     cor_status: CorStatus
     qualification_status: QualificationStatus
     matched_student_id: int | None = None
+    similarity_score: float | None = None
     campus_id: int | None = None
     remarks: str
 
@@ -73,6 +75,7 @@ def health_check() -> dict[str, str]:
 def verify_masterlist(payload: VerifyMasterlistRequest) -> VerifyMasterlistResponse:
     by_id: dict[str, list[RegistrarStudentIn]] = defaultdict(list)
     by_name: dict[str, list[RegistrarStudentIn]] = defaultdict(list)
+    by_campus: dict[int | None, list[RegistrarStudentIn]] = defaultdict(list)
     for student in payload.registrar_students:
         student_id = normalize_value(student.student_id_number)
         name = normalize_name(student.student_name)
@@ -80,8 +83,9 @@ def verify_masterlist(payload: VerifyMasterlistRequest) -> VerifyMasterlistRespo
             by_id[student_id].append(student)
         if name:
             by_name[name].append(student)
+        by_campus[student.campus_id].append(student)
 
-    results = [verify_record(record, by_id, by_name) for record in payload.records]
+    results = [verify_record(record, by_id, by_name, by_campus) for record in payload.records]
     return VerifyMasterlistResponse(
         summary=VerificationSummary(
             total_records=len(results),
@@ -97,12 +101,24 @@ def verify_masterlist(payload: VerifyMasterlistRequest) -> VerifyMasterlistRespo
     )
 
 
-def verify_record(record, by_id, by_name) -> MasterlistRecordOut:
+def verify_record(record, by_id, by_name, by_campus) -> MasterlistRecordOut:
     student_id = normalize_value(record.student_id_number)
     name = normalize_name(record.student_name)
     candidates = by_id.get(student_id, []) if student_id else by_name.get(name, []) if name else []
 
     if not candidates:
+        fuzzy_result = fuzzy_suggestion(name, by_campus.get(record.campus_id, []))
+        if fuzzy_result and fuzzy_result[0] == "ambiguous":
+            return review(record, "ambiguous", "Multiple same-campus official records have similar names; Registrar selection is required.")
+        if fuzzy_result:
+            _, student, score = fuzzy_result
+            return review(
+                record,
+                "possible_match",
+                f"Possible same-campus official student match ({score:.0%} name similarity); Registrar confirmation is required.",
+                matched_student_id=student.id,
+                similarity_score=score,
+            )
         return review(record, "unmatched", "No confident official student match was found.")
     same_campus = [student for student in candidates if student.campus_id == record.campus_id]
     if not same_campus:
@@ -129,16 +145,47 @@ def verify_record(record, by_id, by_name) -> MasterlistRecordOut:
     )
 
 
-def review(record, match_status: MatchStatus, remarks: str) -> MasterlistRecordOut:
+def review(
+    record,
+    match_status: MatchStatus,
+    remarks: str,
+    matched_student_id: int | None = None,
+    similarity_score: float | None = None,
+) -> MasterlistRecordOut:
     return MasterlistRecordOut(
         row_id=record.row_id,
         match_status=match_status,
         enrollment_status="needs_review",
         cor_status="needs_review",
         qualification_status="needs_review",
+        matched_student_id=matched_student_id,
+        similarity_score=similarity_score,
         campus_id=record.campus_id,
         remarks=remarks,
     )
+
+
+def fuzzy_suggestion(
+    normalized_name: str, campus_students: list[RegistrarStudentIn]
+) -> tuple[Literal["possible_match", "ambiguous"], RegistrarStudentIn | None, float] | None:
+    if not normalized_name:
+        return None
+
+    scored = sorted(
+        (
+            (SequenceMatcher(None, normalized_name, normalize_name(student.student_name)).ratio(), student)
+            for student in campus_students
+            if normalize_name(student.student_name)
+        ),
+        key=lambda item: item[0],
+        reverse=True,
+    )
+    if not scored or scored[0][0] < 0.90:
+        return None
+    if len(scored) > 1 and scored[0][0] - scored[1][0] < 0.05:
+        return "ambiguous", None, round(scored[0][0], 4)
+
+    return "possible_match", scored[0][1], round(scored[0][0], 4)
 
 
 def normalize_name(value: str | None) -> str:

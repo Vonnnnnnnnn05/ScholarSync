@@ -114,6 +114,149 @@ test('registrar resolves an exception without overwriting automatic results', fu
         ->and($record->registrarResolutions()->first()->reason)->toContain('signed campus');
 });
 
+test('registrar confirms a same-campus official record without changing the uploaded name', function () {
+    $campus = Campus::factory()->create();
+    $registrar = User::factory()->create(['role' => UserRole::Registrar, 'campus_id' => $campus->id]);
+    $masterlist = ScholarshipMasterlist::factory()->create();
+    $batch = MasterlistCampusBatch::create(['masterlist_id' => $masterlist->id, 'campus_id' => $campus->id, 'status' => 'awaiting_registrar_review']);
+    $record = MasterlistRecord::factory()->for($masterlist, 'masterlist')->create([
+        'student_name' => 'Von Essson Vergara',
+        'campus_id' => $campus->id,
+        'match_status' => 'possible_match',
+        'final_enrollment_status' => 'needs_review',
+        'final_cor_status' => 'needs_review',
+        'final_qualification_status' => 'needs_review',
+    ]);
+    $official = RegistrarStudent::create([
+        'campus_id' => $campus->id,
+        'student_id_number' => 'SKSU-2026-0012',
+        'student_name' => 'Von Esson Vergara',
+        'enrollment_status' => 'enrolled',
+        'cor_printed' => true,
+    ]);
+
+    $this->actingAs($registrar)->patch(route('registrar.batches.records.update', [$batch, $record]), [
+        'registrar_student_id' => $official->id,
+        'final_enrollment_status' => 'not_enrolled',
+        'final_cor_status' => 'no_cor_printed',
+        'final_qualification_status' => 'not_qualified',
+        'reason' => 'Confirmed the suggested official enrollment record.',
+    ])->assertRedirect()->assertSessionHasNoErrors();
+
+    expect($record->refresh()->student_name)->toBe('Von Essson Vergara')
+        ->and($record->registrar_student_id)->toBe($official->id)
+        ->and($record->match_status)->toBe('matched')
+        ->and($record->final_enrollment_status)->toBe('enrolled')
+        ->and($record->final_cor_status)->toBe('cor_printed')
+        ->and($record->final_qualification_status)->toBe('qualified')
+        ->and($record->registrarResolutions()->first()->new_results['official_student_name'])->toBe('Von Esson Vergara');
+});
+
+test('registrar cannot link an official record from another campus', function () {
+    $campus = Campus::factory()->create();
+    $otherCampus = Campus::factory()->create();
+    $registrar = User::factory()->create(['role' => UserRole::Registrar, 'campus_id' => $campus->id]);
+    $masterlist = ScholarshipMasterlist::factory()->create();
+    $batch = MasterlistCampusBatch::create(['masterlist_id' => $masterlist->id, 'campus_id' => $campus->id, 'status' => 'awaiting_registrar_review']);
+    $record = MasterlistRecord::factory()->for($masterlist, 'masterlist')->create(['campus_id' => $campus->id]);
+    $otherStudent = RegistrarStudent::create([
+        'campus_id' => $otherCampus->id,
+        'student_id_number' => 'OTHER-001',
+        'student_name' => 'Other Campus Student',
+        'enrollment_status' => 'enrolled',
+        'cor_printed' => true,
+    ]);
+
+    $this->actingAs($registrar)->from(route('registrar.batches.show', $batch))
+        ->patch(route('registrar.batches.records.update', [$batch, $record]), [
+            'registrar_student_id' => $otherStudent->id,
+            'final_enrollment_status' => 'enrolled',
+            'final_cor_status' => 'cor_printed',
+            'final_qualification_status' => 'qualified',
+            'reason' => 'Invalid cross-campus attempt.',
+        ])->assertRedirect(route('registrar.batches.show', $batch))->assertSessionHasErrors('registrar_student_id');
+
+    expect($record->refresh()->registrar_student_id)->toBeNull();
+});
+
+test('registrar reviews suggested and searched official records without leaving the batch', function () {
+    $campus = Campus::factory()->create();
+    $otherCampus = Campus::factory()->create();
+    $registrar = User::factory()->create(['role' => UserRole::Registrar, 'campus_id' => $campus->id]);
+    $masterlist = ScholarshipMasterlist::factory()->create();
+    $batch = MasterlistCampusBatch::create(['masterlist_id' => $masterlist->id, 'campus_id' => $campus->id, 'status' => 'awaiting_registrar_review']);
+    $suggested = RegistrarStudent::create([
+        'campus_id' => $campus->id,
+        'student_id_number' => 'SKSU-2026-0012',
+        'student_name' => 'Von Esson Vergara',
+        'course' => 'BSIT',
+        'enrollment_status' => 'enrolled',
+        'cor_printed' => true,
+    ]);
+    RegistrarStudent::create([
+        'campus_id' => $otherCampus->id,
+        'student_id_number' => 'OTHER-001',
+        'student_name' => 'Von Other Campus',
+        'enrollment_status' => 'enrolled',
+        'cor_printed' => true,
+    ]);
+    MasterlistRecord::factory()->for($masterlist, 'masterlist')->create([
+        'student_name' => 'Von Essson Vergara',
+        'campus_id' => $campus->id,
+        'registrar_student_id' => $suggested->id,
+        'match_status' => 'possible_match',
+        'final_enrollment_status' => 'needs_review',
+        'final_cor_status' => 'needs_review',
+        'final_qualification_status' => 'needs_review',
+    ]);
+
+    $this->actingAs($registrar)
+        ->get(route('registrar.batches.show', [$batch, 'student_search' => 'Von']))
+        ->assertOk()
+        ->assertSee('Suggested Official Match')
+        ->assertSee('Von Essson Vergara')
+        ->assertSee('Von Esson Vergara')
+        ->assertSee('SKSU-2026-0012')
+        ->assertSee('Search official enrollment records')
+        ->assertSee('Confirm Suggested Match')
+        ->assertSee('No Matching Official Record')
+        ->assertSee('Save and Review Next')
+        ->assertDontSee('Von Other Campus');
+});
+
+test('registrar can reject a suggestion without retaining the suggested linkage', function () {
+    $campus = Campus::factory()->create();
+    $registrar = User::factory()->create(['role' => UserRole::Registrar, 'campus_id' => $campus->id]);
+    $masterlist = ScholarshipMasterlist::factory()->create();
+    $batch = MasterlistCampusBatch::create(['masterlist_id' => $masterlist->id, 'campus_id' => $campus->id, 'status' => 'awaiting_registrar_review']);
+    $suggested = RegistrarStudent::create([
+        'campus_id' => $campus->id,
+        'student_id_number' => 'SKSU-2026-0012',
+        'student_name' => 'Von Esson Vergara',
+        'enrollment_status' => 'enrolled',
+        'cor_printed' => true,
+    ]);
+    $record = MasterlistRecord::factory()->for($masterlist, 'masterlist')->create([
+        'campus_id' => $campus->id,
+        'registrar_student_id' => $suggested->id,
+        'match_status' => 'possible_match',
+        'final_enrollment_status' => 'needs_review',
+        'final_cor_status' => 'needs_review',
+        'final_qualification_status' => 'needs_review',
+    ]);
+
+    $this->actingAs($registrar)->patch(route('registrar.batches.records.update', [$batch, $record]), [
+        'registrar_student_id' => null,
+        'final_enrollment_status' => 'not_enrolled',
+        'final_cor_status' => 'no_cor_printed',
+        'final_qualification_status' => 'not_qualified',
+        'reason' => 'No matching official campus enrollment record exists.',
+    ])->assertRedirect()->assertSessionHasNoErrors();
+
+    expect($record->refresh()->registrar_student_id)->toBeNull()
+        ->and($record->match_status)->toBe('unmatched');
+});
+
 test('registrar exception forms expose a record scoped browser draft', function () {
     $campus = Campus::factory()->create();
     $registrar = User::factory()->create(['role' => UserRole::Registrar, 'campus_id' => $campus->id]);

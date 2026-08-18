@@ -30,6 +30,7 @@ class MasterlistVerificationController extends Controller
         $this->authorizeBatch($request, $batch);
         abort_unless(in_array($batch->status, ['verification_queued', 'verification_processing', 'awaiting_registrar_review', 'verification_failed', 'returned_to_coordinator'], true), 404);
         $filter = $request->string('filter')->toString();
+        $studentSearch = trim($request->string('student_search')->toString());
         $records = $batch->records()->with(['registrarStudent', 'resolver'])
             ->when($filter === 'needs_review', fn ($query) => $query->where('final_qualification_status', 'needs_review'))
             ->when($filter === 'not_enrolled', fn ($query) => $query->where('final_enrollment_status', 'not_enrolled'))
@@ -63,8 +64,21 @@ class MasterlistVerificationController extends Controller
                     ->orWhere('final_cor_status', '!=', 'cor_printed')
                     ->orWhere('final_qualification_status', '!=', 'qualified');
             })->count();
+        $officialCandidates = RegistrarStudent::query()
+            ->where('campus_id', $batch->campus_id)
+            ->when($studentSearch !== '', function ($query) use ($studentSearch): void {
+                $query->where(function ($query) use ($studentSearch): void {
+                    $query->where('student_name', 'like', "%{$studentSearch}%")
+                        ->orWhere('student_id_number', 'like', "%{$studentSearch}%")
+                        ->orWhere('course', 'like', "%{$studentSearch}%");
+                });
+            })
+            ->when($studentSearch === '', fn ($query) => $query->whereRaw('1 = 0'))
+            ->orderBy('student_name')
+            ->limit(20)
+            ->get();
 
-        return view('registrar.masterlists.show', compact('batch', 'records', 'summary', 'filter', 'enrollmentRecordCount', 'reverificationCount'));
+        return view('registrar.masterlists.show', compact('batch', 'records', 'summary', 'filter', 'enrollmentRecordCount', 'reverificationCount', 'studentSearch', 'officialCandidates'));
     }
 
     public function update(UpdateRegistrarMasterlistRecordRequest $request, MasterlistCampusBatch $batch, MasterlistRecord $record, AuditTrailService $audit): RedirectResponse
@@ -72,9 +86,22 @@ class MasterlistVerificationController extends Controller
         $this->authorizeBatch($request, $batch);
         abort_unless($batch->status === 'awaiting_registrar_review' && $record->masterlist_id === $batch->masterlist_id && $record->campus_id === $batch->campus_id, 404);
         $data = $request->validated();
-        $previous = $record->only(['final_enrollment_status', 'final_cor_status', 'final_qualification_status']);
-        DB::transaction(function () use ($record, $request, $data, $previous): void {
+        $officialStudent = filled($data['registrar_student_id'] ?? null)
+            ? RegistrarStudent::query()->where('campus_id', $batch->campus_id)->findOrFail($data['registrar_student_id'])
+            : null;
+        $officialSelectionProvided = array_key_exists('registrar_student_id', $data);
+        if ($officialStudent) {
+            $data['final_enrollment_status'] = $officialStudent->enrollment_status === 'enrolled' ? 'enrolled' : 'not_enrolled';
+            $data['final_cor_status'] = $officialStudent->cor_printed ? 'cor_printed' : 'no_cor_printed';
+            $data['final_qualification_status'] = $data['final_enrollment_status'] === 'enrolled' && $data['final_cor_status'] === 'cor_printed'
+                ? 'qualified'
+                : 'not_qualified';
+        }
+        $previous = $record->only(['registrar_student_id', 'match_status', 'final_enrollment_status', 'final_cor_status', 'final_qualification_status']);
+        DB::transaction(function () use ($record, $request, $data, $previous, $officialStudent, $officialSelectionProvided): void {
             $record->update([
+                'registrar_student_id' => $officialStudent?->id ?? ($officialSelectionProvided ? null : $record->registrar_student_id),
+                'match_status' => $officialStudent ? 'matched' : ($officialSelectionProvided ? 'unmatched' : $record->match_status),
                 'final_enrollment_status' => $data['final_enrollment_status'],
                 'final_cor_status' => $data['final_cor_status'],
                 'final_qualification_status' => $data['final_qualification_status'],
@@ -88,11 +115,31 @@ class MasterlistVerificationController extends Controller
             $record->registrarResolutions()->create([
                 'registrar_id' => $request->user()->id,
                 'previous_results' => $previous,
-                'new_results' => $record->only(['final_enrollment_status', 'final_cor_status', 'final_qualification_status']),
+                'new_results' => array_merge(
+                    $record->only(['registrar_student_id', 'match_status', 'final_enrollment_status', 'final_cor_status', 'final_qualification_status']),
+                    ['official_student_name' => $officialStudent?->student_name]
+                ),
                 'reason' => $data['reason'],
             ]);
         });
         $audit->record('masterlist_record_registrar_resolved', $record, ['previous' => $previous, 'final_qualification_status' => $record->final_qualification_status], $request);
+
+        if ($request->boolean('next')) {
+            $nextRecord = $batch->records()
+                ->whereNull('resolved_at')
+                ->where(function ($query): void {
+                    $query->where('final_qualification_status', 'needs_review')
+                        ->orWhere('final_enrollment_status', '!=', 'enrolled')
+                        ->orWhere('final_cor_status', '!=', 'cor_printed');
+                })
+                ->oldest('id')
+                ->first();
+
+            if ($nextRecord) {
+                return redirect(route('registrar.batches.show', ['batch' => $batch, 'filter' => 'needs_review']).'#record-'.$nextRecord->id)
+                    ->with('status', 'Exception resolution saved. Review the next unresolved record.');
+            }
+        }
 
         return back()->with('status', 'Exception resolution saved.');
     }

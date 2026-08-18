@@ -90,6 +90,36 @@ def test_cross_campus_candidate_needs_review_instead_of_not_enrolled():
     assert "campus" in record.remarks.lower()
 
 
+def test_minor_spelling_difference_returns_safe_same_campus_suggestion():
+    result = verify(
+        [{"row_id": 1, "student_name": "Von Essson Vergara", "campus_id": 2}],
+        [registrar_student(id=25, student_id_number="2026-025", student_name="Von Esson Vergara")],
+    )
+
+    record = result.records[0]
+    assert record.match_status == "possible_match"
+    assert record.matched_student_id == 25
+    assert record.similarity_score >= 0.90
+    assert record.enrollment_status == "needs_review"
+    assert record.cor_status == "needs_review"
+    assert record.qualification_status == "needs_review"
+
+
+def test_close_fuzzy_candidates_are_ambiguous_instead_of_suggested():
+    result = verify(
+        [{"row_id": 1, "student_name": "Von Essson Vergara", "campus_id": 2}],
+        [
+            registrar_student(id=25, student_id_number="2026-025", student_name="Von Esson Vergara"),
+            registrar_student(id=26, student_id_number="2026-026", student_name="Von Eson Vergara"),
+        ],
+    )
+
+    record = result.records[0]
+    assert record.match_status == "ambiguous"
+    assert record.matched_student_id is None
+    assert record.qualification_status == "needs_review"
+
+
 def test_summary_counts_all_records_without_removing_exceptions():
     result = verify(
         [
