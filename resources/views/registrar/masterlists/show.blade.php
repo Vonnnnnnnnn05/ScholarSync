@@ -21,11 +21,12 @@
             <p class="mt-2 text-sm text-gray-600">{{ $record->automatic_result_message ?: 'No automatic result message.' }}</p>
             @if($record->resolved_at)<p class="mt-2 text-sm font-semibold text-emerald-800">Resolved by {{ $record->resolver?->name }} on {{ $record->resolved_at->format('M d, Y H:i') }}</p>@endif
             @if($batch->status === 'awaiting_registrar_review' && ($record->final_qualification_status === 'needs_review' || $record->final_enrollment_status !== 'enrolled' || $record->final_cor_status !== 'cor_printed'))
-            <form method="POST" action="{{ route('registrar.batches.records.update', [$batch, $record]) }}" class="mt-4 grid gap-3 md:grid-cols-4">@csrf @method('PATCH')
+            <form method="POST" action="{{ route('registrar.batches.records.update', [$batch, $record]) }}" class="mt-4 grid gap-3 md:grid-cols-4" data-resolution-draft="registrar-resolution-{{ auth()->id() }}-{{ $batch->id }}-{{ $record->id }}">@csrf @method('PATCH')
                 <select name="final_enrollment_status" class="rounded-md"><option value="enrolled">Enrolled</option><option value="not_enrolled">Not Enrolled</option></select>
                 <select name="final_cor_status" class="rounded-md"><option value="cor_printed">COR Printed</option><option value="no_cor_printed">No COR Printed</option></select>
                 <select name="final_qualification_status" class="rounded-md"><option value="qualified">Qualified</option><option value="not_qualified">Not Qualified</option></select>
                 <input name="reason" class="rounded-md" required placeholder="Resolution reason">
+                <p class="hidden text-xs font-semibold text-emerald-700 md:col-span-3" data-draft-status>{{ __('Draft saved in this browser session') }}</p>
                 <button class="rounded-md bg-purple-700 px-4 py-2 font-semibold text-white md:col-start-4">Save Resolution</button>
             </form>
             @endif

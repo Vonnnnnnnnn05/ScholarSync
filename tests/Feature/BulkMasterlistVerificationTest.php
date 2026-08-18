@@ -114,6 +114,30 @@ test('registrar resolves an exception without overwriting automatic results', fu
         ->and($record->registrarResolutions()->first()->reason)->toContain('signed campus');
 });
 
+test('registrar exception forms expose a record scoped browser draft', function () {
+    $campus = Campus::factory()->create();
+    $registrar = User::factory()->create(['role' => UserRole::Registrar, 'campus_id' => $campus->id]);
+    $masterlist = ScholarshipMasterlist::factory()->create();
+    $batch = MasterlistCampusBatch::create([
+        'masterlist_id' => $masterlist->id,
+        'campus_id' => $campus->id,
+        'status' => 'awaiting_registrar_review',
+    ]);
+    $record = MasterlistRecord::factory()->for($masterlist, 'masterlist')->create([
+        'campus_id' => $campus->id,
+        'final_enrollment_status' => 'needs_review',
+        'final_cor_status' => 'needs_review',
+        'final_qualification_status' => 'needs_review',
+    ]);
+
+    $this->actingAs($registrar)
+        ->get(route('registrar.batches.show', $batch))
+        ->assertOk()
+        ->assertSee('data-resolution-draft', false)
+        ->assertSee("registrar-resolution-{$registrar->id}-{$batch->id}-{$record->id}", false)
+        ->assertSee('Draft saved in this browser session');
+});
+
 test('chunk verification sends only campus records and persists separate results and snapshot', function () {
     config(['services.masterlist_verifier.url' => 'http://verifier.test']);
     $campus = Campus::factory()->create();
