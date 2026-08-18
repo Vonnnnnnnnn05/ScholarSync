@@ -41,14 +41,14 @@
             <a href="{{ route('registrar.batches.show', [$batch, 'filter' => $value]) }}" class="rounded px-3 py-2 text-sm font-semibold {{ $filter === $value ? 'bg-purple-700 text-white' : 'bg-white text-purple-800' }}">{{ $label }}</a>
         @endforeach
     </nav>
-    <form method="GET" action="{{ route('registrar.batches.show', $batch) }}" class="rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
+    <form method="GET" action="{{ route('registrar.batches.show', $batch) }}" data-live-official-record-search data-search-url="{{ route('registrar.batches.official-records', $batch) }}" class="rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
         <input type="hidden" name="filter" value="{{ $filter }}">
         <label for="student-search" class="text-sm font-semibold text-gray-900">{{ __('Search official enrollment records') }}</label>
         <div class="mt-2 flex flex-col gap-2 sm:flex-row">
-            <input id="student-search" name="student_search" value="{{ $studentSearch }}" class="min-h-11 flex-1 rounded-md border-gray-300" placeholder="{{ __('Student name, ID, or course') }}">
+            <input id="student-search" name="student_search" value="{{ $studentSearch }}" autocomplete="off" class="min-h-11 flex-1 rounded-md border-gray-300" placeholder="{{ __('Student name, ID, or course') }}">
             <button class="inline-flex min-h-11 items-center justify-center rounded-md bg-emerald-800 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700">{{ __('Search This Campus') }}</button>
         </div>
-        @if($studentSearch !== '')<p class="mt-2 text-xs text-gray-600">{{ trans_choice(':count campus record found|:count campus records found', $officialCandidates->count(), ['count' => $officialCandidates->count()]) }}</p>@endif
+        <p data-live-search-status class="mt-2 text-xs text-gray-600" aria-live="polite">@if($studentSearch !== ''){{ trans_choice(':count campus record found|:count campus records found', $officialCandidates->count(), ['count' => $officialCandidates->count()]) }}@else{{ __('Type to search this campus without reloading the page.') }}@endif</p>
     </form>
     @php
         $verificationBadgeClass = static fn (string $status): string => match ($status) {
@@ -106,7 +106,7 @@
             @endif
             @php($candidateOptions = collect([$record->registrarStudent])->filter()->merge($officialCandidates)->unique('id'))
             <form method="POST" action="{{ route('registrar.batches.records.update', [$batch, $record]) }}" class="mt-4 grid gap-3 md:grid-cols-4" data-resolution-draft="registrar-resolution-{{ auth()->id() }}-{{ $batch->id }}-{{ $record->id }}">@csrf @method('PATCH')
-                <label class="md:col-span-4"><span class="text-xs font-semibold uppercase text-gray-500">{{ __('Official enrollment record (optional)') }}</span><select name="registrar_student_id" class="mt-1 w-full rounded-md"><option value="">{{ __('No official record selected — resolve manually') }}</option>@foreach($candidateOptions as $candidate)<option value="{{ $candidate->id }}" @selected($record->registrar_student_id === $candidate->id)>{{ $candidate->student_name }} — {{ $candidate->student_id_number }} — {{ $candidate->course ?: __('No course') }}</option>@endforeach</select></label>
+                <label class="md:col-span-4"><span class="text-xs font-semibold uppercase text-gray-500">{{ __('Official enrollment record (optional)') }}</span><select name="registrar_student_id" data-official-record-select class="mt-1 w-full rounded-md"><option value="">{{ __('No official record selected — resolve manually') }}</option>@foreach($candidateOptions as $candidate)<option value="{{ $candidate->id }}" @if($record->registrar_student_id === $candidate->id) data-pinned-official-record @endif @selected($record->registrar_student_id === $candidate->id)>{{ $candidate->student_name }} — {{ $candidate->student_id_number }} — {{ $candidate->course ?: __('No course') }}</option>@endforeach</select></label>
                 <select name="final_enrollment_status" class="rounded-md"><option value="enrolled">Enrolled</option><option value="not_enrolled">Not Enrolled</option></select>
                 <select name="final_cor_status" class="rounded-md"><option value="cor_printed">COR Printed</option><option value="no_cor_printed">No COR Printed</option></select>
                 <select name="final_qualification_status" class="rounded-md"><option value="qualified">Qualified</option><option value="not_qualified">Not Qualified</option></select>

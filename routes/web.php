@@ -179,6 +179,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::middleware('role:registrar')->prefix('registrar/masterlist-batches')->name('registrar.batches.')->group(function () {
         Route::get('/', [RegistrarMasterlistVerificationController::class, 'index'])->name('index');
         Route::get('/{batch}', [RegistrarMasterlistVerificationController::class, 'show'])->name('show');
+        Route::get('/{batch}/official-records', [RegistrarMasterlistVerificationController::class, 'officialRecords'])->name('official-records');
         Route::post('/{batch}/reverify', [RegistrarMasterlistVerificationController::class, 'reverify'])->name('reverify');
         Route::patch('/{batch}/records/{record}', [RegistrarMasterlistVerificationController::class, 'update'])->name('records.update');
         Route::post('/{batch}/return', [RegistrarMasterlistVerificationController::class, 'return'])->name('return');

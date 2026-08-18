@@ -9,6 +9,7 @@ use App\Models\MasterlistRecord;
 use App\Models\RegistrarStudent;
 use App\Services\AuditTrailService;
 use App\Services\MasterlistCampusWorkflowService;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -79,6 +80,30 @@ class MasterlistVerificationController extends Controller
             ->get();
 
         return view('registrar.masterlists.show', compact('batch', 'records', 'summary', 'filter', 'enrollmentRecordCount', 'reverificationCount', 'studentSearch', 'officialCandidates'));
+    }
+
+    public function officialRecords(Request $request, MasterlistCampusBatch $batch): JsonResponse
+    {
+        $this->authorizeBatch($request, $batch);
+        $validated = $request->validate(['query' => ['nullable', 'string', 'max:100']]);
+        $query = trim($validated['query'] ?? '');
+
+        if ($query === '') {
+            return response()->json(['data' => []]);
+        }
+
+        $records = RegistrarStudent::query()
+            ->where('campus_id', $batch->campus_id)
+            ->where(function ($builder) use ($query): void {
+                $builder->where('student_name', 'like', "%{$query}%")
+                    ->orWhere('student_id_number', 'like', "%{$query}%")
+                    ->orWhere('course', 'like', "%{$query}%");
+            })
+            ->orderBy('student_name')
+            ->limit(20)
+            ->get(['id', 'student_id_number', 'student_name', 'course', 'enrollment_status', 'cor_printed']);
+
+        return response()->json(['data' => $records]);
     }
 
     public function update(UpdateRegistrarMasterlistRecordRequest $request, MasterlistCampusBatch $batch, MasterlistRecord $record, AuditTrailService $audit): RedirectResponse

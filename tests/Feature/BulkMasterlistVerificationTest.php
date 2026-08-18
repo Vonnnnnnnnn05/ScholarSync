@@ -226,7 +226,40 @@ test('registrar reviews suggested and searched official records without leaving 
         ->assertSee('data-verification-badge="cor"', false)
         ->assertSee('data-verification-badge="qualification"', false)
         ->assertSee('bg-amber-100 text-amber-800', false)
+        ->assertSee('data-live-official-record-search', false)
+        ->assertSee('data-official-record-select', false)
         ->assertDontSee('Von Other Campus');
+});
+
+test('registrar live search returns only matching official records from the batch campus', function () {
+    $campus = Campus::factory()->create();
+    $otherCampus = Campus::factory()->create();
+    $registrar = User::factory()->create(['role' => UserRole::Registrar, 'campus_id' => $campus->id]);
+    $masterlist = ScholarshipMasterlist::factory()->create();
+    $batch = MasterlistCampusBatch::create(['masterlist_id' => $masterlist->id, 'campus_id' => $campus->id, 'status' => 'awaiting_registrar_review']);
+    RegistrarStudent::create([
+        'campus_id' => $campus->id,
+        'student_id_number' => 'SKSU-2026-A012',
+        'student_name' => 'Mary Grace Navarro',
+        'course' => 'BS Hospitality Management',
+        'enrollment_status' => 'enrolled',
+        'cor_printed' => true,
+    ]);
+    RegistrarStudent::create([
+        'campus_id' => $otherCampus->id,
+        'student_id_number' => 'OTHER-001',
+        'student_name' => 'Mary From Another Campus',
+        'enrollment_status' => 'enrolled',
+        'cor_printed' => true,
+    ]);
+
+    $this->actingAs($registrar)
+        ->getJson(route('registrar.batches.official-records', [$batch, 'query' => 'mary']))
+        ->assertOk()
+        ->assertJsonCount(1, 'data')
+        ->assertJsonPath('data.0.student_name', 'Mary Grace Navarro')
+        ->assertJsonPath('data.0.student_id_number', 'SKSU-2026-A012')
+        ->assertJsonMissing(['student_name' => 'Mary From Another Campus']);
 });
 
 test('registrar can reject a suggestion without retaining the suggested linkage', function () {
