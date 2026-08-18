@@ -42,7 +42,7 @@ def test_returns_no_cor_printed_for_enrolled_student_without_cor():
     assert result.summary.no_cor_printed_count == 1
 
 
-def test_returns_unenrolled_when_there_is_no_enrolled_match():
+def test_returns_unenrolled_when_there_is_no_enrolled_match():  
     result = verify(
         [{"row_id": 1, "student_name": "Unknown Student"}],
         [registrar_student(enrollment_status="not_enrolled")],
