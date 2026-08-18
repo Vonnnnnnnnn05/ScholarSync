@@ -3,6 +3,34 @@
     <div><p class="text-sm font-semibold text-purple-700">{{ $batch->campus->name }}</p><h1 class="text-2xl font-bold">Automatic Verification Review</h1><p class="text-sm text-gray-600">{{ Str::headline($batch->status) }}</p></div>
     <x-status-alerts/>
     @if($errors->has('return'))<p class="rounded bg-red-50 p-3 text-red-900">{{ $errors->first('return') }}</p>@endif
+    @if($errors->has('reverify'))<p class="rounded bg-red-50 p-3 text-red-900">{{ $errors->first('reverify') }}</p>@endif
+    <section class="rounded-lg border border-emerald-200 bg-emerald-50 p-5">
+        <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+                <p class="text-sm font-semibold text-emerald-900">{{ __('Campus enrollment data') }}</p>
+                <p class="mt-1 text-sm text-emerald-800">{{ trans_choice(':count enrollment record available|:count enrollment records available', $enrollmentRecordCount, ['count' => number_format($enrollmentRecordCount)]) }}</p>
+                @if($reverificationCount > 0)
+                    <p class="mt-1 text-xs text-emerald-700">{{ trans_choice(':count unresolved exception will be checked again.|:count unresolved exceptions will be checked again.', $reverificationCount, ['count' => number_format($reverificationCount)]) }}</p>
+                @endif
+            </div>
+            @if(in_array($batch->status, ['awaiting_registrar_review', 'verification_failed'], true) && $reverificationCount > 0)
+                @if($enrollmentRecordCount > 0)
+                    <form method="POST" action="{{ route('registrar.batches.reverify', $batch) }}">
+                        @csrf
+                        <x-confirm-submit message="Run automatic verification again for {{ number_format($reverificationCount) }} unresolved exception record(s)? Existing audit snapshots and manual resolutions will be preserved.">
+                            {{ __('Run Automatic Verification Again') }}
+                        </x-confirm-submit>
+                    </form>
+                @else
+                    <a href="{{ route('registrar.enrolled-students.index') }}" class="inline-flex min-h-11 items-center justify-center rounded-md bg-amber-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2">
+                        {{ __('Upload Enrollment Records First') }}
+                    </a>
+                @endif
+            @elseif(in_array($batch->status, ['verification_queued', 'verification_processing'], true))
+                <span class="inline-flex rounded-md bg-white px-3 py-2 text-sm font-semibold text-emerald-800 ring-1 ring-emerald-700/20">{{ __('Automatic verification is in progress') }}</span>
+            @endif
+        </div>
+    </section>
     <div class="grid gap-3 sm:grid-cols-3 lg:grid-cols-6">
         @foreach(['total' => 'Total', 'qualified' => 'Qualified', 'not_qualified' => 'Not Qualified', 'needs_review' => 'Needs Review', 'not_enrolled' => 'Not Enrolled', 'no_cor_printed' => 'No COR'] as $key => $label)
             <div class="rounded-lg bg-white p-4 shadow"><p class="text-xs font-semibold uppercase text-gray-500">{{ $label }}</p><p class="mt-1 text-2xl font-bold">{{ $summary[$key] }}</p></div>

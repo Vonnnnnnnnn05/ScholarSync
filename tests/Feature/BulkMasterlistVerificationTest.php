@@ -139,6 +139,56 @@ test('registrar exception forms expose a record scoped browser draft', function 
         ->assertSee('data-save-resolution', false);
 });
 
+test('registrar can reverify unresolved exceptions after enrollment records arrive', function () {
+    Queue::fake();
+    $campus = Campus::factory()->create();
+    $registrar = User::factory()->create(['role' => UserRole::Registrar, 'campus_id' => $campus->id]);
+    $masterlist = ScholarshipMasterlist::factory()->create();
+    $batch = MasterlistCampusBatch::create([
+        'masterlist_id' => $masterlist->id,
+        'campus_id' => $campus->id,
+        'status' => 'awaiting_registrar_review',
+    ]);
+    $exception = MasterlistRecord::factory()->for($masterlist, 'masterlist')->create([
+        'campus_id' => $campus->id,
+        'final_enrollment_status' => 'needs_review',
+        'final_cor_status' => 'needs_review',
+        'final_qualification_status' => 'needs_review',
+    ]);
+    MasterlistRecord::factory()->for($masterlist, 'masterlist')->create([
+        'campus_id' => $campus->id,
+        'match_status' => 'matched',
+        'final_enrollment_status' => 'enrolled',
+        'final_cor_status' => 'cor_printed',
+        'final_qualification_status' => 'qualified',
+    ]);
+    MasterlistRecord::factory()->for($masterlist, 'masterlist')->create([
+        'campus_id' => $campus->id,
+        'final_enrollment_status' => 'needs_review',
+        'final_cor_status' => 'needs_review',
+        'final_qualification_status' => 'needs_review',
+        'resolved_by' => $registrar->id,
+        'resolved_at' => now(),
+    ]);
+    RegistrarStudent::create([
+        'campus_id' => $campus->id,
+        'student_id_number' => 'SKSU-2026-0001',
+        'student_name' => 'Available Enrollment Record',
+        'enrollment_status' => 'enrolled',
+        'cor_printed' => true,
+    ]);
+
+    $this->actingAs($registrar)
+        ->post(route('registrar.batches.reverify', $batch))
+        ->assertRedirect()
+        ->assertSessionHasNoErrors();
+
+    $run = $batch->verificationRuns()->latest()->firstOrFail();
+    expect($batch->refresh()->status)->toBe('verification_queued')
+        ->and($run->total_records)->toBe(1);
+    Queue::assertPushed(fn (VerifyMasterlistChunk $job) => $job->runId === $run->id && $job->recordIds === [$exception->id]);
+});
+
 test('chunk verification sends only campus records and persists separate results and snapshot', function () {
     config(['services.masterlist_verifier.url' => 'http://verifier.test']);
     $campus = Campus::factory()->create();

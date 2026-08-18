@@ -54,8 +54,17 @@ class MasterlistVerificationController extends Controller
             'not_enrolled' => $batch->records()->where('final_enrollment_status', 'not_enrolled')->count(),
             'no_cor_printed' => $batch->records()->where('final_cor_status', 'no_cor_printed')->count(),
         ];
+        $enrollmentRecordCount = RegistrarStudent::query()->where('campus_id', $batch->campus_id)->count();
+        $reverificationCount = $batch->records()
+            ->whereNull('resolved_at')
+            ->where(function ($query): void {
+                $query->where('match_status', '!=', 'matched')
+                    ->orWhere('final_enrollment_status', '!=', 'enrolled')
+                    ->orWhere('final_cor_status', '!=', 'cor_printed')
+                    ->orWhere('final_qualification_status', '!=', 'qualified');
+            })->count();
 
-        return view('registrar.masterlists.show', compact('batch', 'records', 'summary', 'filter'));
+        return view('registrar.masterlists.show', compact('batch', 'records', 'summary', 'filter', 'enrollmentRecordCount', 'reverificationCount'));
     }
 
     public function update(UpdateRegistrarMasterlistRecordRequest $request, MasterlistCampusBatch $batch, MasterlistRecord $record, AuditTrailService $audit): RedirectResponse
@@ -94,6 +103,14 @@ class MasterlistVerificationController extends Controller
         $workflow->returnToCoordinator($batch, $request->user());
 
         return back()->with('status', 'Verification results returned to the Campus Coordinator.');
+    }
+
+    public function reverify(Request $request, MasterlistCampusBatch $batch, MasterlistCampusWorkflowService $workflow): RedirectResponse
+    {
+        $this->authorizeBatch($request, $batch);
+        $workflow->reverifyExceptions($batch, $request->user());
+
+        return back()->with('status', 'Unresolved exception records were queued for automatic verification again.');
     }
 
     private function authorizeBatch(Request $request, MasterlistCampusBatch $batch): void

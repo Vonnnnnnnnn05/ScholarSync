@@ -6,6 +6,7 @@ use App\Enums\UserRole;
 use App\Jobs\VerifyMasterlistChunk;
 use App\Models\MasterlistCampusBatch;
 use App\Models\MasterlistVerificationRun;
+use App\Models\RegistrarStudent;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
@@ -70,6 +71,54 @@ class MasterlistCampusWorkflowService
         $batch->update(['status' => 'verification_queued']);
         $remainingIds->chunk($chunkSize)->each(fn ($ids) => VerifyMasterlistChunk::dispatch($run->id, $ids->values()->all())->afterCommit());
         $this->audit->record('masterlist_batch_verification_retried', $batch, ['campus_id' => $batch->campus_id, 'records' => $remainingIds->count()]);
+    }
+
+    public function reverifyExceptions(MasterlistCampusBatch $batch, User $user): void
+    {
+        $this->authorizeCampusActor($batch, $user, UserRole::Registrar);
+
+        if (! in_array($batch->status, ['awaiting_registrar_review', 'verification_failed'], true)) {
+            throw ValidationException::withMessages(['reverify' => 'Automatic verification cannot be restarted while this batch is processing or has already advanced.']);
+        }
+
+        if (! RegistrarStudent::query()->where('campus_id', $batch->campus_id)->exists()) {
+            throw ValidationException::withMessages(['reverify' => 'Upload enrollment records for your campus before running automatic verification again.']);
+        }
+
+        $recordIds = $batch->records()
+            ->whereNull('resolved_at')
+            ->where(function ($query): void {
+                $query->where('match_status', '!=', 'matched')
+                    ->orWhere('final_enrollment_status', '!=', 'enrolled')
+                    ->orWhere('final_cor_status', '!=', 'cor_printed')
+                    ->orWhere('final_qualification_status', '!=', 'qualified');
+            })
+            ->oldest('id')
+            ->pluck('id');
+
+        if ($recordIds->isEmpty()) {
+            throw ValidationException::withMessages(['reverify' => 'No unresolved exception records remain to verify again.']);
+        }
+
+        $chunkSize = (int) config('services.masterlist_verifier.chunk_size', 500);
+        $run = DB::transaction(function () use ($batch, $recordIds, $chunkSize): MasterlistVerificationRun {
+            $batch->update(['status' => 'verification_queued']);
+
+            return $batch->verificationRuns()->create([
+                'status' => 'queued',
+                'total_records' => $recordIds->count(),
+                'total_chunks' => (int) ceil($recordIds->count() / $chunkSize),
+            ]);
+        });
+
+        $recordIds->chunk($chunkSize)->each(
+            fn ($ids) => VerifyMasterlistChunk::dispatch($run->id, $ids->values()->all())->afterCommit()
+        );
+
+        $this->audit->record('masterlist_batch_exceptions_reverification_queued', $batch, [
+            'campus_id' => $batch->campus_id,
+            'records' => $recordIds->count(),
+        ]);
     }
 
     public function submitToChairman(MasterlistCampusBatch $batch, User $user): void
