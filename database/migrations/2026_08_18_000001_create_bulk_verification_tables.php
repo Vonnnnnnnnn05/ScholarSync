@@ -43,8 +43,12 @@ return new class extends Migration
 
         Schema::create('masterlist_record_verifications', function (Blueprint $table): void {
             $table->id();
-            $table->foreignId('masterlist_verification_run_id')->constrained()->cascadeOnDelete();
-            $table->foreignId('masterlist_record_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('masterlist_verification_run_id');
+            $table->foreign('masterlist_verification_run_id', 'ml_record_verifications_run_fk')
+                ->references('id')->on('masterlist_verification_runs')->cascadeOnDelete();
+            $table->foreignId('masterlist_record_id');
+            $table->foreign('masterlist_record_id', 'ml_record_verifications_record_fk')
+                ->references('id')->on('masterlist_records')->cascadeOnDelete();
             $table->json('original_data');
             $table->json('matched_data')->nullable();
             $table->string('match_status');
@@ -60,8 +64,12 @@ return new class extends Migration
 
         Schema::create('masterlist_registrar_resolutions', function (Blueprint $table): void {
             $table->id();
-            $table->foreignId('masterlist_record_id')->constrained()->cascadeOnDelete();
-            $table->foreignId('registrar_id')->constrained('users')->cascadeOnDelete();
+            $table->foreignId('masterlist_record_id');
+            $table->foreign('masterlist_record_id', 'ml_registrar_resolutions_record_fk')
+                ->references('id')->on('masterlist_records')->cascadeOnDelete();
+            $table->foreignId('registrar_id');
+            $table->foreign('registrar_id', 'ml_registrar_resolutions_user_fk')
+                ->references('id')->on('users')->cascadeOnDelete();
             $table->json('previous_results');
             $table->json('new_results');
             $table->text('reason');
