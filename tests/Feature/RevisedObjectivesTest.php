@@ -7,15 +7,19 @@ use App\Models\ScholarshipPolicy;
 use App\Models\ScholarshipProgram;
 use App\Models\User;
 use Illuminate\Http\UploadedFile;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
 function revisedEnrollmentWorkbook(): UploadedFile
 {
     $path = tempnam(sys_get_temp_dir(), 'revised-enrollment-');
-    $archive = new ZipArchive;
-    $archive->open($path, ZipArchive::OVERWRITE);
-    $archive->addFromString('xl/sharedStrings.xml', '<?xml version="1.0"?><sst xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><si><t>student_id_number</t></si><si><t>student_name</t></si><si><t>course</t></si><si><t>SKSU-2026-9101</t></si><si><t>Juan Dela Cruz</t></si><si><t>BS Information Technology</t></si><si><t>SKSU-2026-9102</t></si><si><t>Ana Cruz</t></si><si><t>BS Agriculture</t></si></sst>');
-    $archive->addFromString('xl/worksheets/sheet1.xml', '<?xml version="1.0"?><worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetData><row r="1"><c r="A1" t="s"><v>0</v></c><c r="B1" t="s"><v>1</v></c><c r="C1" t="s"><v>2</v></c></row><row r="2"><c r="A2" t="s"><v>3</v></c><c r="B2" t="s"><v>4</v></c><c r="C2" t="s"><v>5</v></c></row><row r="3"><c r="A3" t="s"><v>6</v></c><c r="B3" t="s"><v>7</v></c><c r="C3" t="s"><v>8</v></c></row></sheetData></worksheet>');
-    $archive->close();
+    $spreadsheet = new Spreadsheet;
+    $spreadsheet->getActiveSheet()->fromArray([
+        ['student_id_number', 'student_name', 'course'],
+        ['SKSU-2026-9101', 'Juan Dela Cruz', 'BS Information Technology'],
+        ['SKSU-2026-9102', 'Ana Cruz', 'BS Agriculture'],
+    ]);
+    (new Xlsx($spreadsheet))->save($path);
 
     return new UploadedFile($path, 'registrar-enrollment.xlsx', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', null, true);
 }

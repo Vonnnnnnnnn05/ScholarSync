@@ -11,8 +11,9 @@ use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
+use PhpOffice\PhpSpreadsheet\IOFactory;
 use RuntimeException;
-use ZipArchive;
+use Throwable;
 
 class EnrolledStudentController extends Controller
 {
@@ -108,112 +109,51 @@ class EnrolledStudentController extends Controller
      */
     private function excelRows(UploadedFile $file): array
     {
-        $archive = new ZipArchive;
-
-        if ($archive->open($file->getRealPath()) !== true) {
-            throw new RuntimeException('The uploaded file could not be read as an Excel workbook.');
+        try {
+            $reader = IOFactory::createReaderForFile($file->getRealPath());
+            $reader->setReadDataOnly(true);
+            $workbook = $reader->load($file->getRealPath());
+        } catch (Throwable $exception) {
+            throw new RuntimeException('The uploaded file could not be read as an Excel workbook.', previous: $exception);
         }
 
-        try {
-            $sharedStrings = $this->sharedStrings($archive);
-            $sheetXml = $archive->getFromName('xl/worksheets/sheet1.xml');
+        $requiredColumns = ['student_id_number', 'student_name'];
+        $allowedColumns = ['student_id_number', 'student_name', 'course', 'year_level', 'campus', 'enrollment_status', 'cor_printed', 'academic_year', 'semester'];
+        $fallbackHeaders = [];
 
-            if ($sheetXml === false) {
-                throw new RuntimeException('The Excel workbook does not contain a readable first worksheet.');
-            }
+        foreach ($workbook->getAllSheets() as $sheet) {
+            $values = $sheet->toArray(null, true, true, false);
 
-            $sheet = simplexml_load_string($sheetXml, \SimpleXMLElement::class, LIBXML_NONET | LIBXML_NOCDATA);
+            foreach (array_slice($values, 0, 25, true) as $headerIndex => $headerRow) {
+                $headers = array_map(fn ($header) => $this->normalizeHeader((string) $header), $headerRow);
+                $fallbackHeaders = $fallbackHeaders ?: $headers;
 
-            if ($sheet === false) {
-                throw new RuntimeException('The first worksheet could not be read.');
-            }
-
-            $sheet->registerXPathNamespace('main', 'http://schemas.openxmlformats.org/spreadsheetml/2006/main');
-            $xmlRows = $sheet->xpath('//main:sheetData/main:row') ?: [];
-            $values = array_map(fn (\SimpleXMLElement $row) => $this->worksheetValues($row, $sharedStrings), $xmlRows);
-
-            if ($values === []) {
-                return ['headers' => [], 'rows' => []];
-            }
-
-            $headers = array_map(fn ($header) => $this->normalizeHeader((string) $header), array_shift($values));
-            $allowedColumns = ['student_id_number', 'student_name', 'course', 'year_level', 'campus', 'enrollment_status', 'cor_printed', 'academic_year', 'semester'];
-            $rows = [];
-
-            foreach ($values as $valueRow) {
-                if (collect($valueRow)->filter(fn ($value) => trim((string) $value) !== '')->isEmpty()) {
+                if (array_diff($requiredColumns, $headers) !== []) {
                     continue;
                 }
 
-                $row = [];
-                foreach ($headers as $index => $header) {
-                    $row[$header] = $valueRow[$index] ?? null;
+                $rows = [];
+                foreach (array_slice($values, $headerIndex + 1) as $valueRow) {
+                    if (collect($valueRow)->filter(fn ($value) => trim((string) $value) !== '')->isEmpty()) {
+                        continue;
+                    }
+
+                    $row = [];
+                    foreach ($headers as $index => $header) {
+                        $row[$header] = isset($valueRow[$index]) ? (string) $valueRow[$index] : null;
+                    }
+                    $rows[] = Arr::only($row, $allowedColumns);
                 }
-                $rows[] = Arr::only($row, $allowedColumns);
+
+                $workbook->disconnectWorksheets();
+
+                return ['headers' => $headers, 'rows' => $rows];
             }
-
-            return ['headers' => $headers, 'rows' => $rows];
-        } finally {
-            $archive->close();
-        }
-    }
-
-    /** @return array<int, string> */
-    private function sharedStrings(ZipArchive $archive): array
-    {
-        $xml = $archive->getFromName('xl/sharedStrings.xml');
-
-        if ($xml === false) {
-            return [];
         }
 
-        $strings = simplexml_load_string($xml, \SimpleXMLElement::class, LIBXML_NONET | LIBXML_NOCDATA);
-        if ($strings === false) {
-            throw new RuntimeException('The workbook shared strings could not be read.');
-        }
+        $workbook->disconnectWorksheets();
 
-        $strings->registerXPathNamespace('main', 'http://schemas.openxmlformats.org/spreadsheetml/2006/main');
-
-        return array_map(function (\SimpleXMLElement $string): string {
-            $string->registerXPathNamespace('main', 'http://schemas.openxmlformats.org/spreadsheetml/2006/main');
-
-            return implode('', array_map(fn (\SimpleXMLElement $text) => (string) $text, $string->xpath('.//main:t') ?: []));
-        }, $strings->xpath('//main:si') ?: []);
-    }
-
-    /** @param array<int, string> $sharedStrings @return array<int, string> */
-    private function worksheetValues(\SimpleXMLElement $row, array $sharedStrings): array
-    {
-        $row->registerXPathNamespace('main', 'http://schemas.openxmlformats.org/spreadsheetml/2006/main');
-        $values = [];
-
-        foreach ($row->xpath('./main:c') ?: [] as $cell) {
-            $reference = (string) $cell['r'];
-            preg_match('/([A-Z]+)/', $reference, $matches);
-            $column = $this->columnIndex($matches[1] ?? 'A');
-            $type = (string) $cell['t'];
-            $value = (string) ($cell->v ?? '');
-
-            if ($type === 's') {
-                $value = $sharedStrings[(int) $value] ?? '';
-            } elseif ($type === 'inlineStr') {
-                $value = (string) ($cell->is->t ?? '');
-            }
-
-            $values[$column] = $value;
-        }
-
-        return $values === [] ? [] : array_values($values + array_fill(0, max(array_keys($values)) + 1, ''));
-    }
-
-    private function columnIndex(string $column): int
-    {
-        $index = 0;
-        foreach (str_split($column) as $letter) {
-            $index = ($index * 26) + (ord($letter) - 64);
-        }
-
-        return $index - 1;
+        return ['headers' => $fallbackHeaders, 'rows' => []];
     }
 
     private function normalizeHeader(string $header): string
