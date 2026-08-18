@@ -1,6 +1,7 @@
 <?php
 
 use App\Enums\UserRole;
+use App\Models\Campus;
 use App\Models\Student;
 use App\Models\User;
 
@@ -53,6 +54,17 @@ test('scholarship chairman dashboard links to certificate management', function 
         ->assertOk()
         ->assertSee('Certificate Management')
         ->assertSee(route('admin.official-receipts.index'));
+});
+
+test('registrar dashboard displays the assigned campus', function () {
+    $campus = Campus::factory()->create(['name' => 'Isulan Campus']);
+    $registrar = User::factory()->role(UserRole::Registrar)->for($campus)->create();
+
+    $this->actingAs($registrar)
+        ->get(route(UserRole::Registrar->dashboardRouteName()))
+        ->assertOk()
+        ->assertSee('Assigned Campus')
+        ->assertSee('Isulan Campus');
 });
 
 test('student dashboard displays personal details', function () {

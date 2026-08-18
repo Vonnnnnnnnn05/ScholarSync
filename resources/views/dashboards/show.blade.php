@@ -29,6 +29,14 @@
                 </div>
             </section>
 
+            @if ($role === \App\Enums\UserRole::Registrar)
+                <section class="mt-6 rounded-lg bg-emerald-800 p-6 text-white shadow-sm ring-1 ring-emerald-900/20">
+                    <p class="text-xs font-semibold uppercase tracking-wide text-emerald-100">{{ __('Assigned Campus') }}</p>
+                    <p class="mt-2 text-2xl font-semibold">{{ $assignedCampus?->name ?? __('No campus assigned') }}</p>
+                    <p class="mt-2 text-sm text-emerald-100">{{ __('Enrollment records and beneficiary verification are limited to this campus.') }}</p>
+                </section>
+            @endif
+
             @if ($role === \App\Enums\UserRole::Administrator && $adminDashboard)
                 @php
                     $metricAccentClasses = [

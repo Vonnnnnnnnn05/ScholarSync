@@ -49,8 +49,12 @@ class DashboardController extends Controller
 
     private function show(UserRole $role): View
     {
+        $user = request()->user();
         $studentProfile = $role === UserRole::Student
-            ? request()->user()->student
+            ? $user->student
+            : null;
+        $assignedCampus = $role === UserRole::Registrar
+            ? $user->loadMissing('campus')->campus
             : null;
 
         return view('dashboards.show', [
@@ -60,6 +64,7 @@ class DashboardController extends Controller
             'items' => $this->itemsFor($role),
             'roleFunctions' => $this->roleFunctionsFor($role),
             'studentProfile' => $studentProfile,
+            'assignedCampus' => $assignedCampus,
             'adminDashboard' => $role === UserRole::Administrator ? $this->adminDashboard() : null,
         ]);
     }
