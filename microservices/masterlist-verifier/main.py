@@ -6,98 +6,138 @@ from typing import Literal
 from fastapi import FastAPI
 from pydantic import BaseModel, Field
 
-VerificationStatus = Literal["enrolled", "no_cor_printed", "unenrolled"]
+EnrollmentStatus = Literal["enrolled", "not_enrolled", "needs_review"]
+CorStatus = Literal["cor_printed", "no_cor_printed", "needs_review"]
+QualificationStatus = Literal["qualified", "not_qualified", "needs_review"]
+MatchStatus = Literal["matched", "unmatched", "ambiguous", "inconsistent"]
 
 
 class MasterlistRecordIn(BaseModel):
     row_id: int
+    student_id_number: str | None = None
     student_name: str | None = None
+    campus_id: int | None = None
 
 
 class RegistrarStudentIn(BaseModel):
     id: int
+    student_id_number: str | None = None
     student_name: str | None = None
     campus_id: int | None = None
     enrollment_status: str = "enrolled"
-    cor_printed: bool = False
+    cor_printed: bool | None = None
 
 
 class VerifyMasterlistRequest(BaseModel):
-    records: list[MasterlistRecordIn] = Field(default_factory=list)
+    records: list[MasterlistRecordIn] = Field(default_factory=list, max_length=500)
     registrar_students: list[RegistrarStudentIn] = Field(default_factory=list)
 
 
 class MasterlistRecordOut(BaseModel):
     row_id: int
-    status: VerificationStatus
+    match_status: MatchStatus
+    enrollment_status: EnrollmentStatus
+    cor_status: CorStatus
+    qualification_status: QualificationStatus
     matched_student_id: int | None = None
     campus_id: int | None = None
-    remarks: str | None = None
+    remarks: str
 
 
 class VerificationSummary(BaseModel):
     total_records: int
     enrolled_count: int
+    not_enrolled_count: int
+    cor_printed_count: int
     no_cor_printed_count: int
-    unenrolled_count: int
+    qualified_count: int
+    not_qualified_count: int
+    needs_review_count: int
 
 
 class VerifyMasterlistResponse(BaseModel):
+    service_version: str = "3.0.0"
     summary: VerificationSummary
     records: list[MasterlistRecordOut]
 
 
-app = FastAPI(title="ScholarSync Masterlist Verifier", version="2.0.0")
+app = FastAPI(title="ScholarSync Masterlist Verifier", version="3.0.0")
 
 
 @app.get("/health-check")
 def health_check() -> dict[str, str]:
-    return {"status": "ok", "service": "masterlist-verifier"}
+    return {"status": "ok", "service": "masterlist-verifier", "version": "3.0.0"}
 
 
 @app.post("/verify-masterlist", response_model=VerifyMasterlistResponse)
 def verify_masterlist(payload: VerifyMasterlistRequest) -> VerifyMasterlistResponse:
-    enrolled_by_name: dict[str, list[RegistrarStudentIn]] = defaultdict(list)
-
+    by_id: dict[str, list[RegistrarStudentIn]] = defaultdict(list)
+    by_name: dict[str, list[RegistrarStudentIn]] = defaultdict(list)
     for student in payload.registrar_students:
+        student_id = normalize_value(student.student_id_number)
         name = normalize_name(student.student_name)
-        status = normalize_value(student.enrollment_status).replace(" ", "_")
-        if name and status == "enrolled":
-            enrolled_by_name[name].append(student)
+        if student_id:
+            by_id[student_id].append(student)
+        if name:
+            by_name[name].append(student)
 
-    verified_records: list[MasterlistRecordOut] = []
-
-    for record in payload.records:
-        name = normalize_name(record.student_name)
-        matches = enrolled_by_name.get(name, []) if name else []
-
-        if not name:
-            result = MasterlistRecordOut(row_id=record.row_id, status="unenrolled", remarks="Student name is required.")
-        elif len(matches) > 1:
-            result = MasterlistRecordOut(row_id=record.row_id, status="unenrolled", remarks="Multiple enrolled students have this name; manual checking is required.")
-        elif not matches:
-            result = MasterlistRecordOut(row_id=record.row_id, status="unenrolled", remarks="No matching enrolled student record found.")
-        else:
-            student = matches[0]
-            status: VerificationStatus = "enrolled" if student.cor_printed else "no_cor_printed"
-            result = MasterlistRecordOut(
-                row_id=record.row_id,
-                status=status,
-                matched_student_id=student.id,
-                campus_id=student.campus_id,
-                remarks="Matched enrolled Registrar record with printed COR." if student.cor_printed else "Matched enrolled Registrar record; COR has not been printed.",
-            )
-
-        verified_records.append(result)
-
+    results = [verify_record(record, by_id, by_name) for record in payload.records]
     return VerifyMasterlistResponse(
         summary=VerificationSummary(
-            total_records=len(verified_records),
-            enrolled_count=count_status(verified_records, "enrolled"),
-            no_cor_printed_count=count_status(verified_records, "no_cor_printed"),
-            unenrolled_count=count_status(verified_records, "unenrolled"),
+            total_records=len(results),
+            enrolled_count=count(results, "enrollment_status", "enrolled"),
+            not_enrolled_count=count(results, "enrollment_status", "not_enrolled"),
+            cor_printed_count=count(results, "cor_status", "cor_printed"),
+            no_cor_printed_count=count(results, "cor_status", "no_cor_printed"),
+            qualified_count=count(results, "qualification_status", "qualified"),
+            not_qualified_count=count(results, "qualification_status", "not_qualified"),
+            needs_review_count=count(results, "qualification_status", "needs_review"),
         ),
-        records=verified_records,
+        records=results,
+    )
+
+
+def verify_record(record, by_id, by_name) -> MasterlistRecordOut:
+    student_id = normalize_value(record.student_id_number)
+    name = normalize_name(record.student_name)
+    candidates = by_id.get(student_id, []) if student_id else by_name.get(name, []) if name else []
+
+    if not candidates:
+        return review(record, "unmatched", "No confident official student match was found.")
+    same_campus = [student for student in candidates if student.campus_id == record.campus_id]
+    if not same_campus:
+        return review(record, "inconsistent", "A possible student match exists in another campus.")
+    if len(same_campus) != 1:
+        return review(record, "ambiguous", "Multiple official student records match; Registrar review is required.")
+
+    student = same_campus[0]
+    enrollment = "enrolled" if normalize_value(student.enrollment_status).replace(" ", "_") == "enrolled" else "not_enrolled"
+    if student.cor_printed is None:
+        cor = "needs_review"
+    else:
+        cor = "cor_printed" if student.cor_printed else "no_cor_printed"
+    qualification = "qualified" if enrollment == "enrolled" and cor == "cor_printed" else "needs_review" if cor == "needs_review" else "not_qualified"
+    return MasterlistRecordOut(
+        row_id=record.row_id,
+        match_status="matched",
+        enrollment_status=enrollment,
+        cor_status=cor,
+        qualification_status=qualification,
+        matched_student_id=student.id,
+        campus_id=student.campus_id,
+        remarks="Confident campus-scoped official student match.",
+    )
+
+
+def review(record, match_status: MatchStatus, remarks: str) -> MasterlistRecordOut:
+    return MasterlistRecordOut(
+        row_id=record.row_id,
+        match_status=match_status,
+        enrollment_status="needs_review",
+        cor_status="needs_review",
+        qualification_status="needs_review",
+        campus_id=record.campus_id,
+        remarks=remarks,
     )
 
 
@@ -111,5 +151,5 @@ def normalize_value(value: str | None) -> str:
     return " ".join((value or "").strip().casefold().replace("-", " ").split())
 
 
-def count_status(records: list[MasterlistRecordOut], status: VerificationStatus) -> int:
-    return sum(1 for record in records if record.status == status)
+def count(records: list[MasterlistRecordOut], field: str, value: str) -> int:
+    return sum(1 for record in records if getattr(record, field) == value)
