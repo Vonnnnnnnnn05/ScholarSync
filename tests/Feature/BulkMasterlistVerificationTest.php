@@ -135,7 +135,8 @@ test('registrar exception forms expose a record scoped browser draft', function 
         ->assertOk()
         ->assertSee('data-resolution-draft', false)
         ->assertSee("registrar-resolution-{$registrar->id}-{$batch->id}-{$record->id}", false)
-        ->assertSee('Draft saved in this browser session');
+        ->assertSee('Draft saved in this browser session')
+        ->assertSee('data-save-resolution', false);
 });
 
 test('chunk verification sends only campus records and persists separate results and snapshot', function () {

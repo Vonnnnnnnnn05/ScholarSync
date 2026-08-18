@@ -27,7 +27,7 @@
                 <select name="final_qualification_status" class="rounded-md"><option value="qualified">Qualified</option><option value="not_qualified">Not Qualified</option></select>
                 <input name="reason" class="rounded-md" required placeholder="Resolution reason">
                 <p class="hidden text-xs font-semibold text-emerald-700 md:col-span-3" data-draft-status>{{ __('Draft saved in this browser session') }}</p>
-                <button class="rounded-md bg-purple-700 px-4 py-2 font-semibold text-white md:col-start-4">Save Resolution</button>
+                <button data-save-resolution class="inline-flex min-h-11 items-center justify-center rounded-md bg-emerald-800 px-4 py-2 font-semibold text-white shadow-sm transition hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:ring-offset-2 md:col-start-4">Save Resolution</button>
             </form>
             @endif
         </section>
