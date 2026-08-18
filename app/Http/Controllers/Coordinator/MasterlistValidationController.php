@@ -40,6 +40,13 @@ class MasterlistValidationController extends Controller
         return back()->with('status', 'Verified campus batch submitted to the Chairman.');
     }
 
+    public function retryVerification(Request $request, MasterlistCampusBatch $batch, MasterlistCampusWorkflowService $workflow): RedirectResponse
+    {
+        $workflow->retryVerification($batch, $request->user());
+
+        return back()->with('status', 'Failed verification records were queued for retry.');
+    }
+
     public function index(Request $request): View
     {
         return view('coordinator.masterlists.index', [

@@ -16,8 +16,10 @@ class UpdateRegistrarMasterlistRecordRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'verification_status' => ['required', Rule::in(['verified', 'not_verified'])],
-            'remarks' => ['nullable', 'string', 'max:2000'],
+            'final_enrollment_status' => ['required', Rule::in(['enrolled', 'not_enrolled'])],
+            'final_cor_status' => ['required', Rule::in(['cor_printed', 'no_cor_printed'])],
+            'final_qualification_status' => ['required', Rule::in(['qualified', 'not_qualified'])],
+            'reason' => ['required', 'string', 'max:2000'],
         ];
     }
 }

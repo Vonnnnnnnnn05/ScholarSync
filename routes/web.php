@@ -145,6 +145,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::middleware('role:coordinator')->prefix('coordinator/masterlist-batches')->name('coordinator.batches.')->group(function () {
         Route::get('/{batch}', [MasterlistValidationController::class, 'showBatch'])->name('show');
         Route::post('/{batch}/submit-to-registrar', [MasterlistValidationController::class, 'submitToRegistrar'])->name('submit-to-registrar');
+        Route::post('/{batch}/retry-verification', [MasterlistValidationController::class, 'retryVerification'])->name('retry-verification');
         Route::post('/{batch}/submit-to-chairman', [MasterlistValidationController::class, 'submitToChairman'])->name('submit-to-chairman');
     });
 
