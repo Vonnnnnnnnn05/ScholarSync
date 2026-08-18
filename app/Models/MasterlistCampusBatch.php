@@ -39,4 +39,9 @@ class MasterlistCampusBatch extends Model
         return $this->hasMany(MasterlistRecord::class, 'masterlist_id', 'masterlist_id')
             ->where('campus_id', $this->campus_id);
     }
+
+    public function verificationRuns(): HasMany
+    {
+        return $this->hasMany(MasterlistVerificationRun::class);
+    }
 }
