@@ -21,7 +21,6 @@
                     <table class="min-w-full divide-y divide-gray-200">
                         <thead class="bg-gray-50">
                             <tr>
-                                <th class="px-6 py-3 text-left text-xs font-semibold uppercase text-gray-600">{{ __('Agency') }}</th>
                                 <th class="px-6 py-3 text-left text-xs font-semibold uppercase text-gray-600">{{ __('File') }}</th>
                                 <th class="px-6 py-3 text-left text-xs font-semibold uppercase text-gray-600">{{ __('Beneficiaries') }}</th>
                                 <th class="px-6 py-3 text-left text-xs font-semibold uppercase text-gray-600">{{ __('Campus Progress') }}</th>
@@ -32,7 +31,6 @@
                         <tbody class="divide-y divide-gray-200 bg-white">
                             @forelse ($masterlists as $masterlist)
                                 <tr>
-                                    <td class="px-6 py-4 text-sm font-semibold text-gray-950">{{ $masterlist->agency->agency_name }}</td>
                                     <td class="px-6 py-4 text-sm text-gray-800">{{ $masterlist->file_name }}</td>
                                     <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-700">
                                         {{ $masterlist->records_count }}
@@ -53,7 +51,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="6" class="px-6 py-12 text-center text-sm text-gray-600">
+                                    <td colspan="5" class="px-6 py-12 text-center text-sm text-gray-600">
                                         {{ __('No beneficiary master lists have been uploaded.') }}
                                     </td>
                                 </tr>

@@ -9,6 +9,7 @@ use App\Models\RegistrarStudent;
 use App\Models\ScholarshipMasterlist;
 use App\Models\User;
 use App\Services\MasterlistCsvService;
+use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
 
@@ -37,10 +38,9 @@ test('upload import distributes pending records into represented campus batches'
     Storage::fake('local');
     $firstCampus = Campus::factory()->create(['code' => 'isulan', 'name' => 'Isulan Campus']);
     $secondCampus = Campus::factory()->create(['code' => 'tacurong', 'name' => 'Tacurong Campus']);
-    $agency = Agency::factory()->create();
     Storage::disk('local')->put('masterlists/tmp/beneficiaries.csv', "student_name,campus\nAna Cruz,Isulan Campus\nJuan Cruz,Tacurong Campus\n");
 
-    $masterlist = app(MasterlistCsvService::class)->import($agency, 'masterlists/tmp/beneficiaries.csv', 'beneficiaries.csv');
+    $masterlist = app(MasterlistCsvService::class)->import('masterlists/tmp/beneficiaries.csv', 'beneficiaries.csv');
 
     expect($masterlist->status)->toBe('distributed')
         ->and($masterlist->campusBatches()->count())->toBe(2)
@@ -76,6 +76,7 @@ function campusWorkflowFixture(): array
 }
 
 test('campus coordinator routes a batch to the registrar without verifying records', function () {
+    Queue::fake();
     $fixture = campusWorkflowFixture();
 
     $this->actingAs($fixture['coordinator'])
@@ -83,7 +84,7 @@ test('campus coordinator routes a batch to the registrar without verifying recor
         ->assertRedirect();
 
     expect($fixture['batch']->fresh())
-        ->status->toBe('with_registrar')
+        ->status->toBe('verification_queued')
         ->submitted_to_registrar_by->toBe($fixture['coordinator']->id)
         ->and($fixture['record']->fresh()->verification_status)->toBe('pending');
 });
@@ -103,12 +104,19 @@ test('coordinator queue contains only their campus batches', function () {
 
 test('registrar verifies a campus batch before coordinator submits it to chairman', function () {
     $fixture = campusWorkflowFixture();
-    $fixture['batch']->update(['status' => 'with_registrar']);
+    $fixture['batch']->update(['status' => 'awaiting_registrar_review']);
+    $fixture['record']->update([
+        'automatic_enrollment_status' => 'needs_review', 'automatic_cor_status' => 'needs_review',
+        'automatic_qualification_status' => 'needs_review', 'final_enrollment_status' => 'needs_review',
+        'final_cor_status' => 'needs_review', 'final_qualification_status' => 'needs_review',
+    ]);
 
     $this->actingAs($fixture['registrar'])
         ->patch('/registrar/masterlist-batches/'.$fixture['batch']->id.'/records/'.$fixture['record']->id, [
-            'verification_status' => 'verified',
-            'remarks' => 'Confirmed in official enrollment records.',
+            'final_enrollment_status' => 'enrolled',
+            'final_cor_status' => 'cor_printed',
+            'final_qualification_status' => 'qualified',
+            'reason' => 'Confirmed in official enrollment records.',
         ])
         ->assertRedirect();
 
@@ -132,7 +140,7 @@ test('registrars cannot access another campus batch', function () {
     $fixture = campusWorkflowFixture();
     $otherCampus = Campus::factory()->create();
     $otherRegistrar = User::factory()->role(UserRole::Registrar)->create(['campus_id' => $otherCampus->id]);
-    $fixture['batch']->update(['status' => 'with_registrar']);
+    $fixture['batch']->update(['status' => 'awaiting_registrar_review']);
 
     $this->actingAs($otherRegistrar)
         ->get('/registrar/masterlist-batches/'.$fixture['batch']->id)
@@ -142,11 +150,14 @@ test('registrars cannot access another campus batch', function () {
 test('chairman exports only registrar verified beneficiaries and releases the final list', function () {
     $fixture = campusWorkflowFixture();
     $chairman = User::factory()->role(UserRole::ScholarshipChairman)->create();
-    $fixture['record']->update(['verification_status' => 'verified', 'verified_by' => $fixture['registrar']->id, 'verified_at' => now()]);
+    $fixture['record']->update(['verification_status' => 'verified', 'final_enrollment_status' => 'enrolled', 'final_cor_status' => 'cor_printed', 'final_qualification_status' => 'qualified', 'verified_by' => $fixture['registrar']->id, 'verified_at' => now()]);
     MasterlistRecord::factory()->for($fixture['masterlist'], 'masterlist')->create([
         'campus_id' => $fixture['campus']->id,
         'student_name' => 'Not Eligible Student',
         'verification_status' => 'not_verified',
+        'final_enrollment_status' => 'not_enrolled',
+        'final_cor_status' => 'no_cor_printed',
+        'final_qualification_status' => 'not_qualified',
         'verified_by' => $fixture['registrar']->id,
         'verified_at' => now(),
     ]);

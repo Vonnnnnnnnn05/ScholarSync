@@ -19,20 +19,6 @@
                 @csrf
 
                 <section class="rounded-lg bg-white p-6 shadow-sm ring-1 ring-gray-200">
-                    <h3 class="text-base font-semibold text-gray-950">{{ __('Agency Details') }}</h3>
-                    <div class="mt-5">
-                        <x-input-label for="agency_id" :value="__('Agency')" />
-                        <select id="agency_id" name="agency_id" class="mt-1 block min-h-11 w-full rounded-md border-emerald-900/20 bg-white text-sm shadow-sm focus:border-emerald-700 focus:ring-emerald-700" required>
-                            <option value="">{{ __('Select an agency') }}</option>
-                            @foreach ($agencies as $agency)
-                                <option value="{{ $agency->id }}" @selected((string) old('agency_id') === (string) $agency->id)>{{ $agency->agency_name }}</option>
-                            @endforeach
-                        </select>
-                        <x-input-error :messages="$errors->get('agency_id')" class="mt-2" />
-                    </div>
-                </section>
-
-                <section class="rounded-lg bg-white p-6 shadow-sm ring-1 ring-gray-200">
                     <h3 class="text-base font-semibold text-gray-950">{{ __('CSV Masterlist') }}</h3>
 
                     <div class="mt-5">

@@ -25,7 +25,7 @@
                                     <div class="text-gray-600">{{ $item->status->label() }} · OR {{ $item->verified_at ? __('verified') : __('not verified') }}</div>
                                 @elseif ($title === 'Masterlist Uploads')
                                     <div class="font-semibold text-gray-950">{{ $item->file_name }}</div>
-                                    <div class="text-gray-600">{{ $item->agency->agency_name }} · {{ Str::headline($item->status) }}</div>
+                                    <div class="text-gray-600">{{ __('Campus verification') }} · {{ Str::headline($item->status) }}</div>
                                 @else
                                     <div class="font-semibold text-gray-950">{{ $item->student->fullName() }}</div>
                                     <div class="text-gray-600">{{ $item->scholarship_program }} · {{ $item->status->label() }}</div>

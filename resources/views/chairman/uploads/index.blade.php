@@ -27,7 +27,7 @@
                         <thead class="bg-gray-50">
                             <tr>
                                 <th class="px-6 py-3 text-left text-xs font-semibold uppercase text-gray-600">{{ __('File') }}</th>
-                                <th class="px-6 py-3 text-left text-xs font-semibold uppercase text-gray-600">{{ __('Agency') }}</th>
+                                <th class="px-6 py-3 text-left text-xs font-semibold uppercase text-gray-600">{{ __('Workflow') }}</th>
                                 <th class="px-6 py-3 text-left text-xs font-semibold uppercase text-gray-600">{{ __('Records') }}</th>
                                 <th class="px-6 py-3 text-left text-xs font-semibold uppercase text-gray-600">{{ __('Campus Batches') }}</th>
                                 <th class="px-6 py-3 text-left text-xs font-semibold uppercase text-gray-600">{{ __('Status') }}</th>
@@ -39,7 +39,7 @@
                             @forelse ($masterlists as $masterlist)
                                 <tr>
                                     <td class="px-6 py-4 text-sm font-semibold text-gray-950">{{ $masterlist->file_name }}</td>
-                                    <td class="px-6 py-4 text-sm text-gray-700">{{ $masterlist->agency->agency_name }}</td>
+                                    <td class="px-6 py-4 text-sm text-gray-700">{{ __('Campus verification') }}</td>
                                     <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-700">{{ $masterlist->total_records }}</td>
                                     <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-700">
                                         {{ $masterlist->campus_batches_count }}

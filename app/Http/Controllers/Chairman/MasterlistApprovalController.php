@@ -21,7 +21,6 @@ class MasterlistApprovalController extends Controller
     {
         return view('chairman.masterlists.index', [
             'masterlists' => ScholarshipMasterlist::query()
-                ->with('agency')
                 ->withCount([
                     'records',
                     'campusBatches',
@@ -50,7 +49,7 @@ class MasterlistApprovalController extends Controller
             ->oldest('id');
 
         return view('chairman.masterlists.show', [
-            'masterlist' => $masterlist->load(['agency', 'agency.user']),
+            'masterlist' => $masterlist,
             'records' => $recordsQuery->paginate(20)->withQueryString(),
             'activeStatus' => $activeStatus,
             'verificationStatuses' => ['enrolled', 'no_cor_printed', 'unenrolled'],

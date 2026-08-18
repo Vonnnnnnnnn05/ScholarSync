@@ -2,11 +2,11 @@
 
 ## Goal
 
-Process agency beneficiary masterlists across SKSU's seven campuses using automatic bulk enrollment and COR verification. Campus Registrars supervise automatic results and resolve exceptions instead of manually deciding every scholar. Every agency record remains stored and traceable, including unsuccessful and uncertain records.
+Process beneficiary masterlists across SKSU's seven campuses using automatic bulk enrollment and COR verification. Campus Registrars supervise automatic results and resolve exceptions instead of manually deciding every scholar. Every uploaded record remains stored and traceable, including unsuccessful and uncertain records.
 
 ## Roles and boundaries
 
-- The Scholarship Chairman uploads an agency masterlist, monitors all represented campuses, receives completed campus results, consolidates final qualified scholars, exports the result, and records external forwarding.
+- The Scholarship Chairman uploads a beneficiary masterlist, monitors all represented campuses, receives completed campus results, consolidates final qualified scholars, exports the result, and records external forwarding.
 - Each Campus Scholarship Coordinator accesses only their campus, reviews its routed batch, submits it for verification, reviews returned results, and submits it to the Chairman. The Coordinator never performs official verification.
 - Each Campus Registrar accesses only their campus. The Registrar reviews the automatic summary, inspects negative results, and resolves uncertain or discrepant records.
 - The verification microservice performs campus-scoped bulk cross-checking against official student and enrollment data.
@@ -14,9 +14,9 @@ Process agency beneficiary masterlists across SKSU's seven campuses using automa
 
 ## Upload and preservation
 
-The Chairman uploads a CSV containing `student_name` and `campus`; `student_id_number` remains optional when provided by an agency. Import resolves the campus against the seven active campuses, creates one `MasterlistRecord` per source row, and creates one `MasterlistCampusBatch` for each represented campus.
+The Chairman uploads a CSV containing `student_name` and `campus`; `student_id_number` remains optional. Masterlist upload does not request or store scholarship-agency or scholarship-program details. Import resolves the campus against the seven active campuses, creates one `MasterlistRecord` per source row, and creates one `MasterlistCampusBatch` for each represented campus.
 
-Original uploaded values are immutable verification inputs. Matching never overwrites them, and failed or unqualified records are never removed. A 3,000-row agency file therefore remains 3,000 database records after verification and export.
+Original uploaded values are immutable verification inputs. Matching never overwrites them, and failed or unqualified records are never removed. A 3,000-row file therefore remains 3,000 database records after verification and export.
 
 ## Batch state machine
 
@@ -72,7 +72,7 @@ Jobs are idempotent by verification run and record ID. A continuously running La
 
 The Registrar batch page displays automatic summary counts and filters for `needs_review`, `not_enrolled`, `no_cor_printed`, `not_qualified`, ambiguous/unmatched records, resolved records, and all records. Successfully qualified records require no manual decision.
 
-For an exception, the Registrar can compare immutable agency data with the matched official snapshot, confirm the automatic result, or set final enrollment, COR, and qualification results with a mandatory reason. Automatic fields never change when the Registrar acts; final fields and an append-only resolution record capture the action.
+For an exception, the Registrar can compare immutable uploaded data with the matched official snapshot, confirm the automatic result, or set final enrollment, COR, and qualification results with a mandatory reason. Automatic fields never change when the Registrar acts; final fields and an append-only resolution record capture the action.
 
 The Registrar may return the batch only after background verification succeeded and every `needs_review` final result is resolved. Confirmed negative results may remain negative; records are never deleted.
 
@@ -91,7 +91,7 @@ The Registrar may return the batch only after background verification succeeded 
 
 After Registrar return, the Coordinator reviews separate enrollment, COR, qualification, and Registrar-resolution results and sends the campus batch to the Chairman. The Chairman monitors all seven campuses but only represented batches gate completion.
 
-The final export includes records whose final qualification result is `qualified`. It identifies source agency/file, original scholar identifiers, campus, final enrollment/COR/qualification results, and verification timestamp. Exporting does not authenticate or communicate with the external agency. A separate Chairman action records that the export was forwarded externally.
+The final export includes records whose final qualification result is `qualified`. It identifies the source file, original scholar identifiers, campus, final enrollment/COR/qualification results, and verification timestamp. Exporting does not authenticate or communicate with the external agency. A separate Chairman action records that the export was forwarded externally.
 
 ## Security
 

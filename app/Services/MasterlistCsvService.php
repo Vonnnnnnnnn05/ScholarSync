@@ -2,7 +2,6 @@
 
 namespace App\Services;
 
-use App\Models\Agency;
 use App\Models\Campus;
 use App\Models\ScholarshipMasterlist;
 use Illuminate\Http\UploadedFile;
@@ -80,7 +79,7 @@ class MasterlistCsvService
         return $file->store('masterlists/tmp', 'local');
     }
 
-    public function import(Agency $agency, string $temporaryPath, string $originalFileName): ScholarshipMasterlist
+    public function import(string $temporaryPath, string $originalFileName): ScholarshipMasterlist
     {
         abort_unless(Storage::disk('local')->exists($temporaryPath), 404);
 
@@ -90,8 +89,8 @@ class MasterlistCsvService
 
         Storage::disk('local')->copy($temporaryPath, $storedPath);
 
-        $masterlist = DB::transaction(function () use ($agency, $storedPath, $originalFileName, $preview): ScholarshipMasterlist {
-            $masterlist = $agency->masterlists()->create([
+        $masterlist = DB::transaction(function () use ($storedPath, $originalFileName, $preview): ScholarshipMasterlist {
+            $masterlist = ScholarshipMasterlist::create([
                 'file_name' => $originalFileName,
                 'file_path' => $storedPath,
                 'status' => 'distributed',

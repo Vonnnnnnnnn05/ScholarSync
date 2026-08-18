@@ -49,7 +49,7 @@
                                         <td class="px-6 py-4"><x-text-input name="agency_name" class="w-full" :value="$agency->agency_name" required /></td>
                                         <td class="px-6 py-4"><x-text-input name="contact_person" class="w-full" :value="$agency->contact_person" /></td>
                                         <td class="min-w-56 space-y-2 px-6 py-4"><x-text-input name="email" type="email" class="w-full" :value="$agency->email" placeholder="Email" /><x-text-input name="contact_number" class="w-full" :value="$agency->contact_number" placeholder="Contact number" /></td>
-                                        <td class="px-6 py-4 text-sm text-gray-700"><div>{{ $agency->policies_count }} {{ __('opportunities') }}</div><div>{{ $agency->masterlists_count }} {{ __('masterlists') }}</div></td>
+                                        <td class="px-6 py-4 text-sm text-gray-700">{{ $agency->policies_count }} {{ __('opportunities') }}</td>
                                         <td class="px-6 py-4"><select name="status" class="min-h-11 rounded-md border-emerald-900/20 bg-white text-sm shadow-sm focus:border-emerald-700 focus:ring-emerald-700"><option value="active" @selected($agency->status === 'active')>{{ __('Active') }}</option><option value="inactive" @selected($agency->status === 'inactive')>{{ __('Inactive') }}</option></select></td>
                                         <td class="whitespace-nowrap px-6 py-4 text-right"><button class="font-semibold text-emerald-800 hover:text-emerald-950">{{ __('Save') }}</button></td>
                                     </form>

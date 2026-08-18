@@ -2,7 +2,6 @@
 
 use App\Enums\CertificateRequestStatus;
 use App\Enums\UserRole;
-use App\Models\Agency;
 use App\Models\CertificateRequest;
 use App\Models\MasterlistRecord;
 use App\Models\ScholarshipMasterlist;
@@ -71,8 +70,7 @@ test('administrator can manage student profiles and view histories', function ()
 
 test('administrator can monitor scholar records and transactions', function () {
     $administrator = User::factory()->role(UserRole::Administrator)->create();
-    $agency = Agency::factory()->create(['agency_name' => 'CHED Office']);
-    $masterlist = ScholarshipMasterlist::factory()->for($agency)->create([
+    $masterlist = ScholarshipMasterlist::factory()->create([
         'file_name' => 'ched-masterlist.csv',
     ]);
     MasterlistRecord::factory()->for($masterlist, 'masterlist')->create([
@@ -85,7 +83,8 @@ test('administrator can monitor scholar records and transactions', function () {
         ->get(route('admin.monitoring.scholars.index', ['status' => 'approved']))
         ->assertOk()
         ->assertSee('Ana Cruz')
-        ->assertSee('CHED Office');
+        ->assertSee('ched-masterlist.csv')
+        ->assertDontSee('CHED Office');
 
     $this->actingAs($administrator)
         ->get(route('admin.monitoring.transactions.index'))

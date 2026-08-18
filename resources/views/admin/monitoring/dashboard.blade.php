@@ -48,7 +48,7 @@
                         @forelse ($recentMasterlists as $masterlist)
                             <div class="px-6 py-4 text-sm">
                                 <div class="font-semibold text-gray-950">{{ $masterlist->file_name }}</div>
-                                <div class="text-gray-600">{{ $masterlist->agency->agency_name }} · {{ Str::headline($masterlist->status) }}</div>
+                                <div class="text-gray-600">{{ Str::headline($masterlist->status) }}</div>
                             </div>
                         @empty
                             <div class="px-6 py-8 text-sm text-gray-600">{{ __('No masterlists yet.') }}</div>

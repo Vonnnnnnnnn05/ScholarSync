@@ -22,16 +22,16 @@
                     <table class="min-w-full divide-y divide-gray-200">
                         <thead class="bg-gray-50"><tr>
                             <th class="px-6 py-3 text-left text-xs font-semibold uppercase text-gray-600">{{ __('Scholar') }}</th>
-                            <th class="px-6 py-3 text-left text-xs font-semibold uppercase text-gray-600">{{ __('Program') }}</th>
-                            <th class="px-6 py-3 text-left text-xs font-semibold uppercase text-gray-600">{{ __('Agency') }}</th>
+                            <th class="px-6 py-3 text-left text-xs font-semibold uppercase text-gray-600">{{ __('Source File') }}</th>
+                            <th class="px-6 py-3 text-left text-xs font-semibold uppercase text-gray-600">{{ __('Campus') }}</th>
                             <th class="px-6 py-3 text-left text-xs font-semibold uppercase text-gray-600">{{ __('Status') }}</th>
                         </tr></thead>
                         <tbody class="divide-y divide-gray-200 bg-white">
                             @forelse ($records as $record)
                                 <tr>
                                     <td class="px-6 py-4 text-sm"><div class="font-semibold text-gray-950">{{ $record->student_name ?: __('Missing') }}</div><div class="text-xs text-gray-500">{{ $record->student_id_number ?: __('No student ID') }}</div></td>
-                                    <td class="px-6 py-4 text-sm text-gray-700">{{ $record->scholarship_program ?: __('Missing') }}</td>
-                                    <td class="px-6 py-4 text-sm text-gray-700">{{ $record->masterlist?->agency?->agency_name ?: __('No agency') }}</td>
+                                    <td class="px-6 py-4 text-sm text-gray-700">{{ $record->masterlist?->file_name ?: __('Unknown file') }}</td>
+                                    <td class="px-6 py-4 text-sm text-gray-700">{{ $record->campus?->name ?: __('Unknown campus') }}</td>
                                     <td class="px-6 py-4 text-sm"><span class="inline-flex rounded-md bg-gray-100 px-2.5 py-1 text-xs font-semibold text-gray-900">{{ Str::headline($record->chairman_status) }}</span></td>
                                 </tr>
                             @empty

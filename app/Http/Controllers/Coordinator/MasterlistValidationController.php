@@ -21,7 +21,7 @@ class MasterlistValidationController extends Controller
         abort_unless($request->user()->campus_id && $request->user()->campus_id === $batch->campus_id, 403);
 
         return view('coordinator.masterlists.batch', [
-            'batch' => $batch->load(['masterlist.agency', 'campus']),
+            'batch' => $batch->load(['masterlist', 'campus']),
             'records' => $batch->records()->oldest('id')->paginate(20),
         ]);
     }
@@ -40,11 +40,18 @@ class MasterlistValidationController extends Controller
         return back()->with('status', 'Verified campus batch submitted to the Chairman.');
     }
 
+    public function retryVerification(Request $request, MasterlistCampusBatch $batch, MasterlistCampusWorkflowService $workflow): RedirectResponse
+    {
+        $workflow->retryVerification($batch, $request->user());
+
+        return back()->with('status', 'Failed verification records were queued for retry.');
+    }
+
     public function index(Request $request): View
     {
         return view('coordinator.masterlists.index', [
             'batches' => MasterlistCampusBatch::query()
-                ->with(['masterlist.agency', 'campus'])
+                ->with(['masterlist', 'campus'])
                 ->where('campus_id', $request->user()->campus_id)
                 ->latest()
                 ->paginate(10),
