@@ -221,6 +221,11 @@ test('registrar reviews suggested and searched official records without leaving 
         ->assertSee('Confirm Suggested Match')
         ->assertSee('No Matching Official Record')
         ->assertSee('Save and Review Next')
+        ->assertSee('data-verification-badge="match"', false)
+        ->assertSee('data-verification-badge="enrollment"', false)
+        ->assertSee('data-verification-badge="cor"', false)
+        ->assertSee('data-verification-badge="qualification"', false)
+        ->assertSee('bg-amber-100 text-amber-800', false)
         ->assertDontSee('Von Other Campus');
 });
 

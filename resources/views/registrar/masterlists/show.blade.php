@@ -50,11 +50,30 @@
         </div>
         @if($studentSearch !== '')<p class="mt-2 text-xs text-gray-600">{{ trans_choice(':count campus record found|:count campus records found', $officialCandidates->count(), ['count' => $officialCandidates->count()]) }}</p>@endif
     </form>
+    @php
+        $verificationBadgeClass = static fn (string $status): string => match ($status) {
+            'matched', 'enrolled', 'cor_printed', 'qualified', 'resolved' => 'bg-emerald-100 text-emerald-800 ring-emerald-600/20',
+            'unmatched', 'not_enrolled', 'no_cor_printed', 'not_qualified' => 'bg-red-100 text-red-800 ring-red-600/20',
+            'possible_match', 'needs_review', 'ambiguous' => 'bg-amber-100 text-amber-800 ring-amber-600/20',
+            default => 'bg-gray-100 text-gray-700 ring-gray-500/20',
+        };
+        $verificationBadge = static fn (string $type, string $status): string => sprintf(
+            '<span data-verification-badge="%s" class="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold ring-1 ring-inset %s">%s</span>',
+            e($type),
+            $verificationBadgeClass($status),
+            e(Str::headline($status)),
+        );
+    @endphp
     <div class="space-y-4">
         @forelse($records as $record)
         <section id="record-{{ $record->id }}" class="scroll-mt-6 rounded-lg bg-white p-5 shadow">
-            <div class="flex flex-wrap justify-between gap-3"><div><h2 class="font-bold">{{ $record->student_name }}</h2><p class="text-sm text-gray-600">Original ID: {{ $record->student_id_number ?: 'Not supplied' }} · Match: {{ Str::headline($record->match_status) }}</p></div><span class="font-semibold">{{ Str::headline($record->final_qualification_status) }}</span></div>
-            <div class="mt-3 grid gap-2 text-sm md:grid-cols-3"><p>Enrollment: <b>{{ Str::headline($record->final_enrollment_status) }}</b></p><p>COR: <b>{{ Str::headline($record->final_cor_status) }}</b></p><p>Automatic qualification: <b>{{ Str::headline($record->automatic_qualification_status) }}</b></p></div>
+            <div class="flex flex-wrap items-start justify-between gap-3"><div><h2 class="font-bold">{{ $record->student_name }}</h2><div class="mt-1 flex flex-wrap items-center gap-2"><p class="text-sm text-gray-600">Original ID: {{ $record->student_id_number ?: 'Not supplied' }}</p>{!! $verificationBadge('match', $record->match_status) !!}</div></div>{!! $verificationBadge('qualification', $record->final_qualification_status) !!}</div>
+            <div class="mt-3 flex flex-wrap gap-2">
+                {!! $verificationBadge('enrollment', $record->final_enrollment_status) !!}
+                {!! $verificationBadge('cor', $record->final_cor_status) !!}
+                <span class="inline-flex items-center gap-1 text-xs text-gray-500">{{ __('Automatic:') }} {!! $verificationBadge('automatic-qualification', $record->automatic_qualification_status) !!}</span>
+                @if($record->resolved_at){!! $verificationBadge('resolution', 'resolved') !!}@endif
+            </div>
             <p class="mt-2 text-sm text-gray-600">{{ $record->automatic_result_message ?: 'No automatic result message.' }}</p>
             @if($record->resolved_at)<p class="mt-2 text-sm font-semibold text-emerald-800">Resolved by {{ $record->resolver?->name }} on {{ $record->resolved_at->format('M d, Y H:i') }}</p>@endif
             @if($batch->status === 'awaiting_registrar_review' && ($record->final_qualification_status === 'needs_review' || $record->final_enrollment_status !== 'enrolled' || $record->final_cor_status !== 'cor_printed'))
