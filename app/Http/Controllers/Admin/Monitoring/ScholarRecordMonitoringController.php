@@ -15,7 +15,7 @@ class ScholarRecordMonitoringController extends Controller
 
         return view('admin.monitoring.scholars', [
             'records' => MasterlistRecord::query()
-                ->with(['masterlist.agency', 'matchedStudent'])
+                ->with(['masterlist', 'campus', 'matchedStudent'])
                 ->when($status !== '', fn ($query) => $query->where('chairman_status', $status))
                 ->latest()
                 ->paginate(15)

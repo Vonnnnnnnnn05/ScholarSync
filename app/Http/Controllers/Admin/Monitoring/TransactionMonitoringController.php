@@ -13,7 +13,7 @@ class TransactionMonitoringController extends Controller
     {
         return view('admin.monitoring.transactions', [
             'certificateRequests' => CertificateRequest::query()->with('student')->latest()->limit(10)->get(),
-            'masterlists' => ScholarshipMasterlist::query()->with('agency')->latest()->limit(10)->get(),
+            'masterlists' => ScholarshipMasterlist::query()->latest()->limit(10)->get(),
         ]);
     }
 }

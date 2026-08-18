@@ -38,10 +38,9 @@ test('upload import distributes pending records into represented campus batches'
     Storage::fake('local');
     $firstCampus = Campus::factory()->create(['code' => 'isulan', 'name' => 'Isulan Campus']);
     $secondCampus = Campus::factory()->create(['code' => 'tacurong', 'name' => 'Tacurong Campus']);
-    $agency = Agency::factory()->create();
     Storage::disk('local')->put('masterlists/tmp/beneficiaries.csv', "student_name,campus\nAna Cruz,Isulan Campus\nJuan Cruz,Tacurong Campus\n");
 
-    $masterlist = app(MasterlistCsvService::class)->import($agency, 'masterlists/tmp/beneficiaries.csv', 'beneficiaries.csv');
+    $masterlist = app(MasterlistCsvService::class)->import('masterlists/tmp/beneficiaries.csv', 'beneficiaries.csv');
 
     expect($masterlist->status)->toBe('distributed')
         ->and($masterlist->campusBatches()->count())->toBe(2)

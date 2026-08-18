@@ -19,7 +19,6 @@ class PreviewMasterlistUploadRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'agency_id' => ['required', 'integer', 'exists:agencies,id'],
             'masterlist' => [
                 'required',
                 File::types(['csv', 'txt'])->max(5 * 1024),

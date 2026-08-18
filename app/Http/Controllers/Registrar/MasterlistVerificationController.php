@@ -19,7 +19,7 @@ class MasterlistVerificationController extends Controller
     public function index(Request $request): View
     {
         return view('registrar.masterlists.index', ['batches' => MasterlistCampusBatch::query()
-            ->with(['masterlist.agency', 'campus'])
+            ->with(['masterlist', 'campus'])
             ->where('campus_id', $request->user()->campus_id)
             ->whereIn('status', ['verification_queued', 'verification_processing', 'awaiting_registrar_review', 'verification_failed'])
             ->latest()->paginate(10)]);

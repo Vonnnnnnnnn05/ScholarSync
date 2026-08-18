@@ -13,13 +13,51 @@ use App\Models\RegistrarStudent;
 use App\Models\ScholarshipMasterlist;
 use App\Models\User;
 use App\Services\MasterlistCampusWorkflowService;
+use App\Services\MasterlistCsvService;
 use App\Services\MasterlistVerificationService;
+use App\Services\VerifiedMasterlistExportService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\Storage;
 
 uses(RefreshDatabase::class);
+
+test('beneficiary masterlist import and export do not require or expose an agency', function () {
+    Storage::fake('local');
+    $campus = Campus::factory()->create(['name' => 'Isulan Campus', 'code' => 'isulan']);
+    Storage::disk('local')->put('masterlists/tmp/plain.csv', "student_name,campus\nAna Cruz,Isulan Campus\n");
+
+    $masterlist = app(MasterlistCsvService::class)->import('masterlists/tmp/plain.csv', 'plain.csv');
+    $record = $masterlist->records()->firstOrFail();
+    $record->update([
+        'final_enrollment_status' => 'enrolled', 'final_cor_status' => 'cor_printed',
+        'final_qualification_status' => 'qualified', 'automatic_verified_at' => now(),
+    ]);
+
+    expect($masterlist->agency_id)->toBeNull()
+        ->and($record->campus_id)->toBe($campus->id);
+
+    $response = app(VerifiedMasterlistExportService::class)->download($masterlist);
+    ob_start();
+    $response->sendContent();
+    $content = ob_get_clean();
+    expect($content)->toContain('student_name,campus,enrollment_status')
+        ->not->toContain('scholarship_agency');
+});
+
+test('chairman masterlist upload asks only for the csv file', function () {
+    $chairman = User::factory()->create(['role' => UserRole::ScholarshipChairman]);
+
+    $this->actingAs($chairman)
+        ->get(route('chairman.uploads.create'))
+        ->assertOk()
+        ->assertSee('CSV Masterlist')
+        ->assertSee('name="masterlist"', false)
+        ->assertDontSee('Agency Details')
+        ->assertDontSee('name="agency_id"', false);
+});
 
 test('bulk verification schema preserves automatic final snapshot and resolution data', function () {
     expect(Schema::hasTable('masterlist_verification_runs'))->toBeTrue()

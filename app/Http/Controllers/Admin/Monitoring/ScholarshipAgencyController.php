@@ -15,7 +15,7 @@ class ScholarshipAgencyController extends Controller
     {
         return view('admin.monitoring.agencies.index', [
             'agencies' => Agency::query()
-                ->withCount(['policies', 'masterlists'])
+                ->withCount('policies')
                 ->orderBy('agency_name')
                 ->paginate(10),
         ]);

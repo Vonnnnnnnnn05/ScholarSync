@@ -21,7 +21,7 @@ class MasterlistValidationController extends Controller
         abort_unless($request->user()->campus_id && $request->user()->campus_id === $batch->campus_id, 403);
 
         return view('coordinator.masterlists.batch', [
-            'batch' => $batch->load(['masterlist.agency', 'campus']),
+            'batch' => $batch->load(['masterlist', 'campus']),
             'records' => $batch->records()->oldest('id')->paginate(20),
         ]);
     }
@@ -51,7 +51,7 @@ class MasterlistValidationController extends Controller
     {
         return view('coordinator.masterlists.index', [
             'batches' => MasterlistCampusBatch::query()
-                ->with(['masterlist.agency', 'campus'])
+                ->with(['masterlist', 'campus'])
                 ->where('campus_id', $request->user()->campus_id)
                 ->latest()
                 ->paginate(10),

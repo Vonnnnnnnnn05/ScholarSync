@@ -2,7 +2,6 @@
 
 namespace Database\Factories;
 
-use App\Models\Agency;
 use App\Models\ScholarshipMasterlist;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -17,7 +16,7 @@ class ScholarshipMasterlistFactory extends Factory
     public function definition(): array
     {
         return [
-            'agency_id' => Agency::factory(),
+            'agency_id' => null,
             'file_name' => 'masterlist.csv',
             'file_path' => 'masterlists/uploads/masterlist.csv',
             'status' => 'uploaded',

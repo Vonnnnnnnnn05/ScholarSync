@@ -2,7 +2,7 @@
     <x-slot name="header">
         <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
             <div>
-                <p class="text-sm font-medium text-emerald-700">{{ $masterlist->agency->agency_name }}</p>
+                <p class="text-sm font-medium text-emerald-700">{{ __('Campus Masterlist') }}</p>
                 <h2 class="text-xl font-semibold leading-tight text-gray-900">
                     {{ __('Validate :file', ['file' => $masterlist->file_name]) }}
                 </h2>
