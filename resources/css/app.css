@@ -23,3 +23,40 @@
         }
     }
 }
+
+@media print {
+    /* Hide layout navigation, sidebar, and non-printable elements */
+    #role-sidebar,
+    aside,
+    nav,
+    header.shadow-sm,
+    .no-print,
+    .print-hide,
+    [data-no-print] {
+        display: none !important;
+    }
+
+    body {
+        background: #ffffff !important;
+        color: #111827 !important;
+        font-size: 10pt !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+
+    main {
+        padding: 0 !important;
+        margin: 0 !important;
+        max-width: 100% !important;
+        width: 100% !important;
+    }
+
+    .min-h-screen,
+    .py-10,
+    .pt-6 {
+        min-height: auto !important;
+        padding-top: 0 !important;
+        padding-bottom: 0 !important;
+    }
+}
+

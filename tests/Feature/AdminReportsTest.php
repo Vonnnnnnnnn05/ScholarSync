@@ -149,3 +149,40 @@ test('non administrators cannot access reports module', function () {
         ->get(route('admin.reports.index'))
         ->assertForbidden();
 });
+
+test('each report has print buttons on reports index and preview pages', function () {
+    $administrator = User::factory()->role(UserRole::Administrator)->create();
+    seedReportRecords();
+
+    // Index page has university reports table with single print button per report
+    $this->actingAs($administrator)
+        ->get(route('admin.reports.index'))
+        ->assertOk()
+        ->assertSee('University Reports Table')
+        ->assertSee('Print Report');
+
+    // Preview page includes single Print Report button and university print letterhead
+    $this->actingAs($administrator)
+        ->get(route('admin.reports.preview', [
+            'type' => 'scholar_information',
+            'format' => 'pdf',
+        ]))
+        ->assertOk()
+        ->assertSee('Print Report')
+        ->assertSee('SULTAN KUDARAT STATE UNIVERSITY')
+        ->assertSee('OFFICE OF STUDENT AFFAIRS AND SERVICES')
+        ->assertSee('Prepared by:')
+        ->assertSee('Verified by:');
+
+    // Preview page with print parameter triggers automatic printing script
+    $this->actingAs($administrator)
+        ->get(route('admin.reports.preview', [
+            'type' => 'masterlists',
+            'format' => 'pdf',
+            'print' => 1,
+        ]))
+        ->assertOk()
+        ->assertSee('window.print()', false);
+});
+
+

@@ -24,6 +24,7 @@ class ReportController extends Controller
 
     public function preview(Request $request, ReportBuilderService $reports): View
     {
+        $request->mergeIfMissing(['format' => 'pdf']);
         $validated = $this->validated($request, $reports);
 
         return view('admin.reports.preview', [
@@ -33,6 +34,7 @@ class ReportController extends Controller
             'selectedFormat' => $validated['format'],
             'filters' => $this->filters($validated),
             'report' => $reports->build($validated['type'], $this->filters($validated)),
+            'autoPrint' => $request->boolean('print'),
         ]);
     }
 

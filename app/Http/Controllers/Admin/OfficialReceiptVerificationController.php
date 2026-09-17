@@ -6,6 +6,7 @@ use App\Enums\CertificateRequestStatus;
 use App\Http\Controllers\Controller;
 use App\Models\CertificateRequest;
 use App\Services\AuditTrailService;
+use App\Services\CertificateGenerationService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -82,8 +83,23 @@ class OfficialReceiptVerificationController extends Controller
             ->with('status', 'Official Receipt verified successfully.');
     }
 
-    public function approve(Request $request, CertificateRequest $certificateRequest, AuditTrailService $audit): RedirectResponse
-    {
+    public function approve(
+        Request $request,
+        CertificateRequest $certificateRequest,
+        AuditTrailService $audit,
+        CertificateGenerationService $certificateGenerator,
+    ): RedirectResponse {
+        if ($certificateRequest->status === CertificateRequestStatus::Approved) {
+            $alreadyGenerated = $certificateRequest->certificate()->exists();
+            $certificateGenerator->generateForRequest($certificateRequest, $request->user());
+
+            return redirect()
+                ->route('admin.official-receipts.show', $certificateRequest)
+                ->with('status', $alreadyGenerated
+                    ? 'Certificate PDF is already generated.'
+                    : 'Certificate PDF generated successfully.');
+        }
+
         abort_unless($certificateRequest->status === CertificateRequestStatus::Verified, 422);
 
         $certificateRequest->update([

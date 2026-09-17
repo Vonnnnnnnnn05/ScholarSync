@@ -10,6 +10,7 @@ class CampusSeeder extends Seeder
 {
     public function run(): void
     {
+         
         $path = public_path('data/sksu-academic-options.json');
         $data = json_decode((string) file_get_contents($path), true, flags: JSON_THROW_ON_ERROR);
 

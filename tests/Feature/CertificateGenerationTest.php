@@ -78,6 +78,30 @@ test('administrator approval generates a numbered pdf certificate', function () 
     Mail::assertSent(CertificateRequestStatusMail::class);
 });
 
+test('repeated approval safely returns the existing generated certificate', function () {
+    Mail::fake();
+    Storage::fake('local');
+
+    $administrator = User::factory()->role(UserRole::Administrator)->create();
+    $certificateRequest = verifiedCertificateRequest();
+
+    $this->actingAs($administrator)
+        ->patch(route('admin.official-receipts.approve', $certificateRequest))
+        ->assertRedirect(route('admin.official-receipts.show', $certificateRequest));
+
+    $certificate = $certificateRequest->fresh()->certificate;
+
+    $this->actingAs($administrator)
+        ->patch(route('admin.official-receipts.approve', $certificateRequest))
+        ->assertRedirect(route('admin.official-receipts.show', $certificateRequest))
+        ->assertSessionHas('status', 'Certificate PDF is already generated.');
+
+    expect($certificateRequest->fresh()->certificate->is($certificate))->toBeTrue()
+        ->and(Certificate::query()->where('certificate_request_id', $certificateRequest->id)->count())->toBe(1);
+
+    Mail::assertSentCount(1);
+});
+
 test('certificate numbers are unique and sequential per year', function () {
     Mail::fake();
     Storage::fake('local');

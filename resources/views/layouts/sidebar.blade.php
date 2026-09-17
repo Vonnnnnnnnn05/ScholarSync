@@ -32,19 +32,19 @@
     ];
 @endphp
 
-<aside id="role-sidebar" class="w-full shrink-0 border-b border-emerald-900/10 bg-white lg:w-72 lg:border-b-0 lg:border-r">
+<aside id="role-sidebar" class="w-full shrink-0 border-b border-emerald-900/10 bg-white lg:w-60 xl:w-64 lg:border-b-0 lg:border-r">
     <div class="flex flex-col lg:sticky lg:top-0 lg:h-screen lg:min-h-screen">
-        <div class="border-b border-emerald-900/10 px-5 py-5">
-            <div class="flex items-center gap-3">
-                <x-application-logo class="h-12 w-12 object-contain" />
+        <div class="border-b border-emerald-900/10 px-4 py-3.5">
+            <div class="flex items-center gap-2.5">
+                <x-application-logo class="h-9 w-9 object-contain" />
                 <div>
-                    <p class="text-sm font-bold uppercase text-emerald-900">{{ __('ScholarSync') }}</p>
-                    <p class="text-xs font-medium text-gray-600">{{ $user->role->label() }}</p>
+                    <p class="text-xs font-bold uppercase tracking-wider text-emerald-900">{{ __('ScholarSync') }}</p>
+                    <p class="text-[11px] font-medium text-gray-500">{{ $user->role->label() }}</p>
                 </div>
             </div>
         </div>
 
-        <nav class="grid gap-1 scroll-smooth px-3 py-4 sm:grid-cols-2 lg:flex lg:flex-1 lg:flex-col lg:space-y-1 lg:overflow-y-auto">
+        <nav class="grid gap-0.5 scroll-smooth px-2.5 py-3 sm:grid-cols-2 lg:flex lg:flex-1 lg:flex-col lg:space-y-0.5 lg:overflow-y-auto">
             @foreach ($links as $link)
                 @if ($link['show'])
                     <x-sidebar-link :href="route($link['route'])" :active="request()->routeIs($link['active'])">
@@ -53,19 +53,19 @@
 
                     @if ($link['label'] === 'Scholarship Opportunities' && $user->hasRole(\App\Enums\UserRole::Administrator))
                         <details class="group" @if (request()->routeIs('admin.monitoring.*')) open @endif>
-                            <summary class="{{ request()->routeIs('admin.monitoring.*') ? 'flex min-h-11 cursor-pointer list-none items-center justify-between rounded-md bg-emerald-800 px-3 py-2 text-sm font-semibold text-white shadow-sm' : 'flex min-h-11 cursor-pointer list-none items-center justify-between rounded-md px-3 py-2 text-sm font-semibold text-emerald-950 transition hover:bg-emerald-50 focus:outline-none focus:ring-2 focus:ring-emerald-700' }}">
+                            <summary class="{{ request()->routeIs('admin.monitoring.*') ? 'flex min-h-9 cursor-pointer list-none items-center justify-between rounded-md bg-emerald-800 px-3 py-1.5 text-xs font-semibold text-white shadow-sm' : 'flex min-h-9 cursor-pointer list-none items-center justify-between rounded-md px-3 py-1.5 text-xs font-medium text-emerald-950 transition hover:bg-emerald-50 focus:outline-none focus:ring-2 focus:ring-emerald-700' }}">
                                 <span>{{ __('Monitoring') }}</span>
-                                <svg class="h-4 w-4 transition group-open:rotate-90" aria-hidden="true" viewBox="0 0 20 20" fill="currentColor">
+                                <svg class="h-3.5 w-3.5 transition group-open:rotate-90" aria-hidden="true" viewBox="0 0 20 20" fill="currentColor">
                                     <path fill-rule="evenodd" d="M7.21 14.77a.75.75 0 0 1 0-1.06L10.94 10 7.21 6.29a.75.75 0 1 1 1.06-1.06l4.25 4.25a.75.75 0 0 1 0 1.06l-4.25 4.25a.75.75 0 0 1-1.06-.02Z" clip-rule="evenodd" />
                                 </svg>
                             </summary>
 
-                            <div class="mt-1 grid gap-1 border-l-2 border-emerald-100 pl-3 lg:ml-3">
+                            <div class="mt-0.5 grid gap-0.5 border-l-2 border-emerald-100 pl-2.5 lg:ml-2.5">
                                 @foreach ($monitoringLinks as $monitoringLink)
                                     <a
                                         href="{{ route($monitoringLink['route']) }}"
                                         @if (request()->routeIs($monitoringLink['active'])) data-active-sidebar-link="true" @endif
-                                        class="{{ request()->routeIs($monitoringLink['active']) ? 'flex min-h-10 items-center rounded-md bg-emerald-50 px-3 py-2 text-sm font-semibold text-emerald-900 ring-1 ring-emerald-700/10' : 'flex min-h-10 items-center rounded-md px-3 py-2 text-sm font-medium text-gray-700 transition hover:bg-emerald-50 hover:text-emerald-900 focus:outline-none focus:ring-2 focus:ring-emerald-700' }}"
+                                        class="{{ request()->routeIs($monitoringLink['active']) ? 'flex min-h-8 items-center rounded-md bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-900 ring-1 ring-emerald-700/10' : 'flex min-h-8 items-center rounded-md px-2.5 py-1 text-xs font-medium text-gray-700 transition hover:bg-emerald-50 hover:text-emerald-900 focus:outline-none focus:ring-2 focus:ring-emerald-700' }}"
                                     >
                                         {{ __($monitoringLink['label']) }}
                                     </a>
@@ -74,14 +74,14 @@
                         </details>
 
                         <details class="group" @if (request()->routeIs('admin.reports.*')) open @endif>
-                            <summary class="{{ request()->routeIs('admin.reports.*') ? 'flex min-h-11 cursor-pointer list-none items-center justify-between rounded-md bg-emerald-800 px-3 py-2 text-sm font-semibold text-white shadow-sm' : 'flex min-h-11 cursor-pointer list-none items-center justify-between rounded-md px-3 py-2 text-sm font-semibold text-emerald-950 transition hover:bg-emerald-50 focus:outline-none focus:ring-2 focus:ring-emerald-700' }}">
+                            <summary class="{{ request()->routeIs('admin.reports.*') ? 'flex min-h-9 cursor-pointer list-none items-center justify-between rounded-md bg-emerald-800 px-3 py-1.5 text-xs font-semibold text-white shadow-sm' : 'flex min-h-9 cursor-pointer list-none items-center justify-between rounded-md px-3 py-1.5 text-xs font-medium text-emerald-950 transition hover:bg-emerald-50 focus:outline-none focus:ring-2 focus:ring-emerald-700' }}">
                                 <span>{{ __('Reports') }}</span>
-                                <svg class="h-4 w-4 transition group-open:rotate-90" aria-hidden="true" viewBox="0 0 20 20" fill="currentColor">
+                                <svg class="h-3.5 w-3.5 transition group-open:rotate-90" aria-hidden="true" viewBox="0 0 20 20" fill="currentColor">
                                     <path fill-rule="evenodd" d="M7.21 14.77a.75.75 0 0 1 0-1.06L10.94 10 7.21 6.29a.75.75 0 1 1 1.06-1.06l4.25 4.25a.75.75 0 0 1 0 1.06l-4.25 4.25a.75.75 0 0 1-1.06-.02Z" clip-rule="evenodd" />
                                 </svg>
                             </summary>
 
-                            <div class="mt-1 grid gap-1 border-l-2 border-emerald-100 pl-3 lg:ml-3">
+                            <div class="mt-0.5 grid gap-0.5 border-l-2 border-emerald-100 pl-2.5 lg:ml-2.5">
                                 @foreach ($reportLinks as $reportLink)
                                     @php
                                         $href = $reportLink['type']
@@ -95,7 +95,7 @@
                                     <a
                                         href="{{ $href }}"
                                         @if ($isActive) data-active-sidebar-link="true" @endif
-                                        class="{{ $isActive ? 'flex min-h-10 items-center rounded-md bg-emerald-50 px-3 py-2 text-sm font-semibold text-emerald-900 ring-1 ring-emerald-700/10' : 'flex min-h-10 items-center rounded-md px-3 py-2 text-sm font-medium text-gray-700 transition hover:bg-emerald-50 hover:text-emerald-900 focus:outline-none focus:ring-2 focus:ring-emerald-700' }}"
+                                        class="{{ $isActive ? 'flex min-h-8 items-center rounded-md bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-900 ring-1 ring-emerald-700/10' : 'flex min-h-8 items-center rounded-md px-2.5 py-1 text-xs font-medium text-gray-700 transition hover:bg-emerald-50 hover:text-emerald-900 focus:outline-none focus:ring-2 focus:ring-emerald-700' }}"
                                     >
                                         {{ __($reportLink['label']) }}
                                     </a>
@@ -107,13 +107,13 @@
             @endforeach
         </nav>
 
-        <div class="mt-auto border-t border-emerald-900/10 px-5 py-4">
+        <div class="mt-auto border-t border-emerald-900/10 px-4 py-3">
             <form method="POST" action="{{ route('logout') }}">
                 @csrf
 
                 <button
                     type="submit"
-                    class="inline-flex min-h-11 w-full items-center justify-center rounded-md bg-red-700 px-3 py-2 text-sm font-semibold text-white transition hover:bg-red-800 focus:outline-none focus:ring-2 focus:ring-red-700 focus:ring-offset-2"
+                    class="inline-flex min-h-9 w-full items-center justify-center rounded-md bg-red-700 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-red-800 focus:outline-none focus:ring-2 focus:ring-red-700 focus:ring-offset-2"
                 >
                     {{ __('Log Out') }}
                 </button>
