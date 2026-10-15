@@ -2,12 +2,12 @@
     <x-slot name="header">
         <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
             <div>
-                <p class="text-sm font-medium text-emerald-700">{{ __('Scholarship Chairman') }}</p>
-                <h2 class="text-xl font-semibold leading-tight text-gray-900">
+                <p class="text-xs font-bold uppercase tracking-wider text-emerald-700">{{ __('Scholarship Chairman') }}</p>
+                <h2 class="text-xl font-bold leading-tight text-gray-900">
                     {{ __('Scholarship Masterlists') }}
                 </h2>
             </div>
-            <a href="{{ route('chairman.uploads.create') }}" class="inline-flex min-h-11 items-center justify-center rounded-md bg-emerald-800 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:ring-offset-2">
+            <a href="{{ route('chairman.uploads.create') }}" class="inline-flex min-h-10 items-center justify-center rounded-md bg-emerald-800 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-700 focus:ring-offset-2">
                 {{ __('Upload CSV') }}
             </a>
         </div>
@@ -26,7 +26,7 @@
                     <table class="min-w-full divide-y divide-gray-200">
                         <thead class="bg-gray-50">
                             <tr>
-                                <th class="px-6 py-3 text-left text-xs font-semibold uppercase text-gray-600">{{ __('File') }}</th>
+                                <th class="px-6 py-3 text-left text-xs font-semibold uppercase text-gray-600">{{ __('Scholarship Program / File') }}</th>
                                 <th class="px-6 py-3 text-left text-xs font-semibold uppercase text-gray-600">{{ __('Workflow') }}</th>
                                 <th class="px-6 py-3 text-left text-xs font-semibold uppercase text-gray-600">{{ __('Records') }}</th>
                                 <th class="px-6 py-3 text-left text-xs font-semibold uppercase text-gray-600">{{ __('Campus Batches') }}</th>
@@ -38,7 +38,10 @@
                         <tbody class="divide-y divide-gray-200 bg-white">
                             @forelse ($masterlists as $masterlist)
                                 <tr>
-                                    <td class="px-6 py-4 text-sm font-semibold text-gray-950">{{ $masterlist->file_name }}</td>
+                                    <td class="px-6 py-4">
+                                        <div class="text-sm font-semibold text-gray-950">{{ $masterlist->program_name }}</div>
+                                        <div class="text-xs font-mono text-gray-500">{{ $masterlist->file_name }}</div>
+                                    </td>
                                     <td class="px-6 py-4 text-sm text-gray-700">{{ __('Campus verification') }}</td>
                                     <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-700">{{ $masterlist->total_records }}</td>
                                     <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-700">

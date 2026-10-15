@@ -1,8 +1,10 @@
 <x-app-layout>
     <x-slot name="header">
-        <div>
-            <p class="text-sm font-medium text-emerald-700">{{ __('Administration') }}</p>
-            <h2 class="text-xl font-semibold leading-tight text-gray-900">{{ __('User Management') }}</h2>
+        <div class="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+                <p class="text-xs font-bold uppercase tracking-wider text-emerald-700">{{ __('Administrator') }}</p>
+                <h2 class="text-xl font-bold leading-tight text-gray-900">{{ __('User Management') }}</h2>
+            </div>
         </div>
     </x-slot>
 

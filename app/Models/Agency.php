@@ -36,4 +36,9 @@ class Agency extends Model
     {
         return $this->hasMany(ScholarshipPolicy::class);
     }
+
+    public function getNameAttribute(): string
+    {
+        return (string) ($this->attributes['agency_name'] ?? '');
+    }
 }

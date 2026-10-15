@@ -33,14 +33,24 @@ class CertificateRequestController extends Controller
 
     public function create(Request $request): View
     {
+        $student = $request->user()->student;
+
         return view('student.certificate-requests.create', [
-            'student' => $request->user()->student,
+            'student' => $student,
+            'isGrantee' => (bool) ($student?->is_scholarship_grantee),
             'academicOptions' => $this->academicOptions(),
         ]);
     }
 
     public function store(StoreCertificateRequestRequest $request): RedirectResponse
     {
+        $existingStudent = $request->user()->student;
+        if ($existingStudent?->is_scholarship_grantee) {
+            return back()->withInput()->withErrors([
+                'grantee_restriction' => 'You are currently recorded as an active scholarship grantee and are not eligible to request a Certificate of Non-Grantee.',
+            ]);
+        }
+
         $student = Student::updateOrCreate(
             ['user_id' => $request->user()->id],
             $request->studentData() + ['status' => 'active'],

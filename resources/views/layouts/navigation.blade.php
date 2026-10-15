@@ -50,8 +50,20 @@
                     @endif
 
                     @if (Auth::user()->hasRole(\App\Enums\UserRole::ScholarshipChairman))
-                        <x-nav-link :href="route('chairman.masterlists.index')" :active="request()->routeIs('chairman.masterlists.*')">
-                            {{ __('Campus Progress') }}
+                        <x-nav-link :href="route('admin.official-receipts.index')" :active="request()->routeIs('admin.official-receipts.*')">
+                            {{ __('Certificate Management') }}
+                        </x-nav-link>
+
+                        <x-nav-link :href="route('admin.scholarships.index')" :active="request()->routeIs('admin.scholarships.*')">
+                            {{ __('Post Scholarship') }}
+                        </x-nav-link>
+
+                        <x-nav-link :href="route('chairman.grantees.index')" :active="request()->routeIs('chairman.grantees.*')">
+                            {{ __('Verify Grantees') }}
+                        </x-nav-link>
+
+                        <x-nav-link :href="route('chairman.scholars.index')" :active="request()->routeIs('chairman.scholars.*')">
+                            {{ __('Scholars') }}
                         </x-nav-link>
                     @endif
 
@@ -150,8 +162,20 @@
             @endif
 
             @if (Auth::user()->hasRole(\App\Enums\UserRole::ScholarshipChairman))
-                <x-responsive-nav-link :href="route('chairman.masterlists.index')" :active="request()->routeIs('chairman.masterlists.*')">
-                    {{ __('Campus Progress') }}
+                <x-responsive-nav-link :href="route('admin.official-receipts.index')" :active="request()->routeIs('admin.official-receipts.*')">
+                    {{ __('Certificate Management') }}
+                </x-responsive-nav-link>
+
+                <x-responsive-nav-link :href="route('admin.scholarships.index')" :active="request()->routeIs('admin.scholarships.*')">
+                    {{ __('Post Scholarship') }}
+                </x-responsive-nav-link>
+
+                <x-responsive-nav-link :href="route('chairman.grantees.index')" :active="request()->routeIs('chairman.grantees.*')">
+                    {{ __('Verify Grantees') }}
+                </x-responsive-nav-link>
+
+                <x-responsive-nav-link :href="route('chairman.scholars.index')" :active="request()->routeIs('chairman.scholars.*')">
+                    {{ __('Scholars') }}
                 </x-responsive-nav-link>
             @endif
 

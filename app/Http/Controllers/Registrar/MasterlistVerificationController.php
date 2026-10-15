@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Registrar;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\UpdateRegistrarMasterlistRecordRequest;
+use App\Models\GranteeUploadBatch;
 use App\Models\MasterlistCampusBatch;
 use App\Models\MasterlistRecord;
 use App\Models\RegistrarStudent;
@@ -19,11 +20,22 @@ class MasterlistVerificationController extends Controller
 {
     public function index(Request $request): View
     {
-        return view('registrar.masterlists.index', ['batches' => MasterlistCampusBatch::query()
-            ->with(['masterlist', 'campus'])
-            ->where('campus_id', $request->user()->campus_id)
-            ->whereIn('status', ['verification_queued', 'verification_processing', 'awaiting_registrar_review', 'verification_failed'])
-            ->latest()->paginate(10)]);
+        $campusId = $request->user()->campus_id;
+
+        return view('registrar.masterlists.index', [
+            'batches' => MasterlistCampusBatch::query()
+                ->with(['masterlist', 'campus'])
+                ->where('campus_id', $campusId)
+                ->whereIn('status', ['verification_queued', 'verification_processing', 'awaiting_registrar_review', 'verification_failed'])
+                ->latest()
+                ->paginate(10),
+            'granteeBatches' => GranteeUploadBatch::query()
+                ->with(['campus', 'uploader', 'sentToRegistrarBy'])
+                ->where('campus_id', $campusId)
+                ->whereIn('status', ['sent_to_registrar', 'verified_by_registrar', 'endorsed_to_chairman'])
+                ->latest('id')
+                ->get(),
+        ]);
     }
 
     public function show(Request $request, MasterlistCampusBatch $batch): View

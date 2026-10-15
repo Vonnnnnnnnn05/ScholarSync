@@ -1,13 +1,13 @@
 <x-app-layout>
     <x-slot name="header">
-        <div class="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
+        <div class="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
             <div>
-                <p class="text-sm font-medium text-emerald-700">{{ __('ScholarSync') }}</p>
-                <h2 class="text-xl font-semibold leading-tight text-gray-900">
+                <p class="text-xs font-bold uppercase tracking-wider text-emerald-700">{{ __('ScholarSync') }}</p>
+                <h2 class="text-xl font-bold leading-tight text-gray-900">
                     {{ __($title) }}
                 </h2>
             </div>
-            <span class="inline-flex w-fit rounded-md bg-emerald-50 px-3 py-1 text-sm font-medium text-emerald-800 ring-1 ring-emerald-700/15">
+            <span class="inline-flex w-fit rounded-md bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-800 ring-1 ring-emerald-700/15">
                 {{ __($role->label()) }}
             </span>
         </div>
@@ -23,7 +23,7 @@
                     <h3 class="mt-1.5 max-w-3xl text-lg sm:text-xl font-bold text-gray-950">
                         {{ __($summary) }}
                     </h3>
-                    <p class="mt-1.5 max-w-3xl text-xs leading-relaxed text-gray-600">
+                    <p class="mt-1.5 max-w-3xl text-sm leading-relaxed text-gray-600">
                         {{ __('This dashboard is tailored to your account role. More workflow tools can be added here as the next phases are completed.') }}
                     </p>
                 </div>
@@ -31,13 +31,13 @@
 
             @if ($role === \App\Enums\UserRole::Registrar)
                 <section class="mt-4 rounded-lg bg-emerald-800 p-4 sm:p-5 text-white shadow-sm ring-1 ring-emerald-900/20">
-                    <p class="text-xs font-semibold uppercase tracking-wide text-emerald-100">{{ __('Assigned Campus') }}</p>
+                    <p class="text-xs font-semibold uppercase tracking-wider text-emerald-100">{{ __('Assigned Campus') }}</p>
                     <p class="mt-1.5 text-xl font-semibold">{{ $assignedCampus?->name ?? __('No campus assigned') }}</p>
-                    <p class="mt-1 text-xs text-emerald-100">{{ __('Enrollment records and beneficiary verification are limited to this campus.') }}</p>
+                    <p class="mt-1 text-sm text-emerald-100">{{ __('Enrollment records and beneficiary verification are limited to this campus.') }}</p>
                 </section>
             @endif
 
-            @if ($role === \App\Enums\UserRole::Administrator && $adminDashboard)
+            @if (($role === \App\Enums\UserRole::Administrator || $role === \App\Enums\UserRole::ScholarshipChairman) && $adminDashboard)
                 @php
                     $metricAccentClasses = [
                         'emerald' => 'bg-emerald-50 text-emerald-800 ring-emerald-700/15',
@@ -77,10 +77,10 @@
                 <section class="mt-4 grid gap-3 sm:gap-4 sm:grid-cols-2 xl:grid-cols-4">
                     @foreach ($adminDashboard['metrics'] as $metric)
                         <div class="rounded-lg bg-white p-4 shadow-sm ring-1 ring-gray-200">
-                            <p class="text-xs font-medium text-gray-600">{{ __($metric['label']) }}</p>
+                            <p class="text-sm font-medium text-gray-600">{{ __($metric['label']) }}</p>
                             <div class="mt-2 flex items-end justify-between gap-3">
                                 <p class="text-2xl font-bold text-gray-950">{{ number_format($metric['value']) }}</p>
-                                <span class="rounded-md px-2 py-0.5 text-[11px] font-semibold ring-1 {{ $metricAccentClasses[$metric['accent']] }}">
+                                <span class="rounded-md px-2 py-0.5 text-xs font-semibold ring-1 {{ $metricAccentClasses[$metric['accent']] }}">
                                     {{ __('Live') }}
                                 </span>
                             </div>
@@ -92,8 +92,8 @@
                     <div class="rounded-lg bg-white p-4 sm:p-5 shadow-sm ring-1 ring-gray-200 xl:col-span-2">
                         <div class="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
                             <div>
-                                <p class="text-xs font-medium text-emerald-700">{{ __('Operations') }}</p>
-                                <h3 class="text-sm font-bold text-gray-950">{{ __('Certificate Request Trend') }}</h3>
+                                <p class="text-xs font-semibold uppercase tracking-wider text-emerald-700">{{ __('Operations') }}</p>
+                                <h3 class="text-base font-bold text-gray-950">{{ __('Certificate Request Trend') }}</h3>
                             </div>
                             <p class="text-xs text-gray-500">{{ __('Last 6 months') }}</p>
                         </div>
@@ -117,20 +117,20 @@
                                         $y = round(($trendHeight - 20) - (($point['value'] / $trendMax) * 120), 2);
                                     @endphp
                                     <circle cx="{{ $x }}" cy="{{ $y }}" r="4.5" fill="#facc15" stroke="#047857" stroke-width="2.5" />
-                                    <text x="{{ $x }}" y="176" text-anchor="middle" class="fill-gray-600 text-[11px] font-semibold">{{ $point['label'] }}</text>
+                                    <text x="{{ $x }}" y="176" text-anchor="middle" class="fill-gray-600 text-xs font-semibold">{{ $point['label'] }}</text>
                                 @endforeach
                             </svg>
                         </div>
                     </div>
 
                     <div class="rounded-lg bg-white p-4 sm:p-5 shadow-sm ring-1 ring-gray-200">
-                        <p class="text-xs font-medium text-emerald-700">{{ __('Masterlists') }}</p>
-                        <h3 class="text-sm font-bold text-gray-950">{{ __('Verification Mix') }}</h3>
+                        <p class="text-xs font-semibold uppercase tracking-wider text-emerald-700">{{ __('Masterlists') }}</p>
+                        <h3 class="text-base font-bold text-gray-950">{{ __('Verification Mix') }}</h3>
                         <div class="mt-3 flex flex-col items-center gap-3 sm:gap-4">
                             <div class="relative h-32 w-32 sm:h-36 sm:w-36 rounded-full" style="background: conic-gradient({{ $verificationGradient }});">
                                 <div class="absolute inset-6 flex flex-col items-center justify-center rounded-full bg-white text-center ring-1 ring-gray-200">
                                     <span class="text-xl sm:text-2xl font-bold text-gray-950">{{ number_format($verificationTotal) }}</span>
-                                    <span class="text-[10px] font-semibold uppercase text-gray-500">{{ __('Records') }}</span>
+                                    <span class="text-xs font-semibold uppercase tracking-wider text-gray-500">{{ __('Records') }}</span>
                                 </div>
                             </div>
                             <div class="w-full space-y-1.5">
@@ -150,8 +150,8 @@
 
                 <section class="mt-4 grid gap-4 sm:gap-5 xl:grid-cols-2">
                     <div class="rounded-lg bg-white p-4 sm:p-5 shadow-sm ring-1 ring-gray-200">
-                        <p class="text-xs font-medium text-emerald-700">{{ __('Certificates') }}</p>
-                        <h3 class="text-sm font-bold text-gray-950">{{ __('Request Status') }}</h3>
+                        <p class="text-xs font-semibold uppercase tracking-wider text-emerald-700">{{ __('Certificates') }}</p>
+                        <h3 class="text-base font-bold text-gray-950">{{ __('Request Status') }}</h3>
                         <div class="mt-4 space-y-3">
                             @foreach ($adminDashboard['certificateStatuses'] as $status)
                                 @php($width = max(6, ($status['value'] / $certificateMax) * 100))
@@ -169,8 +169,8 @@
                     </div>
 
                     <div class="rounded-lg bg-white p-4 sm:p-5 shadow-sm ring-1 ring-gray-200">
-                        <p class="text-xs font-medium text-emerald-700">{{ __('Access Control') }}</p>
-                        <h3 class="text-sm font-bold text-gray-950">{{ __('User Role Distribution') }}</h3>
+                        <p class="text-xs font-semibold uppercase tracking-wider text-emerald-700">{{ __('Access Control') }}</p>
+                        <h3 class="text-base font-bold text-gray-950">{{ __('User Role Distribution') }}</h3>
                         <div class="mt-4 grid gap-3 grid-cols-2 sm:grid-cols-5">
                             @foreach ($adminDashboard['roleDistribution'] as $roleItem)
                                 @php($height = max(10, ($roleItem['value'] / $roleMax) * 100))
@@ -179,7 +179,7 @@
                                         <div class="w-full rounded-t bg-emerald-700" style="height: {{ $height }}%"></div>
                                     </div>
                                     <p class="mt-2 text-xs font-bold text-gray-950">{{ number_format($roleItem['value']) }}</p>
-                                    <p class="mt-0.5 text-[11px] font-medium text-gray-600 truncate">{{ __($roleItem['label']) }}</p>
+                                    <p class="mt-0.5 text-xs font-medium text-gray-600 truncate">{{ __($roleItem['label']) }}</p>
                                 </div>
                             @endforeach
                         </div>

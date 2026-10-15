@@ -16,6 +16,12 @@ class CertificateGenerationService
 {
     public function generateForRequest(CertificateRequest $certificateRequest, ?User $generatedBy = null): Certificate
     {
+        $certificateRequest->loadMissing('student');
+
+        if ($certificateRequest->student?->is_scholarship_grantee) {
+            throw new RuntimeException('This student is currently an active scholarship grantee and cannot receive a Certificate of Non-Grantee.');
+        }
+
         if ($certificateRequest->status !== CertificateRequestStatus::Approved) {
             throw new RuntimeException('Only approved certificate requests can generate certificates.');
         }

@@ -65,7 +65,7 @@ class DashboardController extends Controller
             'roleFunctions' => $this->roleFunctionsFor($role),
             'studentProfile' => $studentProfile,
             'assignedCampus' => $assignedCampus,
-            'adminDashboard' => $role === UserRole::Administrator ? $this->adminDashboard() : null,
+            'adminDashboard' => in_array($role, [UserRole::Administrator, UserRole::ScholarshipChairman], true) ? $this->adminDashboard() : null,
         ]);
     }
 
@@ -91,9 +91,10 @@ class DashboardController extends Controller
                 'Review and return Registrar results to the Chairman',
             ],
             UserRole::ScholarshipChairman => [
-                'Upload and distribute beneficiary master lists by campus',
-                'Monitor verification progress across all seven campuses',
-                'Export and forward consolidated verified lists',
+                'Certificate Management: Verify student ORs and approve Certificates of Non-Grantee (Module A)',
+                'Scholarships (Module B): Post external scholarship opportunities, qualifications, and requirements',
+                'Verify Grantees: Ingest agency masterlists and cross-check against enrollment database',
+                'Scholars: Access final directory of verified scholarship grantees filterable by campus and program',
             ],
             UserRole::Registrar => [
                 'Maintain official enrolled-student records',
@@ -109,7 +110,7 @@ class DashboardController extends Controller
             UserRole::Student => 'Your student workspace for scholarships, requests, and updates.',
             UserRole::Administrator => 'Administrative overview for managing ScholarSync access and records.',
             UserRole::Coordinator => 'Coordinator dashboard for routing campus beneficiary records and reviewing Registrar results.',
-            UserRole::ScholarshipChairman => 'Chairman dashboard for campus progress, consolidation, and external export.',
+            UserRole::ScholarshipChairman => 'Scholarship Chairman workspace for certificate management, scholarship postings, grantee verification, and scholar monitoring.',
             UserRole::Registrar => 'Registrar dashboard for official campus beneficiary verification and enrollment records.',
         };
     }
@@ -177,19 +178,33 @@ class DashboardController extends Controller
             ],
             UserRole::ScholarshipChairman => [
                 [
-                    'title' => 'Campus Progress and Consolidation',
+                    'title' => 'Certificate Management (Module A)',
                     'details' => [
-                        'Upload agency-provided masterlists and distribute records by campus.',
-                        'Monitor independent verification progress across all seven campuses.',
-                        'Consolidate only records verified by Campus Registrars.',
-                        'Export the final verified list for the external Scholarship Agency.',
+                        'Review student Official Receipts and approve Certificate of Non-Grantee requests.',
+                        'Issue tamper-evident, serial-numbered Certificates of Non-Grantee.',
+                        'Restricted from generating certificates for students with active scholarship grants.',
                     ],
                 ],
                 [
-                    'title' => 'Final Release',
+                    'title' => 'Scholarship Opportunities (Module B)',
                     'details' => [
-                        'Download the verified-only beneficiary CSV.',
-                        'Record when the final list is forwarded to an external agency.',
+                        'Post external scholarship opportunities with qualifications, deadlines, and official links.',
+                        'Manage active, published, and draft scholarship postings for student discovery.',
+                    ],
+                ],
+                [
+                    'title' => 'Grantee Ingestion & Verification',
+                    'details' => [
+                        'Upload agency PDF/Excel files with coordinate-aware multi-category auto-classification (TES-UniFAST, TDP, CMSP).',
+                        'Cross-check records against pre-loaded school enrollment database.',
+                        'Resolve amber conflict rows and commit verified grantees to ScholarSync.',
+                    ],
+                ],
+                [
+                    'title' => 'Scholars Directory',
+                    'details' => [
+                        'Search and monitor verified scholarship awardees across all seven SKSU campuses.',
+                        'Filter grantees dynamically by campus and scholarship program.',
                     ],
                 ],
             ],

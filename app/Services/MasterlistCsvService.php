@@ -17,6 +17,29 @@ class MasterlistCsvService
         'campus',
     ];
 
+    public const PROGRAM_COLUMNS = [
+        'scholarship_program',
+        'program',
+        'program_name',
+        'scholarship_name',
+        'scholarship',
+        'grant',
+        'grant_name',
+    ];
+
+    public const STUDENT_ID_COLUMNS = [
+        'student_id_number',
+        'student_id',
+        'id_number',
+        'student_number',
+    ];
+
+    public const FUND_SOURCE_COLUMNS = [
+        'fund_source',
+        'funding_source',
+        'source_of_fund',
+    ];
+
     /**
      * @return array<string, mixed>
      */
@@ -54,9 +77,16 @@ class MasterlistCsvService
                     $errors[] = 'CSV is missing required columns.';
                 }
 
+                $program = $this->findValueByAliases($row, self::PROGRAM_COLUMNS);
+                $studentIdNumber = $this->findValueByAliases($row, self::STUDENT_ID_COLUMNS);
+                $fundSource = $this->findValueByAliases($row, self::FUND_SOURCE_COLUMNS);
+
                 return [
                     'row_number' => $index + 2,
                     'student_name' => trim((string) ($row['student_name'] ?? '')),
+                    'scholarship_program' => $program,
+                    'student_id_number' => $studentIdNumber,
+                    'fund_source' => $fundSource,
                     'campus' => $campus?->name ?? $campusValue,
                     'campus_id' => $campus?->id,
                     'is_invalid' => $errors !== [] || $missingColumns !== [],
@@ -66,11 +96,17 @@ class MasterlistCsvService
             ->values()
             ->all();
 
+        $detectedProgram = collect($previewRows)
+            ->pluck('scholarship_program')
+            ->filter(fn ($p) => ! empty($p))
+            ->first();
+
         return [
             'headers' => $headers,
             'missing_columns' => $missingColumns,
             'rows' => $previewRows,
             'total_records' => count($previewRows),
+            'detected_program' => $detectedProgram,
         ];
     }
 
@@ -89,9 +125,13 @@ class MasterlistCsvService
 
         Storage::disk('local')->copy($temporaryPath, $storedPath);
 
-        $masterlist = DB::transaction(function () use ($storedPath, $originalFileName, $preview): ScholarshipMasterlist {
+        $programName = $preview['detected_program']
+            ?: str(pathinfo($originalFileName, PATHINFO_FILENAME))->headline()->toString();
+
+        $masterlist = DB::transaction(function () use ($storedPath, $originalFileName, $programName, $preview): ScholarshipMasterlist {
             $masterlist = ScholarshipMasterlist::create([
                 'file_name' => $originalFileName,
+                'scholarship_program' => $programName,
                 'file_path' => $storedPath,
                 'status' => 'distributed',
                 'total_records' => $preview['total_records'],
@@ -101,6 +141,9 @@ class MasterlistCsvService
             foreach ($preview['rows'] as $row) {
                 $masterlist->records()->create([
                     'student_name' => $row['student_name'] ?: null,
+                    'student_id_number' => $row['student_id_number'] ?? null,
+                    'scholarship_program' => $row['scholarship_program'] ?: $programName,
+                    'fund_source' => $row['fund_source'] ?? null,
                     'campus_id' => $row['campus_id'],
                     'verification_status' => 'pending',
                     'remarks' => $row['errors'] !== [] ? implode(' ', $row['errors']) : null,
@@ -154,12 +197,28 @@ class MasterlistCsvService
                 $row[$header] = $values[$index] ?? null;
             }
 
-            $rows[] = Arr::only($row, self::REQUIRED_COLUMNS);
+            $rows[] = $row;
         }
 
         fclose($handle);
 
         return ['headers' => $headers, 'rows' => $rows];
+    }
+
+    /**
+     * @param  array<string, string|null>  $row
+     * @param  array<int, string>  $aliases
+     */
+    private function findValueByAliases(array $row, array $aliases): ?string
+    {
+        foreach ($aliases as $alias) {
+            $val = trim((string) ($row[$alias] ?? ''));
+            if ($val !== '') {
+                return $val;
+            }
+        }
+
+        return null;
     }
 
     private function normalizeHeader(string $header): string

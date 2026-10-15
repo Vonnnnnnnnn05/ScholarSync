@@ -15,6 +15,7 @@ class ScholarshipMasterlist extends Model
 
     protected $fillable = [
         'agency_id',
+        'scholarship_program',
         'file_name',
         'file_path',
         'status',
@@ -32,6 +33,27 @@ class ScholarshipMasterlist extends Model
         'approved_at',
         'uploaded_at',
     ];
+
+    public function getProgramNameAttribute(): string
+    {
+        if (! empty($this->scholarship_program)) {
+            return $this->scholarship_program;
+        }
+
+        $recordProgram = $this->records()
+            ->whereNotNull('scholarship_program')
+            ->where('scholarship_program', '!=', '')
+            ->value('scholarship_program');
+
+        if (! empty($recordProgram)) {
+            return $recordProgram;
+        }
+
+        return str($this->file_name)
+            ->beforeLast('.')
+            ->headline()
+            ->toString();
+    }
 
     protected function casts(): array
     {

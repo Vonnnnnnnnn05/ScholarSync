@@ -25,7 +25,15 @@ class Student extends Model
         'campus',
         'contact_number',
         'status',
+        'is_scholarship_grantee',
     ];
+
+    protected function casts(): array
+    {
+        return [
+            'is_scholarship_grantee' => 'boolean',
+        ];
+    }
 
     public function user(): BelongsTo
     {

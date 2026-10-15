@@ -86,3 +86,154 @@ test('registrar can import prefixed direct string Excel workbooks', function () 
         ->student_name->toBe('Carlo James Reyes')
         ->cor_printed->toBeTrue();
 });
+
+test('registrar can download sample enrollment excel template', function () {
+    $registrar = User::factory()->role(UserRole::Registrar)->create();
+
+    $this->actingAs($registrar)
+        ->get(route('registrar.enrolled-students.template'))
+        ->assertOk()
+        ->assertHeader('content-type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+});
+
+test('registrar can import official sksu format with split names and enrollment status without cor column', function () {
+    $registrar = User::factory()->role(UserRole::Registrar)->create();
+
+    $path = tempnam(sys_get_temp_dir(), 'sksu-format-');
+    $spreadsheet = new Spreadsheet;
+    $spreadsheet->getActiveSheet()->fromArray([
+        ['Campus', 'No', 'Student ID', 'LRN', 'Last Name', 'First Name', 'Middle Initial', 'Course', 'Year Level', 'Sex', 'Email', 'Contact Number', 'Enrollment Status'],
+        ['ACCESS', 1, '25197', '130664110001', 'ABAN', 'JESSALYN', 'P', 'Bachelor of Elementary Education', 2, 'F', 'jessalyn@sksu.edu.ph', '09700410752', 'Enrolled'],
+        ['ACCESS', 2, '23261', '130664110002', 'YBANES', 'CARL HARRY', 'M', 'BSED-Social Studies', 3, 'M', 'carl@sksu.edu.ph', '09123456789', 'No COR Printed'],
+        ['ACCESS', 3, '24001', '130664110003', 'DELA CRUZ', 'JUAN', 'A', 'BSIT', 1, 'M', 'juan@sksu.edu.ph', '09987654321', 'Unenrolled'],
+    ]);
+    (new Xlsx($spreadsheet))->save($path);
+
+    $file = new UploadedFile($path, 'sksu-enrollment.xlsx', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', null, true);
+
+    $this->actingAs($registrar)
+        ->post(route('registrar.enrolled-students.import'), ['enrollment_file' => $file])
+        ->assertRedirect(route('registrar.enrolled-students.index'))
+        ->assertSessionHasNoErrors();
+
+    $student1 = RegistrarStudent::query()->where('student_id_number', '25197')->first();
+    expect($student1)->not->toBeNull();
+    expect($student1->student_name)->toBe('ABAN, JESSALYN P.');
+    expect($student1->course)->toBe('Bachelor of Elementary Education');
+    expect($student1->enrollment_status)->toBe('enrolled');
+    expect($student1->cor_printed)->toBeTrue();
+
+    $student2 = RegistrarStudent::query()->where('student_id_number', '23261')->first();
+    expect($student2)->not->toBeNull();
+    expect($student2->student_name)->toBe('YBANES, CARL HARRY M.');
+    expect($student2->enrollment_status)->toBe('enrolled');
+    expect($student2->cor_printed)->toBeFalse();
+
+    $student3 = RegistrarStudent::query()->where('student_id_number', '24001')->first();
+    expect($student3)->not->toBeNull();
+    expect($student3->enrollment_status)->toBe('not_enrolled');
+    expect($student3->cor_printed)->toBeFalse();
+
+    // Verify view has Enrollment Status and no separate COR Status column
+    $this->actingAs($registrar)
+        ->get(route('registrar.enrolled-students.index'))
+        ->assertOk()
+        ->assertSee('Enrollment Status')
+        ->assertDontSee('COR Status');
+
+    // Verify search bar can search by status
+    $this->actingAs($registrar)
+        ->get(route('registrar.enrolled-students.index', ['search' => 'no cor printed']))
+        ->assertOk()
+        ->assertSee('YBANES, CARL HARRY M.')
+        ->assertDontSee('ABAN, JESSALYN P.');
+
+    $this->actingAs($registrar)
+        ->get(route('registrar.enrolled-students.index', ['search' => 'unenrolled']))
+        ->assertOk()
+        ->assertSee('DELA CRUZ, JUAN A.')
+        ->assertDontSee('ABAN, JESSALYN P.');
+});
+
+test('registrar can delete an individual student record and cannot delete another campus record', function () {
+    $campusA = \App\Models\Campus::factory()->create(['name' => 'Campus Alpha']);
+    $campusB = \App\Models\Campus::factory()->create(['name' => 'Campus Beta']);
+
+    $registrarA = User::factory()->role(UserRole::Registrar)->create(['campus_id' => $campusA->id]);
+
+    $studentA = RegistrarStudent::create([
+        'student_id_number' => 'ALPHA-001',
+        'student_name' => 'Alpha Student',
+        'campus_id' => $campusA->id,
+        'enrollment_status' => 'enrolled',
+        'cor_printed' => true,
+    ]);
+
+    $studentB = RegistrarStudent::create([
+        'student_id_number' => 'BETA-001',
+        'student_name' => 'Beta Student',
+        'campus_id' => $campusB->id,
+        'enrollment_status' => 'enrolled',
+        'cor_printed' => true,
+    ]);
+
+    // Deleting own campus student succeeds
+    $this->actingAs($registrarA)
+        ->delete(route('registrar.enrolled-students.destroy', $studentA))
+        ->assertRedirect()
+        ->assertSessionHas('status');
+
+    expect(RegistrarStudent::find($studentA->id))->toBeNull();
+
+    // Deleting another campus student fails with 403
+    $this->actingAs($registrarA)
+        ->delete(route('registrar.enrolled-students.destroy', $studentB))
+        ->assertForbidden();
+
+    expect(RegistrarStudent::find($studentB->id))->not->toBeNull();
+});
+
+test('registrar can clear all enrollment records for their campus without affecting other campuses', function () {
+    $campusA = \App\Models\Campus::factory()->create(['name' => 'Campus Alpha']);
+    $campusB = \App\Models\Campus::factory()->create(['name' => 'Campus Beta']);
+
+    $registrarA = User::factory()->role(UserRole::Registrar)->create(['campus_id' => $campusA->id]);
+
+    RegistrarStudent::create([
+        'student_id_number' => 'ALPHA-001',
+        'student_name' => 'Alpha 1',
+        'campus_id' => $campusA->id,
+        'enrollment_status' => 'enrolled',
+        'cor_printed' => true,
+    ]);
+    RegistrarStudent::create([
+        'student_id_number' => 'ALPHA-002',
+        'student_name' => 'Alpha 2',
+        'campus_id' => $campusA->id,
+        'enrollment_status' => 'enrolled',
+        'cor_printed' => true,
+    ]);
+
+    RegistrarStudent::create([
+        'student_id_number' => 'BETA-001',
+        'student_name' => 'Beta 1',
+        'campus_id' => $campusB->id,
+        'enrollment_status' => 'enrolled',
+        'cor_printed' => true,
+    ]);
+
+    expect(RegistrarStudent::where('campus_id', $campusA->id)->count())->toBe(2);
+    expect(RegistrarStudent::where('campus_id', $campusB->id)->count())->toBe(1);
+
+    $this->actingAs($registrarA)
+        ->delete(route('registrar.enrolled-students.clear'))
+        ->assertRedirect(route('registrar.enrolled-students.index'))
+        ->assertSessionHas('status');
+
+    // Campus A records are cleared, Campus B records remain intact
+    expect(RegistrarStudent::where('campus_id', $campusA->id)->count())->toBe(0);
+    expect(RegistrarStudent::where('campus_id', $campusB->id)->count())->toBe(1);
+});
+
+
+

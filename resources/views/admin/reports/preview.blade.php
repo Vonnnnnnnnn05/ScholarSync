@@ -26,22 +26,22 @@
     <x-slot name="header">
         <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between print:hidden">
             <div>
-                <div class="flex items-center gap-2 text-sm font-medium text-emerald-700">
+                <div class="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-emerald-700">
                     <a href="{{ route('admin.reports.index') }}" class="hover:underline">{{ __('Reports Module') }}</a>
                     <span class="text-gray-400">/</span>
-                    <span class="text-gray-600">{{ $report['title'] }}</span>
+                    <span class="text-gray-500">{{ $report['title'] }}</span>
                 </div>
-                <h2 class="mt-1 text-xl font-semibold leading-tight text-gray-900">{{ $report['title'] }}</h2>
+                <h2 class="mt-1 text-xl font-bold leading-tight text-gray-900">{{ $report['title'] }}</h2>
             </div>
             <div class="flex items-center gap-3">
                 {{-- Only 1 Print Report button in header --}}
-                <button type="button" onclick="window.print()" class="inline-flex min-h-11 items-center justify-center gap-2 rounded-md bg-emerald-800 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-600 focus:ring-offset-2">
+                <button type="button" onclick="window.print()" class="inline-flex min-h-10 items-center justify-center gap-2 rounded-md bg-emerald-800 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-700 focus:ring-offset-2">
                     <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
                     </svg>
                     <span>{{ __('Print Report') }}</span>
                 </button>
-                <a href="{{ route('admin.reports.index') }}" class="inline-flex min-h-11 items-center justify-center rounded-md border border-emerald-700/20 bg-white px-4 py-2 text-sm font-semibold text-emerald-800 shadow-sm transition hover:bg-emerald-50 focus:outline-none focus:ring-2 focus:ring-emerald-600 focus:ring-offset-2">
+                <a href="{{ route('admin.reports.index') }}" class="inline-flex min-h-10 items-center justify-center rounded-md border border-gray-300 bg-white px-3.5 py-2 text-sm font-semibold text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-emerald-700">
                     {{ __('Back to Reports') }}
                 </a>
             </div>

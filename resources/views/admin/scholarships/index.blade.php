@@ -1,6 +1,11 @@
 <x-app-layout>
     <x-slot name="header">
-        <div><p class="text-sm font-medium text-emerald-700">Scholarships</p><h2 class="text-xl font-semibold text-gray-900">Scholarship Opportunity Management</h2></div>
+        <div class="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+                <p class="text-xs font-bold uppercase tracking-wider text-emerald-700">{{ __('Administrator') }}</p>
+                <h2 class="text-xl font-bold leading-tight text-gray-900">{{ __('Scholarship Opportunity Management') }}</h2>
+            </div>
+        </div>
     </x-slot>
 
     <div class="py-8"><div class="mx-auto max-w-7xl space-y-6 px-4 sm:px-6 lg:px-8">

@@ -3,34 +3,49 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="SKSUScholarSync is an integrated scholarship processing, verification, certificate generation, monitoring, and reporting system for Sultan Kudarat State University.">
+    <meta name="description" content="SKSUScholarSync is the scholarship processing, verification, certificate generation, and monitoring portal for Sultan Kudarat State University.">
 
-    <title>SKSUScholarSync</title>
+    <title>SKSUScholarSync — Sultan Kudarat State University</title>
 
     <link rel="preconnect" href="https://fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600,700,800" rel="stylesheet" />
+    <link href="https://fonts.bunny.net/css?family=figtree:400,500,600,700,800" rel="stylesheet" />
 
     @if (file_exists(public_path('build/manifest.json')) || file_exists(public_path('hot')))
         @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @else
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
     @endif
 
     <style>
         :root {
-            --sksu-green: #008a45;
-            --sksu-green-dark: #034b2e;
-            --sksu-mint: #dff7e9;
-            --sksu-gold: #f4c430;
-            --sksu-navy: #123c73;
-            --sksu-maroon: #8c1f28;
-            --ink: #102018;
-            --muted: #5d6b64;
-            --line: #d9e4dc;
-            --surface: #ffffff;
-            --wash: #f5f8f4;
+            --primary: #008a45;
+            --primary-dark: #034b2e;
+            --primary-hover: #007338;
+            --primary-light: #ecfdf5;
+            --primary-border: #a7f3d0;
+            --gold: #d97706;
+            --gold-light: #fef3c7;
+            --text-main: #0f172a;
+            --text-muted: #475569;
+            --text-subtle: #64748b;
+            --bg-white: #ffffff;
+            --bg-subtle: #f8fafc;
+            --bg-surface: #ffffff;
+            --border-light: #e2e8f0;
+            --border-subtle: #f1f5f9;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.04);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.04);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -4px rgba(0, 0, 0, 0.03);
+            --radius-sm: 6px;
+            --radius-md: 10px;
+            --radius-lg: 16px;
+            --radius-full: 9999px;
         }
 
         * {
             box-sizing: border-box;
+            margin: 0;
+            padding: 0;
         }
 
         html {
@@ -38,12 +53,11 @@
         }
 
         body {
-            margin: 0;
-            min-height: 100dvh;
-            color: var(--ink);
-            background: var(--wash);
-            font-family: "Instrument Sans", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-            line-height: 1.5;
+            font-family: "Figtree", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            background-color: var(--bg-white);
+            color: var(--text-main);
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
         }
 
         a {
@@ -51,826 +65,710 @@
             text-decoration: none;
         }
 
-        img {
-            display: block;
-            max-width: 100%;
-        }
-
-        .skip-link {
-            position: fixed;
-            left: 1rem;
-            top: 1rem;
-            z-index: 100;
-            transform: translateY(-160%);
-            border-radius: 6px;
-            background: var(--sksu-gold);
-            color: #172015;
-            padding: .75rem 1rem;
-            font-weight: 700;
-            transition: transform .18s ease;
-        }
-
-        .skip-link:focus {
-            transform: translateY(0);
-            outline: 3px solid #ffffff;
-            outline-offset: 3px;
-        }
-
-        .page-shell {
-            overflow: hidden;
-            background:
-                linear-gradient(180deg, rgba(255, 255, 255, .08), rgba(255, 255, 255, 0) 24rem),
-                var(--wash);
-        }
-
         .container {
-            width: min(1120px, calc(100% - 2rem));
+            width: min(1140px, calc(100% - 2.5rem));
             margin-inline: auto;
         }
 
+        /* Skip link for a11y */
+        .skip-link {
+            position: fixed;
+            top: 1rem;
+            left: 1rem;
+            z-index: 1000;
+            background: var(--primary);
+            color: #ffffff;
+            padding: 0.6rem 1.2rem;
+            border-radius: var(--radius-sm);
+            font-weight: 600;
+            transform: translateY(-200%);
+            transition: transform 0.2s ease;
+        }
+        .skip-link:focus {
+            transform: translateY(0);
+            outline: 3px solid var(--gold);
+        }
+
+        /* Site Header */
         .site-header {
             position: sticky;
             top: 0;
-            z-index: 40;
-            border-bottom: 1px solid rgba(255, 255, 255, .18);
-            background: rgba(3, 75, 46, .94);
-            color: #ffffff;
-            backdrop-filter: blur(14px);
+            z-index: 50;
+            background: rgba(255, 255, 255, 0.96);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border-light);
+            transition: all 0.2s ease;
         }
 
         .nav {
             display: flex;
-            min-height: 72px;
             align-items: center;
             justify-content: space-between;
-            gap: 1rem;
+            min-height: 72px;
+            gap: 1.5rem;
         }
 
         .brand {
             display: inline-flex;
             align-items: center;
-            gap: .75rem;
-            min-width: 0;
-            font-weight: 800;
+            gap: 0.85rem;
         }
 
-        .brand-mark {
-            width: 54px;
-            height: 54px;
-            flex: 0 0 54px;
-            border-radius: 50%;
-            background: transparent;
+        .brand-logo {
+            width: 44px;
+            height: 44px;
             object-fit: contain;
-            object-position: center;
-            box-shadow: 0 0 0 2px rgba(244, 196, 48, .62);
+            border-radius: var(--radius-full);
+            background: #ffffff;
         }
 
         .brand-text {
-            display: grid;
-            gap: .05rem;
+            display: flex;
+            flex-direction: column;
         }
 
         .brand-name {
-            font-size: 1rem;
-            letter-spacing: 0;
+            font-size: 1.125rem;
+            font-weight: 800;
+            color: var(--primary-dark);
+            letter-spacing: -0.01em;
+            line-height: 1.2;
         }
 
-        .brand-subtitle {
-            color: rgba(255, 255, 255, .72);
-            font-size: .78rem;
+        .brand-tag {
+            font-size: 0.75rem;
             font-weight: 600;
+            color: var(--text-subtle);
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
         }
 
-        .nav-links {
+        .nav-menu {
             display: flex;
             align-items: center;
-            gap: .35rem;
-        }
-
-        .nav-link,
-        .button {
-            display: inline-flex;
-            min-height: 44px;
-            align-items: center;
-            justify-content: center;
-            gap: .5rem;
-            border-radius: 8px;
-            font-weight: 700;
-            transition: background .18s ease, border-color .18s ease, color .18s ease, transform .18s ease;
+            gap: 0.5rem;
         }
 
         .nav-link {
-            padding: .65rem .85rem;
-            color: rgba(255, 255, 255, .86);
-            font-size: .94rem;
+            padding: 0.5rem 0.85rem;
+            font-size: 0.925rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            border-radius: var(--radius-sm);
+            transition: color 0.15s ease, background 0.15s ease;
         }
 
-        .nav-link:hover,
-        .nav-link:focus-visible {
-            background: rgba(255, 255, 255, .12);
-            color: #ffffff;
+        .nav-link:hover {
+            color: var(--primary);
+            background: var(--bg-subtle);
         }
 
-        .button {
-            border: 1px solid transparent;
-            padding: .75rem 1rem;
-            cursor: pointer;
-        }
-
-        .button:focus-visible,
-        .nav-link:focus-visible {
-            outline: 3px solid rgba(244, 196, 48, .85);
-            outline-offset: 3px;
-        }
-
-        .button:hover {
-            transform: translateY(-1px);
-        }
-
-        .button-primary {
-            background: var(--sksu-gold);
-            color: #132015;
-            box-shadow: 0 12px 26px rgba(244, 196, 48, .24);
-        }
-
-        .button-primary:hover,
-        .button-primary:focus-visible {
-            background: #ffd95a;
-        }
-
-        .button-secondary {
-            border-color: rgba(255, 255, 255, .28);
-            color: #ffffff;
-            background: rgba(255, 255, 255, .08);
-        }
-
-        .button-secondary:hover,
-        .button-secondary:focus-visible {
-            border-color: rgba(255, 255, 255, .52);
-            background: rgba(255, 255, 255, .14);
-        }
-
-        .button-light {
-            border-color: var(--line);
-            color: var(--sksu-green-dark);
-            background: #ffffff;
-        }
-
-        .button-light:hover,
-        .button-light:focus-visible {
-            border-color: rgba(0, 138, 69, .34);
-            background: var(--sksu-mint);
-        }
-
-        .hero {
-            position: relative;
-            isolation: isolate;
-            min-height: 720px;
-            color: #ffffff;
-            background:
-                linear-gradient(110deg, rgba(3, 75, 46, .98) 0%, rgba(4, 83, 54, .94) 48%, rgba(18, 60, 115, .9) 100%);
-        }
-
-        .hero::before {
-            content: "";
-            position: absolute;
-            inset: 0;
-            z-index: -1;
-            background:
-                linear-gradient(90deg, rgba(3, 75, 46, .96) 0%, rgba(3, 75, 46, .86) 48%, rgba(3, 75, 46, .34) 100%),
-                repeating-linear-gradient(135deg, rgba(255, 255, 255, .08) 0 1px, transparent 1px 26px);
-        }
-
-        .hero::after {
-            content: "";
-            position: absolute;
-            right: -10rem;
-            bottom: -16rem;
-            z-index: -1;
-            width: 42rem;
-            height: 42rem;
-            border: 1px solid rgba(244, 196, 48, .18);
-            border-radius: 50%;
-            box-shadow: inset 0 0 0 4rem rgba(244, 196, 48, .05);
-        }
-
-        .hero-seal-visual {
-            position: relative;
-            z-index: 0;
-            justify-self: end;
-            width: clamp(280px, 29vw, 430px);
-            aspect-ratio: 1;
-            border-radius: 50%;
-            background: radial-gradient(circle, rgba(255, 255, 255, .12) 0%, rgba(255, 255, 255, .04) 52%, rgba(255, 255, 255, 0) 72%);
-        }
-
-        .hero-seal-visual::before {
-            content: "";
-            position: absolute;
-            inset: -1.1rem;
-            border: 1px solid rgba(244, 196, 48, .28);
-            border-radius: 50%;
-        }
-
-        .hero-seal-visual img {
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
-            opacity: .88;
-            filter: drop-shadow(0 30px 45px rgba(0, 0, 0, .28));
-        }
-
-        .hero-layout {
-            display: grid;
-            grid-template-columns: minmax(0, 1.12fr) minmax(280px, .72fr);
-            gap: clamp(2rem, 5vw, 5.5rem);
-            min-height: calc(720px - 72px);
-            align-items: center;
-            padding: 5rem 0 4rem;
-        }
-
-        .hero-content {
-            position: relative;
-            z-index: 1;
-            max-width: 760px;
-        }
-
-        .eyebrow {
-            display: inline-flex;
-            align-items: center;
-            gap: .5rem;
-            margin-bottom: 1.2rem;
-            border: 1px solid rgba(255, 255, 255, .24);
-            border-radius: 999px;
-            background: rgba(255, 255, 255, .08);
-            padding: .45rem .7rem;
-            color: rgba(255, 255, 255, .9);
-            font-size: .86rem;
-            font-weight: 700;
-        }
-
-        .eyebrow-dot {
-            width: .55rem;
-            height: .55rem;
-            border-radius: 50%;
-            background: var(--sksu-gold);
-            box-shadow: 0 0 0 .3rem rgba(244, 196, 48, .18);
-        }
-
-        h1 {
-            margin: 0;
-            max-width: 760px;
-            font-size: clamp(3.1rem, 5.4vw, 5.35rem);
-            line-height: .95;
-            letter-spacing: 0;
-        }
-
-        h1 span {
-            display: block;
-        }
-
-        h1 span + span {
-            font-size: .9em;
-        }
-
-        .hero-copy {
-            max-width: 640px;
-            margin: 1.4rem 0 0;
-            color: rgba(255, 255, 255, .84);
-            font-size: clamp(1.05rem, 2vw, 1.3rem);
-            line-height: 1.7;
-        }
-
-        .hero-actions {
+        .nav-actions {
             display: flex;
-            flex-wrap: wrap;
-            gap: .75rem;
-            margin-top: 2rem;
+            align-items: center;
+            gap: 0.75rem;
         }
 
-        .hero-metrics {
-            display: grid;
-            grid-template-columns: repeat(4, minmax(0, 1fr));
-            gap: 1px;
-            max-width: 780px;
-            margin-top: 3.25rem;
-            border: 1px solid rgba(255, 255, 255, .18);
-            background: rgba(255, 255, 255, .18);
-        }
-
-        .metric {
-            min-height: 104px;
-            background: rgba(2, 43, 29, .56);
-            padding: 1rem;
-        }
-
-        .metric strong {
-            display: block;
-            color: #ffffff;
-            font-size: 1.6rem;
-            line-height: 1.1;
-        }
-
-        .metric span {
-            display: block;
-            margin-top: .45rem;
-            color: rgba(255, 255, 255, .74);
-            font-size: .88rem;
-        }
-
-        .section {
-            padding: 5rem 0;
-        }
-
-        .section-tight {
-            padding-top: 3.5rem;
-        }
-
-        .section-heading {
-            display: flex;
-            align-items: end;
-            justify-content: space-between;
-            gap: 2rem;
-            margin-bottom: 2rem;
-        }
-
-        .section-kicker {
-            margin: 0 0 .55rem;
-            color: var(--sksu-green);
-            font-size: .82rem;
-            font-weight: 800;
-            text-transform: uppercase;
-        }
-
-        h2 {
-            margin: 0;
-            max-width: 760px;
-            color: var(--ink);
-            font-size: clamp(2rem, 4vw, 3.2rem);
-            line-height: 1.05;
-            letter-spacing: 0;
-        }
-
-        .section-note {
-            max-width: 360px;
-            margin: 0;
-            color: var(--muted);
-        }
-
-        .feature-grid {
-            display: grid;
-            grid-template-columns: repeat(3, minmax(0, 1fr));
-            gap: 1rem;
-        }
-
-        .feature-card,
-        .role-card,
-        .monitoring-panel {
-            border: 1px solid var(--line);
-            border-radius: 8px;
-            background: var(--surface);
-            box-shadow: 0 18px 45px rgba(24, 48, 34, .08);
-        }
-
-        .feature-card {
-            padding: 1.25rem;
-        }
-
-        .icon-box {
-            display: grid;
-            width: 48px;
-            height: 48px;
-            place-items: center;
-            border-radius: 8px;
-            color: var(--sksu-green-dark);
-            background: var(--sksu-mint);
-            font-size: 1.15rem;
-        }
-
-        .feature-card:nth-child(2) .icon-box {
-            color: #4e3310;
-            background: #fff3c4;
-        }
-
-        .feature-card:nth-child(3) .icon-box {
-            color: var(--sksu-navy);
-            background: #e5efff;
-        }
-
-        h3 {
-            margin: 1.1rem 0 .55rem;
-            font-size: 1.2rem;
-            line-height: 1.25;
-        }
-
-        .feature-card p,
-        .role-card p,
-        .monitoring-panel p {
-            margin: 0;
-            color: var(--muted);
-        }
-
-        .workflow {
-            background: #ffffff;
-            border-block: 1px solid var(--line);
-        }
-
-        .timeline {
-            display: grid;
-            grid-template-columns: repeat(5, minmax(0, 1fr));
-            gap: 1px;
-            border: 1px solid var(--line);
-            background: var(--line);
-        }
-
-        .step {
-            min-height: 170px;
-            background: #ffffff;
-            padding: 1.15rem;
-        }
-
-        .step-number {
+        /* Buttons */
+        .btn {
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            width: 38px;
-            height: 38px;
-            border-radius: 50%;
-            background: var(--sksu-green-dark);
+            gap: 0.5rem;
+            padding: 0.6rem 1.15rem;
+            font-size: 0.9rem;
+            font-weight: 600;
+            border-radius: var(--radius-md);
+            border: 1px solid transparent;
+            cursor: pointer;
+            transition: all 0.18s ease;
+            white-space: nowrap;
+        }
+
+        .btn:focus-visible {
+            outline: 2px solid var(--primary);
+            outline-offset: 2px;
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: #ffffff;
+            border-color: var(--primary);
+            box-shadow: 0 2px 4px rgba(0, 138, 69, 0.15);
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-hover);
+            border-color: var(--primary-hover);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0, 138, 69, 0.22);
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            color: var(--text-main);
+            border-color: var(--border-light);
+        }
+
+        .btn-outline:hover {
+            background-color: var(--bg-subtle);
+            border-color: #cbd5e1;
+            color: var(--primary);
+        }
+
+        .btn-secondary {
+            background-color: var(--bg-subtle);
+            color: var(--text-main);
+            border-color: var(--border-light);
+        }
+
+        .btn-secondary:hover {
+            background-color: #f1f5f9;
+            color: var(--primary);
+        }
+
+        .btn-lg {
+            padding: 0.8rem 1.6rem;
+            font-size: 1rem;
+            border-radius: var(--radius-md);
+        }
+
+        /* Hero Section */
+        .hero {
+            padding: 4.5rem 0 3.5rem;
+            background: var(--bg-white);
+            border-bottom: 1px solid var(--border-subtle);
+        }
+
+        .hero-grid {
+            display: grid;
+            grid-template-columns: 1.15fr 0.85fr;
+            gap: 3.5rem;
+            align-items: center;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.35rem 0.85rem;
+            background-color: var(--primary-light);
+            border: 1px solid var(--primary-border);
+            border-radius: var(--radius-full);
+            color: var(--primary-dark);
+            font-size: 0.825rem;
+            font-weight: 700;
+            margin-bottom: 1.25rem;
+        }
+
+        .badge-dot {
+            width: 7px;
+            height: 7px;
+            background-color: var(--primary);
+            border-radius: var(--radius-full);
+        }
+
+        .hero-title {
+            font-size: clamp(2.25rem, 4vw, 3.25rem);
+            font-weight: 800;
+            line-height: 1.15;
+            letter-spacing: -0.025em;
+            color: var(--text-main);
+            margin-bottom: 1.25rem;
+        }
+
+        .hero-title span {
+            color: var(--primary);
+        }
+
+        .hero-desc {
+            font-size: 1.125rem;
+            line-height: 1.65;
+            color: var(--text-muted);
+            margin-bottom: 2rem;
+            max-width: 580px;
+        }
+
+        .hero-cta {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 0.85rem;
+            margin-bottom: 2rem;
+        }
+
+        .hero-note {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            font-size: 0.85rem;
+            color: var(--text-subtle);
+        }
+
+        .hero-note i {
+            color: var(--primary);
+        }
+
+        /* Hero Preview Card (White, Clean, Elegant) */
+        .hero-visual {
+            display: flex;
+            justify-content: center;
+        }
+
+        .hero-card {
+            width: 100%;
+            max-width: 440px;
+            background: #ffffff;
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-lg);
+            padding: 2rem;
+            box-shadow: var(--shadow-lg);
+            text-align: center;
+            position: relative;
+        }
+
+        .hero-seal-wrapper {
+            width: 96px;
+            height: 96px;
+            margin: 0 auto 1.25rem;
+            padding: 6px;
+            background: #ffffff;
+            border-radius: var(--radius-full);
+            border: 2px solid var(--primary-border);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .hero-seal-img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .hero-card-title {
+            font-size: 1.15rem;
+            font-weight: 800;
+            color: var(--text-main);
+            margin-bottom: 0.35rem;
+        }
+
+        .hero-card-subtitle {
+            font-size: 0.875rem;
+            color: var(--text-subtle);
+            margin-bottom: 1.5rem;
+        }
+
+        .hero-card-pills {
+            display: flex;
+            flex-direction: column;
+            gap: 0.6rem;
+            text-align: left;
+        }
+
+        .card-pill {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.7rem 0.9rem;
+            background: var(--bg-subtle);
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-md);
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-muted);
+        }
+
+        .card-pill i {
+            color: var(--primary);
+            font-size: 1rem;
+            width: 20px;
+            text-align: center;
+        }
+
+        .section-header {
+            text-align: center;
+            max-width: 640px;
+            margin: 0 auto 2.5rem;
+        }
+
+        .section-title {
+            font-size: clamp(1.75rem, 3vw, 2.25rem);
+            font-weight: 800;
+            color: var(--text-main);
+            letter-spacing: -0.02em;
+            line-height: 1.25;
+            margin-bottom: 0.65rem;
+        }
+
+        .section-desc {
+            font-size: 1rem;
+            color: var(--text-muted);
+        }
+
+        /* Core Services / Modules Section */
+        .features-section {
+            padding: 4.5rem 0;
+            background: var(--bg-subtle);
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
+        }
+
+        .feature-card {
+            background: #ffffff;
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-lg);
+            padding: 2rem;
+            box-shadow: var(--shadow-sm);
+            transition: all 0.2s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-md);
+            border-color: var(--primary-border);
+        }
+
+        .feature-icon {
+            width: 48px;
+            height: 48px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: var(--radius-md);
+            background: var(--primary-light);
+            color: var(--primary);
+            font-size: 1.25rem;
+            margin-bottom: 1.25rem;
+        }
+
+        .feature-card:nth-child(2) .feature-icon {
+            background: #e0f2fe;
+            color: #0284c7;
+        }
+
+        .feature-card:nth-child(3) .feature-icon {
+            background: #fef3c7;
+            color: #d97706;
+        }
+
+        .feature-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 0.65rem;
+        }
+
+        .feature-text {
+            font-size: 0.925rem;
+            color: var(--text-muted);
+            line-height: 1.6;
+        }
+
+        /* Workflow Section (Simple 4-Step Process) */
+        .workflow-section {
+            padding: 4.5rem 0;
+            background: var(--bg-white);
+            border-bottom: 1px solid var(--border-subtle);
+        }
+
+        .steps-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1.5rem;
+            position: relative;
+        }
+
+        .step-card {
+            background: #ffffff;
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-md);
+            padding: 1.75rem 1.25rem;
+            text-align: center;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .step-num {
+            width: 40px;
+            height: 40px;
+            margin: 0 auto 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: var(--radius-full);
+            background: var(--primary);
             color: #ffffff;
             font-weight: 800;
+            font-size: 1rem;
         }
 
-        .step h3 {
-            margin-top: 1.25rem;
+        .step-card:nth-child(2) .step-num {
+            background: #0284c7;
+        }
+        .step-card:nth-child(3) .step-num {
+            background: #0d9488;
+        }
+        .step-card:nth-child(4) .step-num {
+            background: #d97706;
+        }
+
+        .step-title {
             font-size: 1.05rem;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 0.5rem;
         }
 
-        .step p {
-            margin: 0;
-            color: var(--muted);
-            font-size: .95rem;
+        .step-desc {
+            font-size: 0.875rem;
+            color: var(--text-muted);
+            line-height: 1.5;
+        }
+
+        /* Roles / User Access Section */
+        .roles-section {
+            padding: 4.5rem 0;
+            background: var(--bg-subtle);
+            border-bottom: 1px solid var(--border-light);
         }
 
         .roles-grid {
             display: grid;
-            grid-template-columns: repeat(3, minmax(0, 1fr));
-            gap: 1rem;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
         }
 
         .role-card {
-            padding: 1.15rem;
+            background: #ffffff;
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-lg);
+            padding: 2rem;
+            box-shadow: var(--shadow-sm);
         }
 
-        .role-card-header {
+        .role-header {
             display: flex;
             align-items: center;
-            gap: .8rem;
+            gap: 1rem;
+            margin-bottom: 1.25rem;
         }
 
         .role-icon {
-            display: grid;
             width: 46px;
             height: 46px;
-            flex: 0 0 46px;
-            place-items: center;
-            border-radius: 8px;
-            background: var(--sksu-mint);
-            color: var(--sksu-green-dark);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: var(--radius-md);
+            background: var(--primary-light);
+            color: var(--primary);
+            font-size: 1.2rem;
+            flex-shrink: 0;
         }
 
-        .role-card:nth-child(2) .role-icon,
-        .role-card:nth-child(5) .role-icon {
-            background: #e5efff;
-            color: var(--sksu-navy);
+        .role-card:nth-child(2) .role-icon {
+            background: #e0f2fe;
+            color: #0284c7;
         }
 
         .role-card:nth-child(3) .role-icon {
-            background: #fff3c4;
-            color: #4e3310;
+            background: #fef3c7;
+            color: #d97706;
         }
 
-        .role-card strong {
-            display: block;
-            color: var(--sksu-green-dark);
-            font-size: 1.05rem;
+        .role-name {
+            font-size: 1.15rem;
+            font-weight: 800;
+            color: var(--text-main);
         }
 
-        .role-card p {
-            margin-top: .2rem;
-            font-size: .9rem;
+        .role-desc {
+            font-size: 0.825rem;
+            color: var(--text-subtle);
         }
 
-        .role-functions {
-            display: grid;
-            gap: .55rem;
-            margin: 1rem 0 0;
-            padding: 0;
+        .role-points {
             list-style: none;
-        }
-
-        .role-functions li {
-            position: relative;
-            padding-left: 1.1rem;
-            color: var(--muted);
-            font-size: .9rem;
-        }
-
-        .role-functions li::before {
-            content: "";
-            position: absolute;
-            left: 0;
-            top: .58rem;
-            width: .42rem;
-            height: .42rem;
-            border-radius: 50%;
-            background: var(--sksu-gold);
-        }
-
-        .monitoring-layout {
-            display: grid;
-            grid-template-columns: 1fr 1.1fr;
-            gap: 1rem;
-            align-items: stretch;
-        }
-
-        .monitoring-panel {
-            padding: 1.35rem;
-        }
-
-        .report-list {
-            display: grid;
-            gap: .7rem;
-            margin: 1.2rem 0 0;
-            padding: 0;
-            list-style: none;
-        }
-
-        .report-list li {
             display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 1rem;
-            border: 1px solid var(--line);
-            border-radius: 8px;
-            padding: .8rem .9rem;
-            color: var(--muted);
-            background: #fbfdfb;
+            flex-direction: column;
+            gap: 0.65rem;
         }
 
-        .status-pill {
-            flex: 0 0 auto;
-            border-radius: 999px;
-            background: var(--sksu-mint);
-            color: var(--sksu-green-dark);
-            padding: .28rem .6rem;
-            font-size: .75rem;
-            font-weight: 800;
-        }
-
-        .dashboard-preview {
-            display: grid;
-            gap: .8rem;
-            border: 1px solid #123c73;
-            border-radius: 8px;
-            background: #10263f;
-            padding: 1rem;
-            color: #ffffff;
-            box-shadow: 0 22px 60px rgba(18, 60, 115, .18);
-        }
-
-        .preview-topbar {
+        .role-points li {
             display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 1rem;
-            border-bottom: 1px solid rgba(255, 255, 255, .14);
-            padding-bottom: .85rem;
+            align-items: flex-start;
+            gap: 0.65rem;
+            font-size: 0.875rem;
+            color: var(--text-muted);
+            line-height: 1.5;
         }
 
-        .preview-title {
-            font-weight: 800;
+        .role-points li i {
+            color: var(--primary);
+            font-size: 0.75rem;
+            margin-top: 0.35rem;
+            flex-shrink: 0;
         }
 
-        .preview-badge {
-            border-radius: 999px;
-            background: rgba(244, 196, 48, .18);
-            color: #ffe28a;
-            padding: .35rem .7rem;
-            font-size: .8rem;
-            font-weight: 800;
-        }
-
-        .preview-grid {
-            display: grid;
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-            gap: .75rem;
-        }
-
-        .preview-stat {
-            min-height: 112px;
-            border: 1px solid rgba(255, 255, 255, .12);
-            border-radius: 8px;
-            background: rgba(255, 255, 255, .07);
-            padding: .9rem;
-        }
-
-        .preview-stat span {
-            color: rgba(255, 255, 255, .68);
-            font-size: .82rem;
-        }
-
-        .preview-stat strong {
-            display: block;
-            margin-top: .7rem;
-            font-size: 1.8rem;
-        }
-
-        .preview-progress {
-            height: 8px;
-            margin-top: 1rem;
-            overflow: hidden;
-            border-radius: 999px;
-            background: rgba(255, 255, 255, .14);
-        }
-
-        .preview-progress i {
-            display: block;
-            height: 100%;
-            border-radius: inherit;
-            background: var(--sksu-gold);
-        }
-
-        .cta-band {
-            color: #ffffff;
-            background:
-                linear-gradient(110deg, rgba(3, 75, 46, .98), rgba(18, 60, 115, .94)),
-                url("{{ asset('images/sksu-seal.png') }}") left 8vw center / 260px no-repeat;
-        }
-
-        .cta-inner {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 2rem;
-            padding: 3rem 0;
-        }
-
-        .cta-inner h2 {
-            color: #ffffff;
-        }
-
-        .cta-inner p {
-            max-width: 620px;
-            margin: .85rem 0 0;
-            color: rgba(255, 255, 255, .78);
-        }
-
-        .site-footer {
-            border-top: 1px solid var(--line);
+        /* Simple CTA Box (White, Clean) */
+        .cta-section {
+            padding: 4.5rem 0;
             background: #ffffff;
-            padding: 1.4rem 0;
-            color: var(--muted);
         }
 
-        .footer-inner {
+        .cta-box {
+            background: #ffffff;
+            border: 1px solid var(--primary-border);
+            border-radius: var(--radius-lg);
+            padding: 3rem 2.5rem;
+            text-align: center;
+            box-shadow: var(--shadow-md);
+            max-width: 840px;
+            margin: 0 auto;
+        }
+
+        .cta-title {
+            font-size: clamp(1.75rem, 3vw, 2.25rem);
+            font-weight: 800;
+            color: var(--primary-dark);
+            margin-bottom: 0.75rem;
+            letter-spacing: -0.02em;
+        }
+
+        .cta-text {
+            font-size: 1.05rem;
+            color: var(--text-muted);
+            max-width: 580px;
+            margin: 0 auto 1.75rem;
+        }
+
+        .cta-actions {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        /* Site Footer (Clean, White) */
+        .site-footer {
+            background: #ffffff;
+            border-top: 1px solid var(--border-light);
+            padding: 2.5rem 0 2rem;
+            font-size: 0.875rem;
+            color: var(--text-subtle);
+        }
+
+        .footer-grid {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            gap: 1rem;
+            gap: 1.5rem;
+            flex-wrap: wrap;
         }
 
-        .footer-inner strong {
-            color: var(--ink);
+        .footer-brand {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
         }
 
-        @media (max-width: 960px) {
-            .nav-links .nav-link {
+        .footer-logo {
+            width: 32px;
+            height: 32px;
+            object-fit: contain;
+        }
+
+        .footer-copy {
+            display: flex;
+            flex-direction: column;
+            gap: 0.15rem;
+        }
+
+        .footer-copy strong {
+            color: var(--text-main);
+            font-weight: 700;
+        }
+
+        /* Responsive Breakpoints */
+        @media (max-width: 992px) {
+            .hero-grid {
+                grid-template-columns: 1fr;
+                gap: 2.5rem;
+                text-align: center;
+            }
+
+            .hero-content {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .hero-desc {
+                margin-inline: auto;
+            }
+
+            .hero-cta {
+                justify-content: center;
+            }
+
+            .features-grid,
+            .roles-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .steps-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .nav-menu {
+                display: none;
+            }
+
+            .brand-tag {
                 display: none;
             }
 
             .hero {
-                min-height: auto;
-                background: linear-gradient(155deg, rgba(3, 75, 46, .98), rgba(18, 60, 115, .92));
+                padding: 3rem 0 2.5rem;
             }
 
-            .hero::before {
-                background:
-                    linear-gradient(180deg, rgba(3, 75, 46, .9), rgba(3, 75, 46, .72)),
-                    repeating-linear-gradient(135deg, rgba(255, 255, 255, .08) 0 1px, transparent 1px 24px);
-            }
-
-            .hero-layout {
+            .steps-grid {
                 grid-template-columns: 1fr;
-                min-height: auto;
-                padding: 4rem 0 3rem;
             }
 
-            .hero-seal-visual {
-                position: absolute;
-                right: -4rem;
-                bottom: 2rem;
-                width: 300px;
-                opacity: .16;
-            }
-
-            .hero-metrics,
-            .feature-grid,
-            .timeline,
-            .roles-grid,
-            .monitoring-layout {
-                grid-template-columns: repeat(2, minmax(0, 1fr));
-            }
-
-            .section-heading,
-            .cta-inner,
-            .footer-inner {
-                align-items: start;
+            .footer-grid {
                 flex-direction: column;
+                text-align: center;
+                gap: 1rem;
             }
 
-            .section-note {
-                max-width: 680px;
+            .footer-brand {
+                flex-direction: column;
             }
         }
 
-        @media (max-width: 640px) {
-            .container {
-                width: min(100% - 1rem, 1120px);
-            }
-
-            .brand-subtitle {
-                display: none;
-            }
-
-            .brand-mark {
-                width: 48px;
-                height: 48px;
-                flex-basis: 48px;
-            }
-
-            .nav {
-                min-height: 66px;
-            }
-
-            .nav-links {
-                gap: .4rem;
-            }
-
-            .nav-links .button-secondary {
-                display: none;
-            }
-
-            .button {
+        @media (max-width: 480px) {
+            .hero-cta {
+                flex-direction: column;
                 width: 100%;
             }
 
-            .nav-links .button,
-            .hero-actions .button {
-                width: auto;
+            .hero-cta .btn {
+                width: 100%;
             }
 
-            h1 {
-                max-width: 100%;
-                font-size: clamp(2.65rem, 13vw, 4rem);
+            .cta-actions {
+                flex-direction: column;
+                width: 100%;
             }
 
-            .hero-seal-visual {
-                right: -5rem;
-                bottom: 3rem;
-                width: 240px;
-                opacity: .12;
-            }
-
-            .hero-copy {
-                font-size: 1rem;
-            }
-
-            .hero-metrics,
-            .feature-grid,
-            .timeline,
-            .roles-grid,
-            .monitoring-layout,
-            .preview-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .hero-metrics {
-                margin-top: 2rem;
-            }
-
-            .metric {
-                min-height: auto;
-            }
-
-            .section {
-                padding: 3.5rem 0;
-            }
-
-            .cta-band {
-                background:
-                    linear-gradient(155deg, rgba(3, 75, 46, .98), rgba(18, 60, 115, .94)),
-                    url("{{ asset('images/sksu-seal.png') }}") right -4rem bottom -4rem / 240px no-repeat;
+            .cta-actions .btn {
+                width: 100%;
             }
         }
 
@@ -879,9 +777,8 @@
             *::before,
             *::after {
                 scroll-behavior: auto !important;
-                transition-duration: .01ms !important;
-                animation-duration: .01ms !important;
-                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+                animation-duration: 0.01ms !important;
             }
         }
     </style>
@@ -889,374 +786,307 @@
 <body>
     <a class="skip-link" href="#main-content">Skip to main content</a>
 
-    <div class="page-shell">
-        <header class="site-header">
-            <div class="container nav" aria-label="Main navigation">
-                <a class="brand" href="{{ url('/') }}" aria-label="SKSUScholarSync home">
-                    <img class="brand-mark" src="{{ asset('images/sksu-seal.png') }}" alt="Sultan Kudarat State University seal" width="54" height="54">
-                    <span class="brand-text">
-                        <span class="brand-name">SKSUScholarSync</span>
-                        <span class="brand-subtitle">Sultan Kudarat State University</span>
-                    </span>
-                </a>
+    <!-- Top Navigation -->
+    <header class="site-header">
+        <div class="container nav" aria-label="Main navigation">
+            <a class="brand" href="{{ url('/') }}" aria-label="SKSUScholarSync Home">
+                <img class="brand-logo" src="{{ asset('images/sksu-seal.png') }}" alt="Sultan Kudarat State University seal" width="44" height="44">
+                <div class="brand-text">
+                    <span class="brand-name">SKSUScholarSync</span>
+                    <span class="brand-tag">Sultan Kudarat State University</span>
+                </div>
+            </a>
 
-                <nav class="nav-links" aria-label="Landing page sections">
-                    <a class="nav-link" href="#features">Features</a>
-                    <a class="nav-link" href="#workflow">Workflow</a>
-                    <a class="nav-link" href="#roles">Roles</a>
-                    @if (Route::has('login'))
-                        @auth
-                            <a class="button button-primary" href="{{ url('/dashboard') }}">
-                                <i class="fa-solid fa-gauge-high" aria-hidden="true"></i>
-                                <span>Dashboard</span>
+            <nav class="nav-menu" aria-label="Site sections">
+                <a class="nav-link" href="#services">Services</a>
+                <a class="nav-link" href="#workflow">Workflow</a>
+                <a class="nav-link" href="#roles">Portals</a>
+            </nav>
+
+            <div class="nav-actions">
+                @if (Route::has('login'))
+                    @auth
+                        <a class="btn btn-primary" href="{{ url('/dashboard') }}">
+                            <i class="fa-solid fa-gauge-high" aria-hidden="true"></i>
+                            <span>Dashboard</span>
+                        </a>
+                    @else
+                        <a class="btn btn-outline" href="{{ route('login') }}">
+                            <i class="fa-solid fa-right-to-bracket" aria-hidden="true"></i>
+                            <span>Sign in</span>
+                        </a>
+                        @if (Route::has('register'))
+                            <a class="btn btn-primary" href="{{ route('register') }}">
+                                <i class="fa-solid fa-user-plus" aria-hidden="true"></i>
+                                <span>Register</span>
                             </a>
-                        @else
-                            <a class="button button-secondary" href="{{ route('login') }}">
-                                <i class="fa-solid fa-right-to-bracket" aria-hidden="true"></i>
-                                <span>Sign in</span>
-                            </a>
-                            @if (Route::has('register'))
-                                <a class="button button-primary" href="{{ route('register') }}">
-                                    <i class="fa-solid fa-user-plus" aria-hidden="true"></i>
-                                    <span>Register</span>
-                                </a>
-                            @endif
-                        @endauth
-                    @endif
-                </nav>
+                        @endif
+                    @endauth
+                @endif
             </div>
-        </header>
+        </div>
+    </header>
 
-        <main id="main-content">
-            <section class="hero" aria-labelledby="hero-title">
-                <div class="container hero-layout">
-                    <div class="hero-content">
-                        <div class="eyebrow">
-                            <span class="eyebrow-dot" aria-hidden="true"></span>
-                            Integrated scholarship operations
-                        </div>
-                        <h1 id="hero-title">
-                            <span>SKSU</span>
-                            <span>ScholarSync</span>
-                        </h1>
-                        <p class="hero-copy">
-                            A unified portal for certificate requests, official receipt verification, scholarship opportunities, campus-based masterlist validation, and administrative reporting.
-                        </p>
+    <main id="main-content">
+        <!-- Hero Section -->
+        <section class="hero" aria-labelledby="hero-heading">
+            <div class="container hero-grid">
+                <div class="hero-content">
+                    <div class="hero-badge">
+                        <span class="badge-dot" aria-hidden="true"></span>
+                        <span>SKSU Scholarship Operations Portal</span>
+                    </div>
 
-                        <div class="hero-actions" aria-label="Primary actions">
-                            @if (Route::has('login'))
-                                @auth
-                                    <a class="button button-primary" href="{{ url('/dashboard') }}">
-                                        <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
-                                        <span>Open Dashboard</span>
+                    <h1 id="hero-heading" class="hero-title">
+                        Simplifying Scholarship Services for <span>SKSU</span> Scholars
+                    </h1>
+
+                    <p class="hero-desc">
+                        A clean, centralized portal for student certificate requests, official receipt verification, agency masterlist validation, and institutional scholarship tracking.
+                    </p>
+
+                    <div class="hero-cta" aria-label="Primary actions">
+                        @if (Route::has('login'))
+                            @auth
+                                <a class="btn btn-primary btn-lg" href="{{ url('/dashboard') }}">
+                                    <span>Open Dashboard</span>
+                                    <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+                                </a>
+                            @else
+                                <a class="btn btn-primary btn-lg" href="{{ route('login') }}">
+                                    <span>Access Portal</span>
+                                    <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+                                </a>
+                                @if (Route::has('register'))
+                                    <a class="btn btn-secondary btn-lg" href="{{ route('register') }}">
+                                        <i class="fa-solid fa-user-plus" aria-hidden="true"></i>
+                                        <span>Create Account</span>
                                     </a>
-                                @else
-                                    <a class="button button-primary" href="{{ route('login') }}">
-                                        <i class="fa-solid fa-right-to-bracket" aria-hidden="true"></i>
-                                        <span>Access Portal</span>
-                                    </a>
-                                    @if (Route::has('register'))
-                                        <a class="button button-secondary" href="{{ route('register') }}">
-                                            <i class="fa-solid fa-id-card" aria-hidden="true"></i>
-                                            <span>Create Account</span>
-                                        </a>
-                                    @endif
-                                @endauth
-                            @endif
-                            <a class="button button-secondary" href="#workflow">
-                                <i class="fa-solid fa-diagram-project" aria-hidden="true"></i>
-                                <span>View Workflow</span>
-                            </a>
-                        </div>
-
-                        <div class="hero-metrics" aria-label="System highlights">
-                            <div class="metric">
-                                <strong>5</strong>
-                                <span>role-based portals</span>
-                            </div>
-                            <div class="metric">
-                                <strong>8</strong>
-                                <span>report categories</span>
-                            </div>
-                            <div class="metric">
-                                <strong>PDF</strong>
-                                <span>certificate generation</span>
-                            </div>
-                            <div class="metric">
-                                <strong>API</strong>
-                                <span>masterlist validation</span>
-                            </div>
-                        </div>
+                                @endif
+                            @endauth
+                        @endif
                     </div>
 
-                    <div class="hero-seal-visual" aria-hidden="true">
-                        <img src="{{ asset('images/sksu-seal.png') }}" alt="" width="1024" height="1024">
+                    <div class="hero-note">
+                        <i class="fa-solid fa-circle-check" aria-hidden="true"></i>
+                        <span>Unified system supporting all campuses of Sultan Kudarat State University</span>
                     </div>
                 </div>
-            </section>
 
-            <section id="features" class="section section-tight">
-                <div class="container">
-                    <div class="section-heading">
-                        <div>
-                            <p class="section-kicker">Core modules</p>
-                            <h2>Scholarship processing with every step recorded.</h2>
+                <div class="hero-visual" aria-hidden="true">
+                    <div class="hero-card">
+                        <div class="hero-seal-wrapper">
+                            <img class="hero-seal-img" src="{{ asset('images/sksu-seal.png') }}" alt="" width="96" height="96">
                         </div>
-                        <p class="section-note">
-                            SKSUScholarSync connects student requests, administrator verification, agency submissions, and leadership approval in one traceable system.
+                        <h2 class="hero-card-title">Sultan Kudarat State University</h2>
+                        <p class="hero-card-subtitle">Scholarship Information & Verification System</p>
+
+                        <div class="hero-card-pills">
+                            <div class="card-pill">
+                                <i class="fa-solid fa-file-circle-check" aria-hidden="true"></i>
+                                <span>Certificate of No Scholarship Requests</span>
+                            </div>
+                            <div class="card-pill">
+                                <i class="fa-solid fa-receipt" aria-hidden="true"></i>
+                                <span>Official Receipt (OR) Upload & Review</span>
+                            </div>
+                            <div class="card-pill">
+                                <i class="fa-solid fa-users-viewfinder" aria-hidden="true"></i>
+                                <span>Automated Masterlist Enrollment Matching</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Core Services -->
+        <section id="services" class="features-section" aria-labelledby="services-heading">
+            <div class="container">
+                <div class="section-header">
+                    <h2 id="services-heading" class="section-title">Core Services</h2>
+                    <p class="section-desc">Essential modules designed to make scholarship management seamless and accountable.</p>
+                </div>
+
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <div class="feature-icon" aria-hidden="true">
+                            <i class="fa-solid fa-file-invoice"></i>
+                        </div>
+                        <h3 class="feature-title">Certificate Requests</h3>
+                        <p class="feature-text">
+                            Students can easily request a Certificate of No Scholarship, upload their payment receipt, and track verification in real-time.
                         </p>
                     </div>
 
-                    <div class="feature-grid">
-                        <article class="feature-card">
-                            <div class="icon-box" aria-hidden="true">
-                                <i class="fa-solid fa-file-signature"></i>
-                            </div>
-                            <h3>Certificate Requests</h3>
-                            <p>Students submit requests, upload official receipts, track status, and download approved Certificates of No Scholarship.</p>
-                        </article>
-
-                        <article class="feature-card">
-                            <div class="icon-box" aria-hidden="true">
-                                <i class="fa-solid fa-shield-halved"></i>
-                            </div>
-                            <h3>Verification Flow</h3>
-                            <p>Administrators review receipts, coordinators validate masterlists, and the chairman approves final scholar records.</p>
-                        </article>
-
-                        <article class="feature-card">
-                            <div class="icon-box" aria-hidden="true">
-                                <i class="fa-solid fa-chart-line"></i>
-                            </div>
-                            <h3>Monitoring and Reports</h3>
-                            <p>Dashboards and exports summarize requests, scholars, masterlists, validation, scholarship agencies, and decisions.</p>
-                        </article>
-                    </div>
-                </div>
-            </section>
-
-            <section id="workflow" class="section workflow">
-                <div class="container">
-                    <div class="section-heading">
-                        <div>
-                            <p class="section-kicker">Process map</p>
-                            <h2>A clearer path from request to release.</h2>
+                    <div class="feature-card">
+                        <div class="feature-icon" aria-hidden="true">
+                            <i class="fa-solid fa-list-check"></i>
                         </div>
-                        <p class="section-note">
-                            Each phase has a defined owner, status, and output so scholarship transactions are easier to review.
+                        <h3 class="feature-title">Masterlist Validation</h3>
+                        <p class="feature-text">
+                            Validates scholarship awardee masterlists against registrar enrollment data to prevent duplicate or ineligible grants.
                         </p>
                     </div>
 
-                    <div class="timeline" aria-label="Scholarship workflow">
-                        <article class="step">
-                            <span class="step-number">1</span>
-                            <h3>Submit</h3>
-                            <p>Students request certificates and browse published scholarship opportunities.</p>
-                        </article>
-                        <article class="step">
-                            <span class="step-number">2</span>
-                            <h3>Verify</h3>
-                            <p>Administrators check official receipts and update request decisions.</p>
-                        </article>
-                        <article class="step">
-                            <span class="step-number">3</span>
-                            <h3>Validate</h3>
-                            <p>Agency masterlists are compared against enrolled student records.</p>
-                        </article>
-                        <article class="step">
-                            <span class="step-number">4</span>
-                            <h3>Approve</h3>
-                            <p>Coordinators forward validated results for chairman approval.</p>
-                        </article>
-                        <article class="step">
-                            <span class="step-number">5</span>
-                            <h3>Release</h3>
-                            <p>Certificates, final records, notifications, and reports become available.</p>
-                        </article>
-                    </div>
-                </div>
-            </section>
-
-            <section id="roles" class="section">
-                <div class="container">
-                    <div class="section-heading">
-                        <div>
-                            <p class="section-kicker">Role portals</p>
-                            <h2>Each role has a clear function in the scholarship workflow.</h2>
+                    <div class="feature-card">
+                        <div class="feature-icon" aria-hidden="true">
+                            <i class="fa-solid fa-chart-pie"></i>
                         </div>
-                        <p class="section-note">
-                            Access is separated by responsibility so students, administrators, agencies, coordinators, and the chairman only see the tools they need.
+                        <h3 class="feature-title">Monitoring & Reports</h3>
+                        <p class="feature-text">
+                            Exportable PDF, Excel, and CSV reports provide complete transparency for university administrators and partner agencies.
                         </p>
-                    </div>
-
-                    <div class="roles-grid">
-                        <article class="role-card">
-                            <div class="role-card-header">
-                                <span class="role-icon" aria-hidden="true">
-                                    <i class="fa-solid fa-user-graduate"></i>
-                                </span>
-                                <div>
-                                    <strong>Student</strong>
-                                    <p>Scholarship service requester</p>
-                                </div>
-                            </div>
-                            <ul class="role-functions">
-                                <li>Request Certificate of No Scholarship.</li>
-                                <li>Upload Official Receipts for certificate requests.</li>
-                                <li>Track request and certificate status.</li>
-                                <li>Download approved generated certificates.</li>
-                            </ul>
-                        </article>
-                        <article class="role-card">
-                            <div class="role-card-header">
-                                <span class="role-icon" aria-hidden="true">
-                                    <i class="fa-solid fa-user-shield"></i>
-                                </span>
-                                <div>
-                                    <strong>Administrator</strong>
-                                    <p>System and verification manager</p>
-                                </div>
-                            </div>
-                            <ul class="role-functions">
-                                <li>Verify or reject Official Receipt uploads.</li>
-                                <li>Monitor scholars, transactions, programs, and scholarship agencies.</li>
-                                <li>Generate certificate, masterlist, evaluation, and fund reports.</li>
-                                <li>Review audit trail and system activity.</li>
-                            </ul>
-                        </article>
-                        <article class="role-card">
-                            <div class="role-card-header">
-                                <span class="role-icon" aria-hidden="true">
-                                    <i class="fa-solid fa-building-columns"></i>
-                                </span>
-                                <div>
-                                    <strong>Campus Registrar</strong>
-                                    <p>Campus enrollment verifier</p>
-                                </div>
-                            </div>
-                            <ul class="role-functions">
-                                <li>Access enrollment records for the assigned campus.</li>
-                                <li>Verify unmatched or inconsistent scholar information.</li>
-                                <li>Use the validation microservice with campus-scoped data.</li>
-                                <li>Provide verification results to the Coordinator.</li>
-                            </ul>
-                        </article>
-                        <article class="role-card">
-                            <div class="role-card-header">
-                                <span class="role-icon" aria-hidden="true">
-                                    <i class="fa-solid fa-clipboard-check"></i>
-                                </span>
-                                <div>
-                                    <strong>Campus Scholarship Coordinator</strong>
-                                    <p>Validation reviewer</p>
-                                </div>
-                            </div>
-                            <ul class="role-functions">
-                                <li>Review enrolled and unenrolled scholar records.</li>
-                                <li>Add validation remarks and record decisions.</li>
-                                <li>Mark records for correction, rejection, or chairman review.</li>
-                                <li>Forward validated masterlists to the chairman.</li>
-                            </ul>
-                        </article>
-                        <article class="role-card">
-                            <div class="role-card-header">
-                                <span class="role-icon" aria-hidden="true">
-                                    <i class="fa-solid fa-scale-balanced"></i>
-                                </span>
-                                <div>
-                                    <strong>Scholarship Chairman</strong>
-                                    <p>Final approval authority</p>
-                                </div>
-                            </div>
-                            <ul class="role-functions">
-                                <li>Review coordinator-submitted masterlists.</li>
-                                <li>Upload agency-provided masterlists and distribute records by campus.</li>
-                                <li>Approve valid scholar records.</li>
-                                <li>Reject invalid records with required remarks.</li>
-                                <li>Release final scholar records to agencies.</li>
-                            </ul>
-                        </article>
                     </div>
                 </div>
-            </section>
+            </div>
+        </section>
 
-            <section class="section workflow" aria-labelledby="monitoring-title">
-                <div class="container monitoring-layout">
-                    <div class="monitoring-panel">
-                        <p class="section-kicker">Reports</p>
-                        <h2 id="monitoring-title">Decision-ready records for scholarship operations.</h2>
-                        <p>
-                            Export-ready reporting supports scholar information, certificate requests, OR verification, masterlists, validation, scholarship agencies, and approved or rejected transactions.
-                        </p>
+        <!-- How It Works / Workflow -->
+        <section id="workflow" class="workflow-section" aria-labelledby="workflow-heading">
+            <div class="container">
+                <div class="section-header">
+                    <h2 id="workflow-heading" class="section-title">How It Works</h2>
+                    <p class="section-desc">A straightforward 4-step process from initial submission to final certificate release.</p>
+                </div>
 
-                        <ul class="report-list">
-                            <li>
-                                <span>Certificate Request Reports</span>
-                                <span class="status-pill">PDF</span>
-                            </li>
-                            <li>
-                                <span>Scholarship Masterlist Reports</span>
-                                <span class="status-pill">Excel</span>
-                            </li>
-                            <li>
-                                <span>Approved and Rejected Requests</span>
-                                <span class="status-pill">CSV</span>
-                            </li>
+                <div class="steps-grid">
+                    <div class="step-card">
+                        <div class="step-num">1</div>
+                        <h3 class="step-title">Submit Request</h3>
+                        <p class="step-desc">Students apply online and attach their Official Receipt for verification.</p>
+                    </div>
+                    <div class="step-card">
+                        <div class="step-num">2</div>
+                        <h3 class="step-title">Verify Payment</h3>
+                        <p class="step-desc">Administrators review receipt details and approve valid transaction records.</p>
+                    </div>
+                    <div class="step-card">
+                        <div class="step-num">3</div>
+                        <h3 class="step-title">Validate Enrollment</h3>
+                        <p class="step-desc">Campus registrars and coordinators match records with enrolled students.</p>
+                    </div>
+                    <div class="step-card">
+                        <div class="step-num">4</div>
+                        <h3 class="step-title">Certificate Release</h3>
+                        <p class="step-desc">Official certificates are generated and ready for immediate secure download.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Portals / Roles Section -->
+        <section id="roles" class="roles-section" aria-labelledby="roles-heading">
+            <div class="container">
+                <div class="section-header">
+                    <h2 id="roles-heading" class="section-title">Role-Based Portals</h2>
+                    <p class="section-desc">Dedicated dashboards tailored to each stakeholder's responsibilities.</p>
+                </div>
+
+                <div class="roles-grid">
+                    <div class="role-card">
+                        <div class="role-header">
+                            <div class="role-icon" aria-hidden="true">
+                                <i class="fa-solid fa-user-graduate"></i>
+                            </div>
+                            <div>
+                                <h3 class="role-name">Students</h3>
+                                <p class="role-desc">Applicants & Scholars</p>
+                            </div>
+                        </div>
+                        <ul class="role-points">
+                            <li><i class="fa-solid fa-check" aria-hidden="true"></i> Request Certificates of No Scholarship</li>
+                            <li><i class="fa-solid fa-check" aria-hidden="true"></i> Upload Official Receipt proofs</li>
+                            <li><i class="fa-solid fa-check" aria-hidden="true"></i> Track review and approval status</li>
+                            <li><i class="fa-solid fa-check" aria-hidden="true"></i> Download verified PDF certificates</li>
                         </ul>
                     </div>
 
-                    <div class="dashboard-preview" aria-label="Live monitoring dashboard preview">
-                        <div class="preview-topbar">
-                            <span class="preview-title">Monitoring Overview</span>
-                            <span class="preview-badge">Live data</span>
+                    <div class="role-card">
+                        <div class="role-header">
+                            <div class="role-icon" aria-hidden="true">
+                                <i class="fa-solid fa-building-columns"></i>
+                            </div>
+                            <div>
+                                <h3 class="role-name">Registrar & Coordinators</h3>
+                                <p class="role-desc">Campus Validation Team</p>
+                            </div>
                         </div>
-                        <div class="preview-grid">
-                            @foreach ($monitoringStats as $stat)
-                                @php($width = max(6, ($stat['value'] / $monitoringMaxValue) * 100))
-                                <div class="preview-stat">
-                                    <span>{{ $stat['label'] }}</span>
-                                    <strong>{{ number_format($stat['value']) }}</strong>
-                                    <div class="preview-progress" aria-hidden="true"><i style="width: {{ $width }}%"></i></div>
-                                </div>
-                            @endforeach
+                        <ul class="role-points">
+                            <li><i class="fa-solid fa-check" aria-hidden="true"></i> Access campus-scoped enrollment records</li>
+                            <li><i class="fa-solid fa-check" aria-hidden="true"></i> Verify unmatched or inconsistent scholars</li>
+                            <li><i class="fa-solid fa-check" aria-hidden="true"></i> Add validation remarks and decisions</li>
+                            <li><i class="fa-solid fa-check" aria-hidden="true"></i> Forward validated batches to chairman</li>
+                        </ul>
+                    </div>
+
+                    <div class="role-card">
+                        <div class="role-header">
+                            <div class="role-icon" aria-hidden="true">
+                                <i class="fa-solid fa-shield-halved"></i>
+                            </div>
+                            <div>
+                                <h3 class="role-name">Admin & Chairman</h3>
+                                <p class="role-desc">Approval & Oversight</p>
+                            </div>
                         </div>
+                        <ul class="role-points">
+                            <li><i class="fa-solid fa-check" aria-hidden="true"></i> Verify official receipt submissions</li>
+                            <li><i class="fa-solid fa-check" aria-hidden="true"></i> Upload and approve agency masterlists</li>
+                            <li><i class="fa-solid fa-check" aria-hidden="true"></i> Review audit trails and system activity</li>
+                            <li><i class="fa-solid fa-check" aria-hidden="true"></i> Generate and export operational reports</li>
+                        </ul>
                     </div>
                 </div>
-            </section>
-
-            <section class="cta-band" aria-labelledby="cta-title">
-                <div class="container cta-inner">
-                    <div>
-                        <p class="section-kicker" style="color: #ffe28a;">Ready for implementation</p>
-                        <h2 id="cta-title">Start with role-based access, then build each module phase by phase.</h2>
-                        <p>Phase tracking can follow the project plan from setup, certificates, verification, masterlists, microservice validation, approvals, monitoring, and reports.</p>
-                    </div>
-                    @if (Route::has('login'))
-                        @auth
-                            <a class="button button-primary" href="{{ url('/dashboard') }}">
-                                <i class="fa-solid fa-gauge-high" aria-hidden="true"></i>
-                                <span>Go to Dashboard</span>
-                            </a>
-                        @else
-                            <a class="button button-primary" href="{{ route('login') }}">
-                                <i class="fa-solid fa-right-to-bracket" aria-hidden="true"></i>
-                                <span>Enter Portal</span>
-                            </a>
-                        @endauth
-                    @endif
-                </div>
-            </section>
-        </main>
-
-        <footer class="site-footer">
-            <div class="container footer-inner">
-                <div>
-                    <strong>SKSUScholarSync</strong>
-                    <span>for Sultan Kudarat State University scholarship operations.</span>
-                </div>
-                <span>Integrated Scholarship Processing, Verification, and Monitoring System</span>
             </div>
-        </footer>
-    </div>
+        </section>
+
+        <!-- Call to Action (Clean White Card) -->
+        <section class="cta-section" aria-labelledby="cta-heading">
+            <div class="container">
+                <div class="cta-box">
+                    <h2 id="cta-heading" class="cta-title">Ready to access your scholarship portal?</h2>
+                    <p class="cta-text">
+                        Sign in with your university credentials or register a new student account to submit your certificate requests.
+                    </p>
+                    <div class="cta-actions">
+                        @if (Route::has('login'))
+                            @auth
+                                <a class="btn btn-primary btn-lg" href="{{ url('/dashboard') }}">
+                                    <i class="fa-solid fa-gauge-high" aria-hidden="true"></i>
+                                    <span>Go to Dashboard</span>
+                                </a>
+                            @else
+                                <a class="btn btn-primary btn-lg" href="{{ route('login') }}">
+                                    <i class="fa-solid fa-right-to-bracket" aria-hidden="true"></i>
+                                    <span>Sign in to Account</span>
+                                </a>
+                                @if (Route::has('register'))
+                                    <a class="btn btn-secondary btn-lg" href="{{ route('register') }}">
+                                        <i class="fa-solid fa-user-plus" aria-hidden="true"></i>
+                                        <span>Create Account</span>
+                                    </a>
+                                @endif
+                            @endauth
+                        @endif
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Clean White Footer -->
+    <footer class="site-footer">
+        <div class="container footer-grid">
+            <div class="footer-brand">
+                <img class="footer-logo" src="{{ asset('images/sksu-seal.png') }}" alt="" width="32" height="32">
+                <div class="footer-copy">
+                    <strong>SKSUScholarSync</strong>
+                    <span>Sultan Kudarat State University &bull; Province of Sultan Kudarat</span>
+                </div>
+            </div>
+            <span>Integrated Scholarship Processing, Verification, and Monitoring System</span>
+        </div>
+    </footer>
 </body>
 </html>

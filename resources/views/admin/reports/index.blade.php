@@ -39,11 +39,11 @@
     <x-slot name="header">
         <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
             <div>
-                <p class="text-sm font-medium text-emerald-700">{{ __('Administrator') }}</p>
-                <h2 class="text-xl font-semibold leading-tight text-gray-900">{{ __('Reports Module') }}</h2>
+                <p class="text-xs font-bold uppercase tracking-wider text-emerald-700">{{ __('Administrator') }}</p>
+                <h2 class="text-xl font-bold leading-tight text-gray-900">{{ __('Reports Module') }}</h2>
             </div>
             <div class="flex items-center gap-2">
-                <span class="inline-flex items-center rounded-md bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-800 ring-1 ring-inset ring-emerald-600/20">
+                <span class="inline-flex items-center rounded-md bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-800 ring-1 ring-inset ring-emerald-600/20">
                     {{ count($types) }} {{ __('Available Reports') }}
                 </span>
             </div>

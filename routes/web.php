@@ -10,12 +10,16 @@ use App\Http\Controllers\Admin\OfficialReceiptVerificationController;
 use App\Http\Controllers\Admin\Reports\ReportController;
 use App\Http\Controllers\Admin\ScholarshipOpportunityController;
 use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Chairman\GranteeReconciliationController;
+use App\Http\Controllers\Chairman\GranteeUploadController;
 use App\Http\Controllers\Chairman\MasterlistApprovalController;
 use App\Http\Controllers\Chairman\MasterlistUploadController;
+use App\Http\Controllers\Coordinator\GranteeCoordinatorController;
 use App\Http\Controllers\Coordinator\MasterlistValidationController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Registrar\EnrolledStudentController;
+use App\Http\Controllers\Registrar\GranteeRegistrarVerificationController;
 use App\Http\Controllers\Registrar\MasterlistVerificationController as RegistrarMasterlistVerificationController;
 use App\Http\Controllers\Student\CertificateRequestController;
 use App\Http\Controllers\Student\ScholarshipDiscoveryController;
@@ -47,7 +51,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->middleware('role:registrar')
         ->name('dashboard.registrar');
 
-    Route::middleware('role:administrator')
+    Route::middleware('role:administrator,scholarship_chairman')
         ->prefix('admin/scholarships')
         ->name('admin.scholarships.')
         ->group(function () {
@@ -149,6 +153,17 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/{batch}/submit-to-chairman', [MasterlistValidationController::class, 'submitToChairman'])->name('submit-to-chairman');
     });
 
+    Route::middleware('role:coordinator')
+        ->prefix('coordinator/grantees')
+        ->name('coordinator.grantees.')
+        ->group(function () {
+            Route::get('/', [GranteeCoordinatorController::class, 'index'])->name('index');
+            Route::get('/{batch}', [GranteeCoordinatorController::class, 'show'])->name('show');
+            Route::get('/{batch}/export', [GranteeCoordinatorController::class, 'export'])->name('export');
+            Route::post('/{batch}/forward-to-registrar', [GranteeCoordinatorController::class, 'forwardToRegistrar'])->name('forward-to-registrar');
+            Route::post('/{batch}/endorse', [GranteeCoordinatorController::class, 'endorse'])->name('endorse');
+        });
+
     Route::middleware('role:scholarship_chairman')
         ->prefix('chairman/uploads')
         ->name('chairman.uploads.')
@@ -169,12 +184,42 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::post('/{masterlist}/release', [MasterlistApprovalController::class, 'release'])->name('release');
             Route::get('/{masterlist}/export', [MasterlistApprovalController::class, 'export'])->name('export');
         });
+
+    Route::middleware('role:scholarship_chairman')
+        ->prefix('chairman/grantees')
+        ->name('chairman.grantees.')
+        ->group(function () {
+            Route::get('/', [GranteeReconciliationController::class, 'index'])->name('index');
+            Route::get('/upload', [GranteeUploadController::class, 'create'])->name('upload');
+            Route::post('/upload/parse', [GranteeUploadController::class, 'parse'])->name('upload.parse');
+            Route::post('/upload', [GranteeUploadController::class, 'store'])->name('upload.store');
+            Route::get('/students/search', [GranteeReconciliationController::class, 'searchStudents'])->name('students.search');
+            Route::get('/{batch}', [GranteeReconciliationController::class, 'show'])->name('show');
+            Route::get('/{batch}/export', [GranteeReconciliationController::class, 'export'])->name('export');
+            Route::post('/{batch}/verify', [GranteeReconciliationController::class, 'verify'])->name('verify');
+            Route::patch('/{batch}/records/{record}/resolve', [GranteeReconciliationController::class, 'resolve'])->name('records.resolve');
+            Route::patch('/{batch}/records/{record}/assign-campus', [GranteeReconciliationController::class, 'assignCampus'])->name('records.assign-campus');
+            Route::post('/{batch}/assign-fallback-campus', [GranteeReconciliationController::class, 'assignFallbackCampus'])->name('assign-fallback-campus');
+            Route::post('/{batch}/deliver-to-coordinator', [GranteeReconciliationController::class, 'deliverToCoordinator'])->name('deliver-to-coordinator');
+            Route::post('/{batch}/commit', [GranteeReconciliationController::class, 'commit'])->name('commit');
+        });
+
+    Route::middleware('role:scholarship_chairman,administrator')
+        ->prefix('chairman/scholars')
+        ->name('chairman.scholars.')
+        ->group(function () {
+            Route::get('/', [\App\Http\Controllers\Chairman\ScholarDirectoryController::class, 'index'])->name('index');
+        });
+
     Route::middleware('role:registrar')
         ->prefix('registrar/enrolled-students')
         ->name('registrar.enrolled-students.')
         ->group(function () {
             Route::get('/', [EnrolledStudentController::class, 'index'])->name('index');
+            Route::get('/template', [EnrolledStudentController::class, 'downloadTemplate'])->name('template');
             Route::post('/import', [EnrolledStudentController::class, 'import'])->name('import');
+            Route::delete('/clear', [EnrolledStudentController::class, 'clearCampusRecords'])->name('clear');
+            Route::delete('/{student}', [EnrolledStudentController::class, 'destroy'])->name('destroy');
         });
     Route::middleware('role:registrar')->prefix('registrar/masterlist-batches')->name('registrar.batches.')->group(function () {
         Route::get('/', [RegistrarMasterlistVerificationController::class, 'index'])->name('index');
@@ -184,6 +229,18 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::patch('/{batch}/records/{record}', [RegistrarMasterlistVerificationController::class, 'update'])->name('records.update');
         Route::post('/{batch}/return', [RegistrarMasterlistVerificationController::class, 'return'])->name('return');
     });
+
+    Route::middleware('role:registrar')
+        ->prefix('registrar/grantees')
+        ->name('registrar.grantees.')
+        ->group(function () {
+            Route::get('/', [GranteeRegistrarVerificationController::class, 'index'])->name('index');
+            Route::get('/{batch}', [GranteeRegistrarVerificationController::class, 'show'])->name('show');
+            Route::get('/{batch}/export', [GranteeRegistrarVerificationController::class, 'export'])->name('export');
+            Route::post('/{batch}/verify-batch', [GranteeRegistrarVerificationController::class, 'verifyBatch'])->name('verify-batch');
+            Route::patch('/{batch}/records/{record}', [GranteeRegistrarVerificationController::class, 'updateRecord'])->name('records.update');
+            Route::post('/{batch}/return-to-coordinator', [GranteeRegistrarVerificationController::class, 'returnToCoordinator'])->name('return-to-coordinator');
+        });
 });
 
 Route::middleware('auth')->group(function () {

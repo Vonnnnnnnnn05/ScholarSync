@@ -1,7 +1,22 @@
 <x-app-layout>
-<div class="space-y-6 p-6">
-    <div><p class="text-sm font-semibold text-purple-700">{{ $batch->campus->name }}</p><h1 class="text-2xl font-bold">Automatic Verification Review</h1><p class="text-sm text-gray-600">{{ Str::headline($batch->status) }}</p></div>
-    <x-status-alerts/>
+    <x-slot name="header">
+        <div class="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+                <p class="text-xs font-bold uppercase tracking-wider text-emerald-700">{{ $batch->campus->name }} · {{ __('Campus Registrar') }}</p>
+                <h2 class="text-xl font-bold leading-tight text-gray-900">
+                    {{ $batch->masterlist->program_name }}
+                </h2>
+                <p class="text-xs font-mono text-gray-500">{{ $batch->masterlist->file_name }} <span class="font-sans font-normal text-gray-500">· {{ Str::headline($batch->status) }}</span></p>
+            </div>
+            <a href="{{ route('registrar.batches.index') }}" class="inline-flex min-h-10 items-center justify-center rounded-md border border-gray-300 bg-white px-3.5 py-2 text-sm font-semibold text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-emerald-700">
+                {{ __('Back to Queue') }}
+            </a>
+        </div>
+    </x-slot>
+
+    <div class="py-10">
+        <div class="mx-auto max-w-7xl space-y-6 px-4 sm:px-6 lg:px-8">
+            <x-status-alerts/>
     @if($errors->has('return'))<p class="rounded bg-red-50 p-3 text-red-900">{{ $errors->first('return') }}</p>@endif
     @if($errors->has('reverify'))<p class="rounded bg-red-50 p-3 text-red-900">{{ $errors->first('reverify') }}</p>@endif
     <section class="rounded-lg border border-emerald-200 bg-emerald-50 p-5">
@@ -120,5 +135,6 @@
     </div>
     {{ $records->links() }}
     @if($batch->status === 'awaiting_registrar_review')<form method="POST" action="{{ route('registrar.batches.return', $batch) }}">@csrf<x-confirm-submit message="Return completed verification results?">Return to Coordinator</x-confirm-submit></form>@endif
+    </div>
 </div>
 </x-app-layout>

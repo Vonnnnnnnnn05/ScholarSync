@@ -2,12 +2,13 @@
     <x-slot name="header">
         <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
             <div>
-                <p class="text-sm font-medium text-emerald-700">{{ __('Scholarship Chairman') }}</p>
-                <h2 class="text-xl font-semibold leading-tight text-gray-900">
-                    {{ $masterlist->file_name }}
+                <p class="text-xs font-bold uppercase tracking-wider text-emerald-700">{{ __('Scholarship Chairman') }}</p>
+                <h2 class="text-xl font-bold leading-tight text-gray-900">
+                    {{ $masterlist->program_name }}
                 </h2>
+                <p class="text-xs font-mono text-gray-500">{{ $masterlist->file_name }}</p>
             </div>
-            <a href="{{ route('chairman.uploads.index') }}" class="inline-flex min-h-11 items-center justify-center rounded-md border border-emerald-700/20 bg-white px-4 py-2 text-sm font-semibold text-emerald-800 shadow-sm transition hover:bg-emerald-50 focus:outline-none focus:ring-2 focus:ring-emerald-700 focus:ring-offset-2">
+            <a href="{{ route('chairman.uploads.index') }}" class="inline-flex min-h-10 items-center justify-center rounded-md border border-gray-300 bg-white px-3.5 py-2 text-sm font-semibold text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-emerald-700">
                 {{ __('Back to Masterlists') }}
             </a>
         </div>
@@ -67,7 +68,12 @@
                                     };
                                 @endphp
                                 <tr>
-                                    <td class="px-6 py-4 text-sm font-semibold text-gray-950">{{ $record->student_name ?: __('Missing') }}</td>
+                                    <td class="px-6 py-4 text-sm">
+                                        <div class="font-semibold text-gray-950">{{ $record->student_name ?: __('Missing') }}</div>
+                                        @if($record->student_id_number)
+                                            <div class="text-xs font-mono text-gray-500">{{ $record->student_id_number }}</div>
+                                        @endif
+                                    </td>
                                     <td class="px-6 py-4 text-sm text-gray-800">{{ $record->campus?->name ?: __('Needs manual assignment') }}</td>
                                     <td class="whitespace-nowrap px-6 py-4 text-sm">
                                         <span class="inline-flex rounded-md px-2.5 py-1 text-xs font-semibold {{ $statusClass }}">

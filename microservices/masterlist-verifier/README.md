@@ -1,40 +1,25 @@
-# ScholarSync Masterlist Verifier
+# ScholarSync Masterlist Verifier (v4.0.0)
 
-Python FastAPI microservice for comparing uploaded scholar names with Registrar enrollment records.
+Python FastAPI microservice for parsing external agency grantee masterlists (PDF, XLSX, CSV) and performing 3-tier student verification against SIS (Registrar) enrollment records.
 
 ## Run
 
 ```bash
 cd microservices/masterlist-verifier
-python -m venv .venv
-.venv\Scripts\activate
-pip install -r requirements.txt
-uvicorn main:app --reload --host 127.0.0.1 --port 8001
+python -m uvicorn main:app --reload --host 127.0.0.1 --port 8001
 ```
 
 ## Endpoints
 
-- `GET /health-check`
-- `POST /verify-masterlist`
+### 1. Health Check
+- `GET /health-check`: Returns service status and version (`4.0.0`).
 
-Laravel expects the service at `http://127.0.0.1:8001` unless `MASTERLIST_VERIFIER_URL` is changed. A request accepts at most 500 records from one campus.
+### 2. Grantee Ingestion Pipeline (Phase 2 - v4.0.0)
+- `POST /parse-file`: Accepts multipart file upload (`.pdf`, `.xlsx`, `.csv`). Extracts tabular data across multi-page tables (using `tabula-py` and `pypdf` fallback), detects and normalizes agency column headers (via `header_mapper`), splits Filipino full names (handling compound surnames like *Dela Cruz*, *San Jose*), and returns standardized JSON preview rows.
+- `POST /verify-grantees`: Accepts staged rows, SIS students, and active grantee IDs. Executes 3-Tier matching:
+  - **Tier 1 (Exact Student ID Match)**: Resolves SIS match. Checks for duplicate scholarship policy conflicts (`DOUBLE_GRANT`).
+  - **Tier 2 (Fuzzy Name Match)**: Uses `SequenceMatcher` with threshold $\ge 0.85$ to detect same-name students across campuses, highlighting multi-matches and low-confidence candidates for Chairman resolution.
+  - **Tier 3 (Red Unmatched)**: Categorizes records with no matching student.
 
-## Verification contract
-
-`POST /verify-masterlist` accepts uploaded names and Registrar records:
-
-```json
-{
-  "records": [{"row_id": 1, "student_id_number": "2024-001", "student_name": "Ana Cruz", "campus_id": 2}],
-  "registrar_students": [{
-    "id": 10,
-    "student_id_number": "2024-001",
-    "student_name": "Cruz, Ana",
-    "campus_id": 2,
-    "enrollment_status": "enrolled",
-    "cor_printed": false
-  }]
-}
-```
-
-Every record returns separate `enrollment_status`, `cor_status`, and `qualification_status` values plus its match status and reason. Exact student ID is preferred, followed by a unique normalized name within the submitted campus. Missing, ambiguous, and cross-campus candidates are always `needs_review`; they are never automatically classified as not enrolled. Phase 2 qualification means only enrolled with a printed COR.
+### 3. Legacy Verification (v3.0.0 Compatibility)
+- `POST /verify-masterlist`: Preserved for existing campus-scoped CSV masterlist workflows.

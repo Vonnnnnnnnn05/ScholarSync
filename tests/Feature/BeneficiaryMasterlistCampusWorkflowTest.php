@@ -206,3 +206,41 @@ test('chairman monitors in progress campus masterlists system wide', function ()
         ->assertSee($fixture['campus']->name)
         ->assertSee('With Coordinator');
 });
+
+test('upload detects scholarship program from csv columns or falls back to filename headline', function () {
+    Storage::fake('local');
+    Campus::factory()->create(['code' => 'isulan', 'name' => 'Isulan Campus']);
+
+    // Case 1: CSV with scholarship_program column
+    Storage::disk('local')->put(
+        'masterlists/tmp/ched_tdp.csv',
+        "student_name,campus,scholarship_program\nMaria Santos,Isulan Campus,CHED Tulong Dunong Program\n"
+    );
+
+    $masterlistWithProgram = app(MasterlistCsvService::class)->import('masterlists/tmp/ched_tdp.csv', 'ched_tdp.csv');
+    expect($masterlistWithProgram->scholarship_program)->toBe('CHED Tulong Dunong Program')
+        ->and($masterlistWithProgram->program_name)->toBe('CHED Tulong Dunong Program')
+        ->and($masterlistWithProgram->records()->first()->scholarship_program)->toBe('CHED Tulong Dunong Program');
+
+    // Case 2: CSV with program alias column
+    Storage::disk('local')->put(
+        'masterlists/tmp/ched_cmsp.csv',
+        "student_name,campus,program\nJuan Reyes,Isulan Campus,CHED Merit Scholarship Program\n"
+    );
+
+    $masterlistWithAlias = app(MasterlistCsvService::class)->import('masterlists/tmp/ched_cmsp.csv', 'ched_cmsp.csv');
+    expect($masterlistWithAlias->scholarship_program)->toBe('CHED Merit Scholarship Program')
+        ->and($masterlistWithAlias->program_name)->toBe('CHED Merit Scholarship Program')
+        ->and($masterlistWithAlias->records()->first()->scholarship_program)->toBe('CHED Merit Scholarship Program');
+
+    // Case 3: CSV without program column falls back to formatted filename
+    Storage::disk('local')->put(
+        'masterlists/tmp/provincial_ordinance_grant.csv',
+        "student_name,campus\nPedro Gomez,Isulan Campus\n"
+    );
+
+    $masterlistFallback = app(MasterlistCsvService::class)->import('masterlists/tmp/provincial_ordinance_grant.csv', 'provincial_ordinance_grant.csv');
+    expect($masterlistFallback->scholarship_program)->toBe('Provincial Ordinance Grant')
+        ->and($masterlistFallback->program_name)->toBe('Provincial Ordinance Grant')
+        ->and($masterlistFallback->records()->first()->scholarship_program)->toBe('Provincial Ordinance Grant');
+});

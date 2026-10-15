@@ -2,10 +2,10 @@
     <x-slot name="header">
         <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
             <div>
-                <p class="text-sm font-medium text-emerald-700">{{ __('Central Monitoring') }}</p>
-                <h2 class="text-xl font-semibold leading-tight text-gray-900">{{ __('Scholar Records Monitoring') }}</h2>
+                <p class="text-xs font-bold uppercase tracking-wider text-emerald-700">{{ __('Central Monitoring') }}</p>
+                <h2 class="text-xl font-bold leading-tight text-gray-900">{{ __('Scholar Records Monitoring') }}</h2>
             </div>
-            <a href="{{ route('admin.monitoring.dashboard') }}" class="inline-flex min-h-11 items-center justify-center rounded-md border border-emerald-700/20 bg-white px-4 py-2 text-sm font-semibold text-emerald-800 shadow-sm hover:bg-emerald-50">{{ __('Dashboard') }}</a>
+            <a href="{{ route('admin.monitoring.dashboard') }}" class="inline-flex min-h-10 items-center justify-center rounded-md border border-gray-300 bg-white px-3.5 py-2 text-sm font-semibold text-gray-700 shadow-sm hover:bg-gray-50">{{ __('Dashboard') }}</a>
         </div>
     </x-slot>
 
@@ -22,7 +22,7 @@
                     <table class="min-w-full divide-y divide-gray-200">
                         <thead class="bg-gray-50"><tr>
                             <th class="px-6 py-3 text-left text-xs font-semibold uppercase text-gray-600">{{ __('Scholar') }}</th>
-                            <th class="px-6 py-3 text-left text-xs font-semibold uppercase text-gray-600">{{ __('Source File') }}</th>
+                            <th class="px-6 py-3 text-left text-xs font-semibold uppercase text-gray-600">{{ __('Scholarship Program / File') }}</th>
                             <th class="px-6 py-3 text-left text-xs font-semibold uppercase text-gray-600">{{ __('Campus') }}</th>
                             <th class="px-6 py-3 text-left text-xs font-semibold uppercase text-gray-600">{{ __('Status') }}</th>
                         </tr></thead>
@@ -30,7 +30,10 @@
                             @forelse ($records as $record)
                                 <tr>
                                     <td class="px-6 py-4 text-sm"><div class="font-semibold text-gray-950">{{ $record->student_name ?: __('Missing') }}</div><div class="text-xs text-gray-500">{{ $record->student_id_number ?: __('No student ID') }}</div></td>
-                                    <td class="px-6 py-4 text-sm text-gray-700">{{ $record->masterlist?->file_name ?: __('Unknown file') }}</td>
+                                    <td class="px-6 py-4 text-sm text-gray-700">
+                                        <div class="font-semibold text-gray-900">{{ $record->scholarship_program ?: ($record->masterlist?->program_name ?: __('Unknown program')) }}</div>
+                                        <div class="text-xs text-gray-500 font-mono">{{ $record->masterlist?->file_name }}</div>
+                                    </td>
                                     <td class="px-6 py-4 text-sm text-gray-700">{{ $record->campus?->name ?: __('Unknown campus') }}</td>
                                     <td class="px-6 py-4 text-sm"><span class="inline-flex rounded-md bg-gray-100 px-2.5 py-1 text-xs font-semibold text-gray-900">{{ Str::headline($record->chairman_status) }}</span></td>
                                 </tr>

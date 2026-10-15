@@ -1,8 +1,10 @@
 <x-app-layout>
     <x-slot name="header">
-        <div>
-            <p class="text-sm font-medium text-emerald-700">{{ __('Administrator') }}</p>
-            <h2 class="text-xl font-semibold leading-tight text-gray-900">{{ __('Central Monitoring Dashboard') }}</h2>
+        <div class="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+                <p class="text-xs font-bold uppercase tracking-wider text-emerald-700">{{ __('Administrator') }}</p>
+                <h2 class="text-xl font-bold leading-tight text-gray-900">{{ __('Central Monitoring Dashboard') }}</h2>
+            </div>
         </div>
     </x-slot>
 
@@ -47,8 +49,9 @@
                     <div class="divide-y divide-gray-200">
                         @forelse ($recentMasterlists as $masterlist)
                             <div class="px-6 py-4 text-sm">
-                                <div class="font-semibold text-gray-950">{{ $masterlist->file_name }}</div>
-                                <div class="text-gray-600">{{ Str::headline($masterlist->status) }}</div>
+                                <div class="font-semibold text-gray-950">{{ $masterlist->program_name }}</div>
+                                <div class="text-xs font-mono text-gray-500">{{ $masterlist->file_name }}</div>
+                                <div class="mt-1 text-gray-600">{{ Str::headline($masterlist->status) }}</div>
                             </div>
                         @empty
                             <div class="px-6 py-8 text-sm text-gray-600">{{ __('No masterlists yet.') }}</div>

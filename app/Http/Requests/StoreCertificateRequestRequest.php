@@ -35,6 +35,19 @@ class StoreCertificateRequestRequest extends FormRequest
         ];
     }
 
+    public function withValidator($validator): void
+    {
+        $validator->after(function ($validator) {
+            $student = $this->user()?->student;
+            if ($student?->is_scholarship_grantee) {
+                $validator->errors()->add(
+                    'grantee_restriction',
+                    'You are currently recorded as an active scholarship grantee and are not eligible to request a Certificate of Non-Grantee.'
+                );
+            }
+        });
+    }
+
     /**
      * @return array<string, mixed>
      */

@@ -33,7 +33,31 @@
             >
                 @csrf
 
-                <section class="rounded-lg bg-white p-6 shadow-sm ring-1 ring-gray-200">
+                @if(!empty($isGrantee))
+                    <div class="rounded-lg border-l-4 border-amber-500 bg-amber-50 p-5 shadow-sm">
+                        <div class="flex items-start">
+                            <div class="flex-shrink-0 text-amber-600">
+                                <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                </svg>
+                            </div>
+                            <div class="ml-3">
+                                <h3 class="text-sm font-semibold text-amber-800">{{ __('Active Scholarship Grantee Notice') }}</h3>
+                                <p class="mt-1 text-sm text-amber-700">
+                                    {{ __('Our records indicate that you are currently an active scholarship grantee. According to OSAS policy, students currently enjoying a scholarship grant are not eligible to request a Certificate of Non-Grantee.') }}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                @endif
+
+                @if($errors->has('grantee_restriction'))
+                    <div class="rounded-lg border-l-4 border-red-500 bg-red-50 p-4 shadow-sm">
+                        <p class="text-sm font-medium text-red-800">{{ $errors->first('grantee_restriction') }}</p>
+                    </div>
+                @endif
+
+                <fieldset @if(!empty($isGrantee)) disabled class="opacity-75" @endif class="space-y-6">
                     <h3 class="text-base font-semibold text-gray-950">{{ __('Student Details') }}</h3>
                     <div class="mt-5 grid gap-4 sm:grid-cols-2">
                         <div>
@@ -139,11 +163,18 @@
                         <x-input-error :messages="$errors->get('official_receipt')" class="mt-2" />
                     </div>
                 </section>
+                </fieldset>
 
                 <div class="flex justify-end">
-                    <x-primary-button>
-                        {{ __('Submit Request') }}
-                    </x-primary-button>
+                    @if(!empty($isGrantee))
+                        <button type="button" disabled class="cursor-not-allowed rounded-md bg-gray-400 px-4 py-2 text-sm font-semibold text-white opacity-60">
+                            {{ __('Submission Disabled (Active Grantee)') }}
+                        </button>
+                    @else
+                        <x-primary-button>
+                            {{ __('Submit Request') }}
+                        </x-primary-button>
+                    @endif
                 </div>
             </form>
         </div>

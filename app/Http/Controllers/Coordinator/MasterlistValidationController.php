@@ -49,10 +49,19 @@ class MasterlistValidationController extends Controller
 
     public function index(Request $request): View
     {
+        $campusId = $request->user()->campus_id;
+
+        $granteeBatches = \App\Models\GranteeUploadBatch::query()
+            ->with(['campus', 'uploader', 'deliveredToCoordinatorBy', 'coordinatorEndorsedBy'])
+            ->where('campus_id', $campusId)
+            ->latest('id')
+            ->get();
+
         return view('coordinator.masterlists.index', [
+            'granteeBatches' => $granteeBatches,
             'batches' => MasterlistCampusBatch::query()
                 ->with(['masterlist', 'campus'])
-                ->where('campus_id', $request->user()->campus_id)
+                ->where('campus_id', $campusId)
                 ->latest()
                 ->paginate(10),
         ]);

@@ -36,8 +36,8 @@ return [
     ],
 
     'masterlist_verifier' => [
-        'url' => env('MASTERLIST_VERIFIER_URL'),
-        'timeout' => env('MASTERLIST_VERIFIER_TIMEOUT', 10),
+        'url' => env('MASTERLIST_VERIFIER_URL', 'http://127.0.0.1:8001'),
+        'timeout' => (int) env('MASTERLIST_VERIFIER_TIMEOUT', 30),
         'chunk_size' => min(500, max(1, (int) env('MASTERLIST_VERIFIER_CHUNK_SIZE', 500))),
     ],
 

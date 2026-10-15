@@ -10,7 +10,7 @@ use App\Models\User;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 
-test('certificate template follows the temporary sample and names the requesting student', function () {
+test('certificate template follows the official non-grantee certificate format and names the requesting student', function () {
     $student = Student::factory()->create([
         'first_name' => 'Juan',
         'middle_name' => 'Santos',
@@ -34,12 +34,15 @@ test('certificate template follows the temporary sample and names the requesting
 
     expect($html)
         ->toContain('SULTAN KUDARAT STATE UNIVERSITY')
-        ->toContain('TO WHOM IT MAY CONCERN:')
+        ->toContain('Office of the Student Affairs and Services')
+        ->toContain('C E R T I F I C A T I O N')
         ->toContain('JUAN SANTOS DELA CRUZ')
-        ->toContain('First Semester, Academic Year 2026-2027')
-        ->toContain('Certificate No.: CERT-2026-000001')
-        ->toContain('Date Issued: August 14, 2026')
-        ->not->toContain('This sample layout may be replaced');
+        ->toContain('non-grantee of any government scholarships')
+        ->toContain('Certificate No.:')
+        ->toContain('CERT-2026-000001')
+        ->toContain('Date Issued:')
+        ->toContain('August 14, 2026')
+        ->toContain('ADONIS S. BESA, PhD');
 });
 
 function verifiedCertificateRequest(): CertificateRequest

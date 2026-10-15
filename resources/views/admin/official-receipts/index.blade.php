@@ -1,9 +1,9 @@
 <x-app-layout>
     <x-slot name="header">
-        <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+        <div class="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
             <div>
-                <p class="text-sm font-medium text-emerald-700">{{ __('Administrator') }}</p>
-                <h2 class="text-xl font-semibold leading-tight text-gray-900">
+                <p class="text-xs font-bold uppercase tracking-wider text-emerald-700">{{ __('Administrator') }}</p>
+                <h2 class="text-xl font-bold leading-tight text-gray-900">
                     {{ __('Official Receipt Verification') }}
                 </h2>
             </div>

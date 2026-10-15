@@ -121,6 +121,7 @@ class ReportBuilderService
             ->get()
             ->map(fn (ScholarshipMasterlist $masterlist): array => [
                 $masterlist->id,
+                $masterlist->program_name,
                 $masterlist->file_name,
                 str($masterlist->status)->headline(),
                 $masterlist->total_records,
@@ -132,7 +133,7 @@ class ReportBuilderService
                 $masterlist->unqualified_count,
             ]);
 
-        return $this->report('Scholarship Masterlist Report', ['ID', 'File', 'Status', 'Total', 'Enrolled', 'Unenrolled', 'Duplicate', 'Invalid', 'Qualified', 'Unqualified'], $rows);
+        return $this->report('Scholarship Masterlist Report', ['ID', 'Scholarship Program', 'File', 'Status', 'Total', 'Enrolled', 'Unenrolled', 'Duplicate', 'Invalid', 'Qualified', 'Unqualified'], $rows);
     }
 
     private function scholarshipAgencies(array $filters): array

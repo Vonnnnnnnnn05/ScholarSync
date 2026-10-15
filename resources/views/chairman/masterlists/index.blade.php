@@ -1,10 +1,12 @@
 <x-app-layout>
     <x-slot name="header">
-        <div>
-            <p class="text-sm font-medium text-emerald-700">{{ __('Scholarship Chairman') }}</p>
-            <h2 class="text-xl font-semibold leading-tight text-gray-900">
-                {{ __('Seven-Campus Masterlist Progress') }}
-            </h2>
+        <div class="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+                <p class="text-xs font-bold uppercase tracking-wider text-emerald-700">{{ __('Scholarship Chairman') }}</p>
+                <h2 class="text-xl font-bold leading-tight text-gray-900">
+                    {{ __('Seven-Campus Masterlist Progress') }}
+                </h2>
+            </div>
         </div>
     </x-slot>
 
@@ -21,7 +23,7 @@
                     <table class="min-w-full divide-y divide-gray-200">
                         <thead class="bg-gray-50">
                             <tr>
-                                <th class="px-6 py-3 text-left text-xs font-semibold uppercase text-gray-600">{{ __('File') }}</th>
+                                <th class="px-6 py-3 text-left text-xs font-semibold uppercase text-gray-600">{{ __('Scholarship Program / File') }}</th>
                                 <th class="px-6 py-3 text-left text-xs font-semibold uppercase text-gray-600">{{ __('Beneficiaries') }}</th>
                                 <th class="px-6 py-3 text-left text-xs font-semibold uppercase text-gray-600">{{ __('Campus Progress') }}</th>
                                 <th class="px-6 py-3 text-left text-xs font-semibold uppercase text-gray-600">{{ __('Status') }}</th>
@@ -31,7 +33,10 @@
                         <tbody class="divide-y divide-gray-200 bg-white">
                             @forelse ($masterlists as $masterlist)
                                 <tr>
-                                    <td class="px-6 py-4 text-sm text-gray-800">{{ $masterlist->file_name }}</td>
+                                    <td class="px-6 py-4">
+                                        <div class="text-sm font-semibold text-gray-950">{{ $masterlist->program_name }}</div>
+                                        <div class="text-xs font-mono text-gray-500">{{ $masterlist->file_name }}</div>
+                                    </td>
                                     <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-700">
                                         {{ $masterlist->records_count }}
                                     </td>

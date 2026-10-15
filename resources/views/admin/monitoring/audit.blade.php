@@ -2,10 +2,10 @@
     <x-slot name="header">
         <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
             <div>
-                <p class="text-sm font-medium text-emerald-700">{{ __('Central Monitoring') }}</p>
-                <h2 class="text-xl font-semibold leading-tight text-gray-900">{{ __('Audit Trail') }}</h2>
+                <p class="text-xs font-bold uppercase tracking-wider text-emerald-700">{{ __('Central Monitoring') }}</p>
+                <h2 class="text-xl font-bold leading-tight text-gray-900">{{ __('Audit Trail') }}</h2>
             </div>
-            <a href="{{ route('admin.monitoring.dashboard') }}" class="inline-flex min-h-11 items-center justify-center rounded-md border border-emerald-700/20 bg-white px-4 py-2 text-sm font-semibold text-emerald-800 shadow-sm hover:bg-emerald-50">{{ __('Dashboard') }}</a>
+            <a href="{{ route('admin.monitoring.dashboard') }}" class="inline-flex min-h-10 items-center justify-center rounded-md border border-gray-300 bg-white px-3.5 py-2 text-sm font-semibold text-gray-700 shadow-sm hover:bg-gray-50">{{ __('Dashboard') }}</a>
         </div>
     </x-slot>
 

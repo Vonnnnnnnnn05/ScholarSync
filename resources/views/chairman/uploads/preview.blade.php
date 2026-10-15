@@ -2,12 +2,12 @@
     <x-slot name="header">
         <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
             <div>
-                <p class="text-sm font-medium text-emerald-700">{{ __('Scholarship Chairman') }}</p>
-                <h2 class="text-xl font-semibold leading-tight text-gray-900">
+                <p class="text-xs font-bold uppercase tracking-wider text-emerald-700">{{ __('Scholarship Chairman') }}</p>
+                <h2 class="text-xl font-bold leading-tight text-gray-900">
                     {{ __('Preview Masterlist') }}
                 </h2>
             </div>
-            <a href="{{ route('chairman.uploads.create') }}" class="inline-flex min-h-11 items-center justify-center rounded-md border border-emerald-700/20 bg-white px-4 py-2 text-sm font-semibold text-emerald-800 shadow-sm transition hover:bg-emerald-50 focus:outline-none focus:ring-2 focus:ring-emerald-700 focus:ring-offset-2">
+            <a href="{{ route('chairman.uploads.create') }}" class="inline-flex min-h-10 items-center justify-center rounded-md border border-gray-300 bg-white px-3.5 py-2 text-sm font-semibold text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-emerald-700">
                 {{ __('Choose Another File') }}
             </a>
         </div>
@@ -15,10 +15,23 @@
 
     <div class="py-10">
         <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <div class="mb-6">
+            <div class="mb-6 grid gap-4 sm:grid-cols-2">
                 <div class="rounded-lg bg-white p-5 shadow-sm ring-1 ring-gray-200">
                     <p class="text-sm font-medium text-gray-600">{{ __('Total Records') }}</p>
                     <p class="mt-2 text-2xl font-semibold text-gray-950">{{ $preview['total_records'] }}</p>
+                </div>
+                <div class="rounded-lg bg-white p-5 shadow-sm ring-1 ring-gray-200">
+                    <p class="text-sm font-medium text-gray-600">{{ __('Detected Scholarship Program') }}</p>
+                    <p class="mt-2 text-xl font-semibold text-emerald-800">
+                        {{ $preview['detected_program'] ?: str(pathinfo(session('masterlist_preview.original_file_name', 'Masterlist'), PATHINFO_FILENAME))->headline()->toString() }}
+                    </p>
+                    <p class="mt-1 text-xs text-gray-500">
+                        @if($preview['detected_program'])
+                            {{ __('Extracted directly from CSV program column') }}
+                        @else
+                            {{ __('Auto-derived from file name (column omitted)') }}
+                        @endif
+                    </p>
                 </div>
             </div>
 
@@ -36,6 +49,7 @@
                                 <th class="px-6 py-3 text-left text-xs font-semibold uppercase text-gray-600">{{ __('Row') }}</th>
                                 <th class="px-6 py-3 text-left text-xs font-semibold uppercase text-gray-600">{{ __('Student Name') }}</th>
                                 <th class="px-6 py-3 text-left text-xs font-semibold uppercase text-gray-600">{{ __('Campus') }}</th>
+                                <th class="px-6 py-3 text-left text-xs font-semibold uppercase text-gray-600">{{ __('Program') }}</th>
                                 <th class="px-6 py-3 text-left text-xs font-semibold uppercase text-gray-600">{{ __('Review') }}</th>
                             </tr>
                         </thead>
@@ -43,8 +57,18 @@
                             @forelse ($preview['rows'] as $row)
                                 <tr class="{{ $row['is_invalid'] ? 'bg-red-50' : '' }}">
                                     <td class="whitespace-nowrap px-6 py-4 text-sm font-semibold text-gray-950">{{ $row['row_number'] }}</td>
-                                    <td class="px-6 py-4 text-sm text-gray-800">{{ $row['student_name'] ?: __('Missing') }}</td>
+                                    <td class="px-6 py-4 text-sm text-gray-800">
+                                        <div class="font-semibold">{{ $row['student_name'] ?: __('Missing') }}</div>
+                                        @if(!empty($row['student_id_number']))
+                                            <div class="text-xs text-gray-500">{{ $row['student_id_number'] }}</div>
+                                        @endif
+                                    </td>
                                     <td class="px-6 py-4 text-sm text-gray-800">{{ $row['campus'] ?: __('Missing') }}</td>
+                                    <td class="px-6 py-4 text-sm text-gray-700">
+                                        <span class="inline-flex items-center rounded-md bg-emerald-50 px-2 py-1 text-xs font-medium text-emerald-800 ring-1 ring-emerald-600/20">
+                                            {{ $row['scholarship_program'] ?: ($preview['detected_program'] ?: str(pathinfo(session('masterlist_preview.original_file_name', 'Masterlist'), PATHINFO_FILENAME))->headline()->toString()) }}
+                                        </span>
+                                    </td>
                                     <td class="max-w-sm px-6 py-4 text-sm text-gray-700">
                                         @if ($row['errors'] === [])
                                             <span class="inline-flex rounded-md bg-emerald-100 px-2.5 py-1 text-xs font-semibold text-emerald-900">{{ __('Ready') }}</span>
@@ -55,7 +79,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="4" class="px-6 py-12 text-center text-sm text-gray-600">
+                                    <td colspan="5" class="px-6 py-12 text-center text-sm text-gray-600">
                                         {{ __('No records found in the CSV file.') }}
                                     </td>
                                 </tr>

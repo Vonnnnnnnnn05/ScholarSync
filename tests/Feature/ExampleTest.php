@@ -1,40 +1,16 @@
 <?php
 
-use App\Enums\CertificateRequestStatus;
-use App\Models\CertificateRequest;
-use App\Models\MasterlistRecord;
-use App\Models\ScholarshipMasterlist;
-use App\Models\Student;
-
 it('returns a successful response', function () {
     $response = $this->get('/');
 
     $response->assertStatus(200);
 });
 
-it('shows exact live monitoring details on the welcome page', function () {
-    $students = Student::factory()->count(2)->create();
-    $masterlist = ScholarshipMasterlist::factory()->create();
-
-    CertificateRequest::factory()->for($students->first())->create([
-        'status' => CertificateRequestStatus::Pending,
-    ]);
-    CertificateRequest::factory()->for($students->first())->create([
-        'status' => CertificateRequestStatus::Verified,
-        'verified_at' => now(),
-    ]);
-    MasterlistRecord::factory()->for($masterlist, 'masterlist')->create([
-        'chairman_status' => 'approved',
-    ]);
-
+it('renders the welcome landing page with services and portal actions', function () {
     $this->get('/')
         ->assertOk()
-        ->assertSee('Live data')
-        ->assertSee('Total scholars')
-        ->assertSee('Pending certificate requests')
-        ->assertSee('Verified official receipts')
-        ->assertSee('Uploaded masterlists')
-        ->assertSee('Approved scholar records')
-        ->assertSee('2')
-        ->assertSee('1');
+        ->assertSee('SKSUScholarSync')
+        ->assertSee('Services')
+        ->assertSee('Workflow')
+        ->assertSee('Portals');
 });
