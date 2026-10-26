@@ -2,13 +2,13 @@
     <x-slot name="header">
         <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
             <div>
-                <p class="text-xs font-bold uppercase tracking-wider text-emerald-700">{{ __('Grantee Ingestion Pipeline') }}</p>
+                <p class="text-xs font-bold uppercase tracking-wider text-emerald-700">{{ __('Scholarship Grantees') }}</p>
                 <h2 class="text-xl font-bold leading-tight text-gray-900">
-                    {{ __('Upload External Agency Masterlist') }}
+                    {{ __('Upload Scholarship Masterlist') }}
                 </h2>
             </div>
             <a href="{{ route('chairman.grantees.index') }}" class="inline-flex min-h-10 items-center justify-center rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-semibold text-gray-700 shadow-sm transition hover:bg-gray-50">
-                {{ __('View Upload Batches') }}
+                {{ __('Back to Grantee Lists') }}
             </a>
         </div>
     </x-slot>

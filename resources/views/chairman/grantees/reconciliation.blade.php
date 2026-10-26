@@ -4,7 +4,7 @@
             <div>
                 <div class="flex items-center gap-2">
                     <a href="{{ route('chairman.grantees.index') }}" class="text-xs font-semibold text-emerald-700 hover:underline">
-                        &larr; {{ __('Back to Batches') }}
+                        &larr; {{ __('Back to Grantee Lists') }}
                     </a>
                     <span class="text-gray-300">&bull;</span>
                     <span class="text-xs font-bold uppercase tracking-wider text-gray-500">{{ __('Batch #') }}{{ $batch->id }}</span>
@@ -27,14 +27,14 @@
 
             <!-- Action Buttons -->
             <div class="flex items-center gap-3">
-                <!-- Export to Excel (.xlsx) Button -->
+                <!-- Export to Excel Button -->
                 <a
                     href="{{ route('chairman.grantees.export', $batch) }}"
                     class="inline-flex min-h-10 items-center justify-center gap-2 rounded-xl border border-emerald-600 bg-white px-4 py-2 text-xs font-bold text-emerald-800 shadow-sm transition hover:bg-emerald-50"
                     title="{{ __('Download official grantee roster as an Excel spreadsheet') }}"
                 >
                     <svg class="h-4 w-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-                    {{ __('Export to Excel (.xlsx)') }}
+                    {{ __('Export to Excel') }}
                 </a>
 
                 @if($batch->status !== 'committed')
@@ -53,23 +53,23 @@
                         </form>
                     @endif
 
-                    <!-- Commit Batch Button (Active after Coordinator & Registrar complete endorsement) -->
-                    <form method="POST" action="{{ route('chairman.grantees.commit', $batch) }}" onsubmit="return confirm('Commit this batch? All green verified students will be flagged as active scholarship grantees in ScholarSync and restricted from requesting Certificates of Non-Grantee.');">
+                    <!-- Commit / Finalize Batch Button -->
+                    <form method="POST" action="{{ route('chairman.grantees.commit', $batch) }}" onsubmit="return confirm('Confirm and finalize this grantee list? All verified students will be flagged as active scholarship grantees in ScholarSync.');">
                         @csrf
                         <button
                             type="submit"
                             @if(!in_array($batch->status, ['endorsed_to_chairman', 'verified'])) disabled @endif
-                            title="{{ !in_array($batch->status, ['endorsed_to_chairman', 'verified']) ? 'Awaiting Campus Coordinator & Registrar verification before committing' : 'Commit verified grantees' }}"
+                            title="{{ !in_array($batch->status, ['endorsed_to_chairman', 'verified']) ? 'Awaiting Campus Coordinator & Registrar verification before finalizing' : 'Finalize verified grantees' }}"
                             class="inline-flex min-h-10 items-center justify-center gap-2 rounded-xl bg-emerald-800 px-5 py-2 text-xs font-bold text-white shadow-sm transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:bg-gray-300 disabled:text-gray-500 disabled:opacity-70"
                         >
                             <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
-                            {{ __('Commit Batch to System') }}
+                            {{ __('Confirm & Finalize Grantees') }}
                         </button>
                     </form>
                 @else
                     <span class="inline-flex items-center gap-1.5 rounded-xl bg-emerald-100 px-4 py-2 text-xs font-bold text-emerald-900 ring-1 ring-inset ring-emerald-600/20">
                         <svg class="h-4 w-4 text-emerald-700" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
-                        {{ __('Committed by ') }}{{ $batch->committer?->name ?? 'Chairman' }} {{ __('on ') }}{{ $batch->committed_at?->format('M d, Y') }}
+                        {{ __('Finalized by ') }}{{ $batch->committer?->name ?? 'Chairman' }} {{ __('on ') }}{{ $batch->committed_at?->format('M d, Y') }}
                     </span>
                 @endif
             </div>
@@ -193,11 +193,11 @@
                                 title="{{ __('Export verified campus roster to Excel (.xlsx)') }}"
                             >
                                 <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-                                <span>{{ __('Export to Excel (.xlsx)') }}</span>
+                                <span>{{ __('Export to Excel') }}</span>
                             </a>
                             @if($batch->status === 'endorsed_to_chairman')
                                 <span class="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-3 py-1 text-xs font-bold text-emerald-800 border border-emerald-300">
-                                    ✓ {{ __('Fully Verified & Ready to Commit') }}
+                                    ✓ {{ __('Verified & Ready to Finalize') }}
                                 </span>
                             @elseif($batch->status === 'verified_by_registrar')
                                 <span class="inline-flex items-center gap-1 rounded-full bg-blue-100 px-3 py-1 text-xs font-bold text-blue-800 border border-blue-300">
@@ -298,30 +298,30 @@
                 <!-- Status Filter Pills -->
                 <div class="border-b border-gray-200 bg-gray-50/50 px-6 py-3 flex items-center justify-between flex-wrap gap-3">
                     <div class="flex items-center gap-2 overflow-x-auto">
-                        <span class="text-gray-400 uppercase tracking-wider text-[11px] mr-1">{{ __('Status:') }}</span>
+                        <span class="text-gray-400 uppercase tracking-wider text-[11px] mr-1">{{ __('Filter Students:') }}</span>
                         <a
                             href="{{ route('chairman.grantees.show', array_merge(request()->query(), ['batch' => $batch, 'status' => 'all'])) }}"
                             class="rounded-lg px-3 py-1.5 text-xs font-bold transition {{ ($currentFilter ?? 'all') === 'all' ? 'bg-gray-800 text-white shadow-sm' : 'text-gray-600 hover:bg-gray-100' }}"
                         >
-                            {{ __('All Statuses (') }}{{ $batch->total_rows }}{{ (')') }}
+                            {{ __('All Students (') }}{{ $batch->total_rows }}{{ (')') }}
                         </a>
                         <a
                             href="{{ route('chairman.grantees.show', array_merge(request()->query(), ['batch' => $batch, 'status' => 'GREEN_VERIFIED'])) }}"
                             class="rounded-lg px-3 py-1.5 text-xs font-bold transition {{ ($currentFilter ?? 'all') === 'GREEN_VERIFIED' ? 'bg-emerald-700 text-white shadow-sm' : 'text-emerald-800 hover:bg-emerald-50' }}"
                         >
-                            {{ __('Green Verified (') }}{{ $batch->green_count }}{{ (')') }}
+                            {{ __('✓ Verified Enrolled (') }}{{ $batch->green_count }}{{ (')') }}
                         </a>
                         <a
                             href="{{ route('chairman.grantees.show', array_merge(request()->query(), ['batch' => $batch, 'status' => 'AMBER_CONFLICT'])) }}"
                             class="rounded-lg px-3 py-1.5 text-xs font-bold transition {{ ($currentFilter ?? 'all') === 'AMBER_CONFLICT' ? 'bg-amber-600 text-white shadow-sm' : 'text-amber-800 hover:bg-amber-50' }}"
                         >
-                            {{ __('Amber Conflicts (') }}{{ $batch->amber_count }}{{ (')') }}
+                            {{ __('⚠ Needs Review (') }}{{ $batch->amber_count }}{{ (')') }}
                         </a>
                         <a
                             href="{{ route('chairman.grantees.show', array_merge(request()->query(), ['batch' => $batch, 'status' => 'RED_UNMATCHED'])) }}"
                             class="rounded-lg px-3 py-1.5 text-xs font-bold transition {{ ($currentFilter ?? 'all') === 'RED_UNMATCHED' ? 'bg-rose-600 text-white shadow-sm' : 'text-rose-800 hover:bg-rose-50' }}"
                         >
-                            {{ __('Red Ineligible (') }}{{ $batch->red_count }}{{ (')') }}
+                            {{ __('✕ Not Enrolled / Unmatched (') }}{{ $batch->red_count }}{{ (')') }}
                         </a>
                         @if($batch->pending_count > 0)
                             <a

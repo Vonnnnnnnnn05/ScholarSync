@@ -406,8 +406,14 @@ class EnrolledStudentController extends Controller
             }
         }
 
-        // 1. Status indicates "no cor printed" or "no cor"
-        if (in_array($normalized, ['no_cor_printed', 'no_cor', 'nocor', 'without_cor', 'no_printed_cor'], true)) {
+        // 1. Status indicates "no cor printed" or "no cor" (e.g. "No COR PRINTED", "Enrolled (No COR)", "COR Not Printed", etc.)
+        if (
+            in_array($normalized, ['no_cor_printed', 'no_cor', 'nocor', 'without_cor', 'no_printed_cor', 'cor_not_printed', 'not_printed'], true)
+            || str_contains($statusStr, 'no cor')
+            || str_contains($statusStr, 'without cor')
+            || str_contains($statusStr, 'not printed')
+            || (str_contains($statusStr, 'cor') && (str_contains($statusStr, 'no') || str_contains($statusStr, 'not') || str_contains($statusStr, 'without') || str_contains($statusStr, 'pending')))
+        ) {
             return [
                 'status' => 'enrolled',
                 'cor_printed' => false,
@@ -415,12 +421,21 @@ class EnrolledStudentController extends Controller
         }
 
         // 2. Status indicates unenrolled / not enrolled / inactive / dropped / withdrawn
-        if (in_array($normalized, ['unenrolled', 'not_enrolled', 'un_enrolled', 'notenrolled', 'inactive', 'dropped', 'withdrawn', 'no'], true)) {
+        if (
+            in_array($normalized, ['unenrolled', 'not_enrolled', 'un_enrolled', 'notenrolled', 'inactive', 'dropped', 'withdrawn', 'no'], true)
+            || str_contains($statusStr, 'unenrolled')
+            || str_contains($statusStr, 'not enrolled')
+            || str_contains($statusStr, 'not_enrolled')
+            || str_contains($statusStr, 'inactive')
+            || str_contains($statusStr, 'dropped')
+            || str_contains($statusStr, 'withdrawn')
+        ) {
             return [
                 'status' => 'not_enrolled',
                 'cor_printed' => false,
             ];
         }
+
 
         // 3. If an explicit separate COR column was passed (e.g. legacy workbooks)
         if ($rawCor !== null && $rawCor !== '') {

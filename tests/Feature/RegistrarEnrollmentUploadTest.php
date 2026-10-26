@@ -235,5 +235,44 @@ test('registrar can clear all enrollment records for their campus without affect
     expect(RegistrarStudent::where('campus_id', $campusB->id)->count())->toBe(1);
 });
 
+test('enrollment status parser accurately resolves case and phrasing variations for enrolled, unenrolled, and no cor printed', function () {
+    $controller = new \App\Http\Controllers\Registrar\EnrolledStudentController();
+
+    // Enrolled variations
+    expect($controller->resolveEnrollmentAndCor('Enrolled'))
+        ->toBe(['status' => 'enrolled', 'cor_printed' => true]);
+    expect($controller->resolveEnrollmentAndCor('ENROLLED'))
+        ->toBe(['status' => 'enrolled', 'cor_printed' => true]);
+    expect($controller->resolveEnrollmentAndCor('Officially Enrolled'))
+        ->toBe(['status' => 'enrolled', 'cor_printed' => true]);
+
+    // No COR Printed variations
+    expect($controller->resolveEnrollmentAndCor('No COR PRINTED'))
+        ->toBe(['status' => 'enrolled', 'cor_printed' => false]);
+    expect($controller->resolveEnrollmentAndCor('NO COR'))
+        ->toBe(['status' => 'enrolled', 'cor_printed' => false]);
+    expect($controller->resolveEnrollmentAndCor('Enrolled (No COR)'))
+        ->toBe(['status' => 'enrolled', 'cor_printed' => false]);
+    expect($controller->resolveEnrollmentAndCor('COR Not Printed'))
+        ->toBe(['status' => 'enrolled', 'cor_printed' => false]);
+    expect($controller->resolveEnrollmentAndCor('Without COR'))
+        ->toBe(['status' => 'enrolled', 'cor_printed' => false]);
+
+    // Unenrolled variations
+    expect($controller->resolveEnrollmentAndCor('Unenrolled'))
+        ->toBe(['status' => 'not_enrolled', 'cor_printed' => false]);
+    expect($controller->resolveEnrollmentAndCor('UNENROLLED'))
+        ->toBe(['status' => 'not_enrolled', 'cor_printed' => false]);
+    expect($controller->resolveEnrollmentAndCor('Not Enrolled'))
+        ->toBe(['status' => 'not_enrolled', 'cor_printed' => false]);
+    expect($controller->resolveEnrollmentAndCor('Inactive'))
+        ->toBe(['status' => 'not_enrolled', 'cor_printed' => false]);
+    expect($controller->resolveEnrollmentAndCor('Dropped'))
+        ->toBe(['status' => 'not_enrolled', 'cor_printed' => false]);
+    expect($controller->resolveEnrollmentAndCor('Withdrawn'))
+        ->toBe(['status' => 'not_enrolled', 'cor_printed' => false]);
+});
+
+
 
 
