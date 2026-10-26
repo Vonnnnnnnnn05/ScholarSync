@@ -10,11 +10,12 @@
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=figtree:400,500,600,700,800" rel="stylesheet" />
 
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+
     @if (file_exists(public_path('build/manifest.json')) || file_exists(public_path('hot')))
         @vite(['resources/css/app.css', 'resources/js/app.js'])
-    @else
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
     @endif
+
 
     <style>
         :root {
@@ -298,15 +299,18 @@
         }
 
         .hero-note {
-            display: flex;
+            display: inline-flex;
             align-items: center;
-            gap: 0.6rem;
+            gap: 0.5rem;
             font-size: 0.85rem;
-            color: var(--text-subtle);
+            color: var(--text-muted);
+            line-height: 1.4;
         }
 
         .hero-note i {
             color: var(--primary);
+            font-size: 0.95rem;
+            flex-shrink: 0;
         }
 
         /* Hero Preview Card (White, Clean, Elegant) */
@@ -402,6 +406,364 @@
         .section-desc {
             font-size: 1rem;
             color: var(--text-muted);
+        }
+
+        .btn-sm {
+            padding: 0.45rem 0.9rem;
+            font-size: 0.8125rem;
+            border-radius: var(--radius-sm);
+        }
+
+
+        /* Scholarships Showcase Section */
+        .scholarships-section {
+            padding: 4.5rem 0;
+            background: #ffffff;
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        .scholarship-filter-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .search-input-wrapper {
+            position: relative;
+            flex: 1;
+            max-width: 480px;
+        }
+
+        .search-input-wrapper i {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-subtle);
+            font-size: 0.9rem;
+        }
+
+        .search-input-wrapper input {
+            width: 100%;
+            padding: 0.75rem 1rem 0.75rem 2.6rem;
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-md);
+            font-family: inherit;
+            font-size: 0.9rem;
+            color: var(--text-main);
+            background: var(--bg-subtle);
+            transition: all 0.2s ease;
+        }
+
+        .search-input-wrapper input:focus {
+            outline: none;
+            border-color: var(--primary);
+            background: #ffffff;
+            box-shadow: 0 0 0 3px rgba(0, 138, 69, 0.12);
+        }
+
+        .scholarships-count-badge {
+            font-size: 0.825rem;
+            font-weight: 700;
+            color: var(--primary-dark);
+            background: var(--primary-light);
+            border: 1px solid var(--primary-border);
+            padding: 0.4rem 0.85rem;
+            border-radius: var(--radius-full);
+        }
+
+        .scholarships-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(330px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .scholarship-card {
+            background: #ffffff;
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-lg);
+            padding: 1.75rem;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.04);
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .scholarship-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary) 0%, #10b981 50%, #f59e0b 100%);
+        }
+
+        .scholarship-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
+            border-color: var(--primary-border);
+        }
+
+        .scholarship-card-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .badges-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.4rem;
+        }
+
+        .badge-agency {
+            background: #ecfdf5;
+            color: #065f46;
+            font-weight: 700;
+            font-size: 0.75rem;
+            padding: 0.25rem 0.65rem;
+            border-radius: var(--radius-full);
+            border: 1px solid #a7f3d0;
+            letter-spacing: 0.02em;
+        }
+
+        .badge-program {
+            background: #e0f2fe;
+            color: #0369a1;
+            font-weight: 700;
+            font-size: 0.75rem;
+            padding: 0.25rem 0.65rem;
+            border-radius: var(--radius-full);
+            border: 1px solid #bae6fd;
+        }
+
+        .badge-deadline-open {
+            background: #fffbeb;
+            color: #b45309;
+            font-weight: 600;
+            font-size: 0.75rem;
+            padding: 0.25rem 0.65rem;
+            border-radius: var(--radius-full);
+            border: 1px solid #fde68a;
+            white-space: nowrap;
+        }
+
+        .badge-deadline-closed {
+            background: #fef2f2;
+            color: #b91c1c;
+            font-weight: 600;
+            font-size: 0.75rem;
+            padding: 0.25rem 0.65rem;
+            border-radius: var(--radius-full);
+            border: 1px solid #fecaca;
+            white-space: nowrap;
+        }
+
+        .scholarship-card-title {
+            font-size: 1.15rem;
+            font-weight: 800;
+            color: var(--text-main);
+            margin-bottom: 0.5rem;
+            line-height: 1.35;
+        }
+
+        .scholarship-card-desc {
+            font-size: 0.875rem;
+            color: var(--text-muted);
+            line-height: 1.5;
+            margin-bottom: 1rem;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .scholarship-criteria-box {
+            background: var(--bg-subtle);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-md);
+            padding: 0.85rem 1rem;
+            margin-bottom: 1.25rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            font-size: 0.8125rem;
+        }
+
+        .criteria-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.5rem;
+            color: var(--text-muted);
+            line-height: 1.4;
+        }
+
+        .criteria-item i {
+            color: var(--primary);
+            font-size: 0.85rem;
+            margin-top: 0.15rem;
+            flex-shrink: 0;
+        }
+
+        .criteria-item strong {
+            color: var(--text-main);
+            margin-right: 0.25rem;
+        }
+
+        .scholarship-card-actions {
+            margin-top: auto;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border-subtle);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .scholarship-empty-card {
+            grid-column: 1 / -1;
+            background: #ffffff;
+            border: 2px dashed var(--border-light);
+            border-radius: var(--radius-lg);
+            padding: 3rem 2rem;
+            text-align: center;
+        }
+
+        .scholarship-empty-card i {
+            font-size: 2.5rem;
+            color: #94a3b8;
+            margin-bottom: 1rem;
+        }
+
+        .scholarship-empty-card h4 {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 0.35rem;
+        }
+
+        .scholarship-empty-card p {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            max-width: 480px;
+            margin: 0 auto;
+        }
+
+        /* Modal Details */
+        .scholarship-modal-backdrop {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.65);
+            backdrop-filter: blur(4px);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+        }
+
+        .scholarship-modal-backdrop.active {
+            display: flex;
+        }
+
+        .scholarship-modal-dialog {
+            background: #ffffff;
+            border-radius: var(--radius-lg);
+            width: min(650px, 100%);
+            max-height: 90vh;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            overflow: hidden;
+            animation: modalFadeIn 0.2s ease-out;
+        }
+
+        @keyframes modalFadeIn {
+            from { opacity: 0; transform: scale(0.96); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .scholarship-modal-header {
+            padding: 1.5rem 1.75rem;
+            border-bottom: 1px solid var(--border-light);
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 1rem;
+        }
+
+        .scholarship-modal-header h3 {
+            font-size: 1.35rem;
+            font-weight: 800;
+            color: var(--text-main);
+            line-height: 1.3;
+        }
+
+        .modal-close-btn {
+            background: transparent;
+            border: none;
+            font-size: 1.5rem;
+            line-height: 1;
+            color: var(--text-subtle);
+            cursor: pointer;
+            padding: 0.25rem 0.5rem;
+            border-radius: var(--radius-sm);
+            transition: all 0.15s ease;
+        }
+
+        .modal-close-btn:hover {
+            color: var(--text-main);
+            background: var(--bg-subtle);
+        }
+
+        .scholarship-modal-body {
+            padding: 1.5rem 1.75rem;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+            font-size: 0.9rem;
+            color: var(--text-main);
+        }
+
+        .modal-section-title {
+            font-size: 0.85rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--primary-dark);
+            margin-bottom: 0.4rem;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .modal-box {
+            background: var(--bg-subtle);
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-md);
+            padding: 1rem;
+            white-space: pre-line;
+            line-height: 1.5;
+            color: var(--text-muted);
+        }
+
+        .scholarship-modal-footer {
+            padding: 1rem 1.75rem;
+            border-top: 1px solid var(--border-light);
+            background: var(--bg-subtle);
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 0.75rem;
         }
 
         /* Core Services / Modules Section */
@@ -714,6 +1076,24 @@
                 justify-content: center;
             }
 
+            .hero-note {
+                display: inline-flex;
+                align-items: flex-start;
+                justify-content: center;
+                text-align: left;
+                gap: 0.5rem;
+                font-size: 0.8125rem;
+                max-width: 330px;
+                margin-inline: auto;
+                line-height: 1.45;
+            }
+
+            .hero-note i {
+                margin-top: 0.15rem;
+                font-size: 0.9rem;
+                flex-shrink: 0;
+            }
+
             .features-grid,
             .roles-grid {
                 grid-template-columns: 1fr;
@@ -725,12 +1105,47 @@
         }
 
         @media (max-width: 768px) {
+            .container {
+                width: calc(100% - 1.5rem);
+            }
+
+            .nav {
+                min-height: 64px;
+                gap: 0.5rem;
+            }
+
             .nav-menu {
                 display: none;
             }
 
+            .brand {
+                gap: 0.5rem;
+                min-width: 0;
+            }
+
+            .brand-logo {
+                width: 38px;
+                height: 38px;
+            }
+
+            .brand-name {
+                font-size: 1rem;
+                white-space: nowrap;
+            }
+
             .brand-tag {
                 display: none;
+            }
+
+            .nav-actions {
+                gap: 0.4rem;
+                flex-shrink: 0;
+            }
+
+            .nav-actions .btn {
+                padding: 0.42rem 0.75rem;
+                font-size: 0.8125rem;
+                gap: 0.35rem;
             }
 
             .hero {
@@ -753,6 +1168,42 @@
         }
 
         @media (max-width: 480px) {
+            .container {
+                width: calc(100% - 1rem);
+            }
+
+            .nav {
+                min-height: 58px;
+                gap: 0.35rem;
+            }
+
+            .brand {
+                gap: 0.4rem;
+            }
+
+            .brand-logo {
+                width: 32px;
+                height: 32px;
+            }
+
+            .brand-name {
+                font-size: 0.875rem;
+            }
+
+            .nav-actions {
+                gap: 0.3rem;
+            }
+
+            .nav-actions .btn {
+                padding: 0.38rem 0.55rem;
+                font-size: 0.775rem;
+                border-radius: var(--radius-sm);
+            }
+
+            .nav-actions .btn i {
+                display: none;
+            }
+
             .hero-cta {
                 flex-direction: column;
                 width: 100%;
@@ -769,6 +1220,18 @@
 
             .cta-actions .btn {
                 width: 100%;
+            }
+
+            .hero-note {
+                max-width: 295px;
+                font-size: 0.775rem;
+                gap: 0.45rem;
+            }
+        }
+
+        @media (max-width: 340px) {
+            .brand-name {
+                display: none;
             }
         }
 
@@ -798,6 +1261,7 @@
             </a>
 
             <nav class="nav-menu" aria-label="Site sections">
+                <a class="nav-link" href="#scholarships">Scholarships</a>
                 <a class="nav-link" href="#services">Services</a>
                 <a class="nav-link" href="#workflow">Workflow</a>
                 <a class="nav-link" href="#roles">Portals</a>
@@ -811,14 +1275,14 @@
                             <span>Dashboard</span>
                         </a>
                     @else
-                        <a class="btn btn-outline" href="{{ route('login') }}">
+                        <a class="btn btn-outline" href="{{ route('login') }}" title="Sign In">
                             <i class="fa-solid fa-right-to-bracket" aria-hidden="true"></i>
-                            <span>Sign in</span>
+                            <span>Sign In</span>
                         </a>
                         @if (Route::has('register'))
-                            <a class="btn btn-primary" href="{{ route('register') }}">
+                            <a class="btn btn-primary" href="{{ route('register') }}" title="Sign Up">
                                 <i class="fa-solid fa-user-plus" aria-hidden="true"></i>
-                                <span>Register</span>
+                                <span>Sign Up</span>
                             </a>
                         @endif
                     @endauth
@@ -846,25 +1310,16 @@
                     </p>
 
                     <div class="hero-cta" aria-label="Primary actions">
-                        @if (Route::has('login'))
-                            @auth
-                                <a class="btn btn-primary btn-lg" href="{{ url('/dashboard') }}">
-                                    <span>Open Dashboard</span>
-                                    <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
-                                </a>
-                            @else
-                                <a class="btn btn-primary btn-lg" href="{{ route('login') }}">
-                                    <span>Access Portal</span>
-                                    <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
-                                </a>
-                                @if (Route::has('register'))
-                                    <a class="btn btn-secondary btn-lg" href="{{ route('register') }}">
-                                        <i class="fa-solid fa-user-plus" aria-hidden="true"></i>
-                                        <span>Create Account</span>
-                                    </a>
-                                @endif
-                            @endauth
-                        @endif
+                        <a class="btn btn-primary btn-lg" href="#scholarships">
+                            <i class="fa-solid fa-graduation-cap" aria-hidden="true"></i>
+                            <span>Browse Scholarships</span>
+                        </a>
+                        @auth
+                            <a class="btn btn-outline btn-lg" href="{{ url('/dashboard') }}">
+                                <span>Open Dashboard</span>
+                                <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+                            </a>
+                        @endauth
                     </div>
 
                     <div class="hero-note">
@@ -897,6 +1352,154 @@
                         </div>
                     </div>
                 </div>
+            </div>
+        </section>
+
+        <!-- Available Scholarships & Grants Section -->
+        <section id="scholarships" class="scholarships-section" aria-labelledby="scholarships-heading">
+            <div class="container">
+                <div class="section-header">
+                    <div style="display: inline-flex; align-items: center; gap: 0.5rem; background: var(--primary-light); color: var(--primary-dark); border: 1px solid var(--primary-border); padding: 0.35rem 0.85rem; border-radius: var(--radius-full); font-size: 0.8rem; font-weight: 700; margin-bottom: 0.85rem;">
+                        <span style="width: 8px; height: 8px; border-radius: 50%; background: var(--primary); display: inline-block;"></span>
+                        <span>Open Scholarship Opportunities</span>
+                    </div>
+                    <h2 id="scholarships-heading" class="section-title">Available Scholarships &amp; Grants</h2>
+                    <p class="section-desc">
+                        Explore active scholarship openings from CHED, UniFAST, university funds, and partner agencies. Review eligibility criteria and apply online.
+                    </p>
+                </div>
+
+                @if(isset($scholarships) && $scholarships->count() > 0)
+                    <!-- Filter and Search Bar -->
+                    <div class="scholarship-filter-bar">
+                        <div class="search-input-wrapper">
+                            <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+                            <input
+                                type="search"
+                                id="scholarshipSearchInput"
+                                placeholder="Search by scholarship title, agency, or program..."
+                                oninput="filterScholarships()"
+                                aria-label="Search scholarships"
+                            >
+                        </div>
+                        <span class="scholarships-count-badge" id="scholarshipCountBadge">
+                            {{ $scholarships->count() }} {{ __('Opportunity(ies) Available') }}
+                        </span>
+                    </div>
+
+                    <!-- Scholarships Grid -->
+                    <div class="scholarships-grid" id="scholarshipsGrid">
+                        @foreach($scholarships as $policy)
+                            @php
+                                $searchText = strtolower(($policy->title ?? '') . ' ' . ($policy->agency?->agency_name ?? '') . ' ' . ($policy->program?->name ?? '') . ' ' . ($policy->description ?? ''));
+                                $isPassed = $policy->deadline && $policy->deadline->isPast() && !$policy->deadline->isToday();
+                            @endphp
+                            <div class="scholarship-card" data-search-text="{{ $searchText }}">
+                                <div class="scholarship-card-header">
+                                    <div class="badges-group">
+                                        <span class="badge-agency">{{ $policy->agency?->agency_name ?? 'Government' }}</span>
+                                        <span class="badge-program">{{ $policy->program?->name ?? 'Grant Program' }}</span>
+                                    </div>
+                                    @if($policy->deadline)
+                                        <span class="{{ $isPassed ? 'badge-deadline-closed' : 'badge-deadline-open' }}" title="Application Deadline">
+                                            <i class="fa-regular fa-clock" aria-hidden="true"></i>
+                                            {{ $isPassed ? 'Closed' : 'Due ' . $policy->deadline->format('M d, Y') }}
+                                        </span>
+                                    @else
+                                        <span class="badge-deadline-open" title="Application Status">
+                                            <i class="fa-solid fa-circle-check" aria-hidden="true"></i> Ongoing
+                                        </span>
+                                    @endif
+                                </div>
+
+                                <h3 class="scholarship-card-title">{{ $policy->title }}</h3>
+
+                                @if($policy->description)
+                                    <p class="scholarship-card-desc">{{ Str::limit($policy->description, 140) }}</p>
+                                @endif
+
+                                <!-- Eligibility & Documentary Preview -->
+                                <div class="scholarship-criteria-box">
+                                    @if($policy->eligibility_requirements)
+                                        <div class="criteria-item">
+                                            <i class="fa-solid fa-user-graduate" aria-hidden="true"></i>
+                                            <div>
+                                                <strong>Eligibility:</strong>
+                                                <span>{{ Str::limit($policy->eligibility_requirements, 95) }}</span>
+                                            </div>
+                                        </div>
+                                    @endif
+                                    @if($policy->documentary_requirements)
+                                        <div class="criteria-item">
+                                            <i class="fa-solid fa-file-lines" aria-hidden="true"></i>
+                                            <div>
+                                                <strong>Requirements:</strong>
+                                                <span>{{ Str::limit($policy->documentary_requirements, 95) }}</span>
+                                            </div>
+                                        </div>
+                                    @endif
+                                    @if(!$policy->eligibility_requirements && !$policy->documentary_requirements)
+                                        <div class="criteria-item">
+                                            <i class="fa-solid fa-circle-info" aria-hidden="true"></i>
+                                            <span>Refer to official program guidelines for full terms.</span>
+                                        </div>
+                                    @endif
+                                </div>
+
+                                <div class="scholarship-card-actions">
+                                    @if($policy->application_link)
+                                        <a
+                                            href="{{ $policy->application_link }}"
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            class="btn btn-primary btn-sm"
+                                            title="Open official external application form"
+                                        >
+                                            <span>Apply Online</span>
+                                            <i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i>
+                                        </a>
+                                    @endif
+
+                                    <button
+                                        type="button"
+                                        class="btn btn-outline btn-sm"
+                                        onclick="openScholarshipModal({{ $policy->id }})"
+                                    >
+                                        <i class="fa-solid fa-circle-info" aria-hidden="true"></i>
+                                        <span>Full Details</span>
+                                    </button>
+
+                                    @if($policy->file_path)
+                                        <a
+                                            href="{{ route('scholarships.guidelines', $policy) }}"
+                                            class="btn btn-secondary btn-sm"
+                                            title="Download Official Guidelines Document"
+                                        >
+                                            <i class="fa-solid fa-file-arrow-down" aria-hidden="true"></i>
+                                            <span>Flyer</span>
+                                        </a>
+                                    @endif
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+
+                    <!-- No Search Results Found Alert -->
+                    <div id="scholarshipNoMatch" style="display: none; text-align: center; padding: 3rem 1rem; background: #ffffff; border: 1px dashed var(--border-light); border-radius: var(--radius-lg); margin-top: 1.5rem;">
+                        <i class="fa-solid fa-magnifying-glass" style="font-size: 2rem; color: #94a3b8; margin-bottom: 0.75rem; display: block;"></i>
+                        <h4 style="font-weight: 700; color: var(--text-main); margin-bottom: 0.25rem;">No matching scholarships found</h4>
+                        <p style="font-size: 0.875rem; color: var(--text-muted);">Try typing a different scholarship keyword, agency name, or program code.</p>
+                    </div>
+                @else
+                    <!-- Empty State When No Scholarships Published Yet -->
+                    <div class="scholarship-empty-card">
+                        <i class="fa-solid fa-graduation-cap" aria-hidden="true"></i>
+                        <h4>No Active Scholarship Postings Currently</h4>
+                        <p>
+                            Scholarship application windows are posted periodically by the Scholarship Chairman and partner agencies. Please check back regularly or sign in to your student portal for updates.
+                        </p>
+                    </div>
+                @endif
             </div>
         </section>
 
@@ -1059,12 +1662,12 @@
                             @else
                                 <a class="btn btn-primary btn-lg" href="{{ route('login') }}">
                                     <i class="fa-solid fa-right-to-bracket" aria-hidden="true"></i>
-                                    <span>Sign in to Account</span>
+                                    <span>Sign In to Account</span>
                                 </a>
                                 @if (Route::has('register'))
                                     <a class="btn btn-secondary btn-lg" href="{{ route('register') }}">
                                         <i class="fa-solid fa-user-plus" aria-hidden="true"></i>
-                                        <span>Create Account</span>
+                                        <span>Sign Up for Free</span>
                                     </a>
                                 @endif
                             @endauth
@@ -1088,5 +1691,154 @@
             <span>Integrated Scholarship Processing, Verification, and Monitoring System</span>
         </div>
     </footer>
+
+    <!-- Scholarship Details Modal -->
+    <div id="scholarshipDetailModal" class="scholarship-modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+        <div class="scholarship-modal-dialog">
+            <div class="scholarship-modal-header">
+                <div>
+                    <div id="modalAgency" style="font-size: 0.8rem; font-weight: 700; color: var(--primary); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.25rem;"></div>
+                    <h3 id="modalTitle"></h3>
+                    <div id="modalDeadline" class="badge-deadline-open" style="margin-top: 0.5rem; display: inline-block;"></div>
+                </div>
+                <button type="button" class="modal-close-btn" onclick="closeScholarshipModal()" aria-label="Close modal">&times;</button>
+            </div>
+
+            <div class="scholarship-modal-body">
+                <div>
+                    <h4 class="modal-section-title">
+                        <i class="fa-solid fa-circle-info" aria-hidden="true"></i> Program Overview
+                    </h4>
+                    <div class="modal-box" id="modalDesc"></div>
+                </div>
+
+                <div>
+                    <h4 class="modal-section-title">
+                        <i class="fa-solid fa-user-graduate" aria-hidden="true"></i> Eligibility Requirements
+                    </h4>
+                    <div class="modal-box" id="modalEligibility"></div>
+                </div>
+
+                <div>
+                    <h4 class="modal-section-title">
+                        <i class="fa-solid fa-file-lines" aria-hidden="true"></i> Documentary Requirements
+                    </h4>
+                    <div class="modal-box" id="modalRequirements"></div>
+                </div>
+            </div>
+
+            <div class="scholarship-modal-footer">
+                <button type="button" class="btn btn-outline btn-sm" onclick="closeScholarshipModal()">
+                    Close
+                </button>
+                <a id="modalDownloadBtn" href="#" class="btn btn-secondary btn-sm" style="display: none;">
+                    <i class="fa-solid fa-file-arrow-down" aria-hidden="true"></i> Download Guidelines
+                </a>
+                <a id="modalApplyBtn" href="#" target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-sm" style="display: none;">
+                    <span>Apply Online</span>
+                    <i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Script for Live Filter & Modal -->
+    <script>
+        function filterScholarships() {
+            const query = (document.getElementById('scholarshipSearchInput')?.value || '').toLowerCase().trim();
+            const cards = document.querySelectorAll('.scholarship-card');
+            let visibleCount = 0;
+
+            cards.forEach(card => {
+                const searchText = card.getAttribute('data-search-text') || '';
+                if (query === '' || searchText.includes(query)) {
+                    card.style.display = 'flex';
+                    visibleCount++;
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+
+            const badge = document.getElementById('scholarshipCountBadge');
+            if (badge) {
+                badge.textContent = visibleCount + ' Available';
+            }
+
+            const noMatch = document.getElementById('scholarshipNoMatch');
+            if (noMatch) {
+                noMatch.style.display = (visibleCount === 0 && cards.length > 0) ? 'block' : 'none';
+            }
+        }
+
+        const scholarshipData = @json($scholarships ?? []);
+
+        function openScholarshipModal(id) {
+            const policy = scholarshipData.find(p => p.id === id);
+            if (!policy) return;
+
+            document.getElementById('modalTitle').textContent = policy.title || 'Scholarship Opportunity';
+            const agencyName = (policy.agency && policy.agency.agency_name) ? policy.agency.agency_name : 'Government Agency';
+            const progName = (policy.program && policy.program.name) ? policy.program.name : 'Scholarship Program';
+            document.getElementById('modalAgency').textContent = agencyName + ' • ' + progName;
+
+            const deadlineEl = document.getElementById('modalDeadline');
+            if (policy.deadline) {
+                const d = new Date(policy.deadline);
+                const isPassed = d < new Date() && d.toDateString() !== new Date().toDateString();
+                deadlineEl.className = isPassed ? 'badge-deadline-closed' : 'badge-deadline-open';
+                deadlineEl.innerHTML = isPassed
+                    ? '<i class="fa-regular fa-clock" aria-hidden="true"></i> Closed (' + d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) + ')'
+                    : '<i class="fa-regular fa-clock" aria-hidden="true"></i> Due ' + d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+                deadlineEl.style.display = 'inline-block';
+            } else {
+                deadlineEl.className = 'badge-deadline-open';
+                deadlineEl.innerHTML = '<i class="fa-solid fa-circle-check" aria-hidden="true"></i> Ongoing Application';
+                deadlineEl.style.display = 'inline-block';
+            }
+
+            document.getElementById('modalDesc').textContent = policy.description || 'No detailed description provided.';
+            document.getElementById('modalEligibility').textContent = policy.eligibility_requirements || 'Standard university and partner agency criteria apply.';
+            document.getElementById('modalRequirements').textContent = policy.documentary_requirements || 'Refer to the official agency guidelines.';
+
+            const applyBtn = document.getElementById('modalApplyBtn');
+            if (policy.application_link) {
+                applyBtn.href = policy.application_link;
+                applyBtn.style.display = 'inline-flex';
+            } else {
+                applyBtn.style.display = 'none';
+            }
+
+            const downloadBtn = document.getElementById('modalDownloadBtn');
+            if (policy.file_path) {
+                downloadBtn.href = '/scholarships/' + policy.id + '/guidelines';
+                downloadBtn.style.display = 'inline-flex';
+            } else {
+                downloadBtn.style.display = 'none';
+            }
+
+            const modal = document.getElementById('scholarshipDetailModal');
+            if (modal) {
+                modal.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            }
+        }
+
+        function closeScholarshipModal() {
+            const modal = document.getElementById('scholarshipDetailModal');
+            if (modal) {
+                modal.classList.remove('active');
+                document.body.style.overflow = '';
+            }
+        }
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') closeScholarshipModal();
+        });
+
+        document.addEventListener('click', function(e) {
+            const backdrop = document.getElementById('scholarshipDetailModal');
+            if (e.target === backdrop) closeScholarshipModal();
+        });
+    </script>
 </body>
 </html>

@@ -95,5 +95,41 @@ class RoleAccountSeeder extends Seeder
             );
         }
 
+        if ($user->hasRole(UserRole::ScholarshipChairman) && ! $user->hasSignature()) {
+            $path = 'signatures/user_'.$user->id.'_seeded.png';
+            $width = 320;
+            $height = 120;
+            $img = imagecreatetruecolor($width, $height);
+            imagealphablending($img, false);
+            imagesavealpha($img, true);
+            $transparent = imagecolorallocatealpha($img, 0, 0, 0, 127);
+            imagefill($img, 0, 0, $transparent);
+            imagealphablending($img, true);
+
+            $ink = imagecolorallocate($img, 15, 23, 42);
+            imagesetthickness($img, 3);
+
+            imageline($img, 35, 95, 60, 25, $ink);
+            imageline($img, 60, 25, 85, 95, $ink);
+            imageline($img, 45, 65, 80, 60, $ink);
+            imagearc($img, 105, 45, 30, 28, 90, 270, $ink);
+            imagearc($img, 110, 72, 32, 30, 270, 90, $ink);
+            imageline($img, 140, 20, 140, 95, $ink);
+            imagearc($img, 155, 38, 35, 32, 270, 90, $ink);
+            imagearc($img, 160, 75, 45, 40, 270, 90, $ink);
+            imagearc($img, 200, 70, 50, 30, 0, 360, $ink);
+            imageline($img, 20, 102, 290, 100, $ink);
+
+            ob_start();
+            imagepng($img);
+            $pngData = ob_get_clean();
+            imagedestroy($img);
+
+            \Illuminate\Support\Facades\Storage::disk('local')->put($path, $pngData);
+            $user->forceFill([
+                'signature_path' => $path,
+                'signature_updated_at' => now(),
+            ])->save();
+        }
     }
 }

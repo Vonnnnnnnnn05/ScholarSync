@@ -11,6 +11,7 @@ class Certificate extends Model
         'certificate_request_id',
         'certificate_number',
         'file_path',
+        'signature_path',
         'generated_by',
         'generated_at',
     ];

@@ -27,6 +27,8 @@ use App\Http\Controllers\WelcomeController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', WelcomeController::class);
+Route::get('/scholarships/{policy}/guidelines', [WelcomeController::class, 'downloadGuidelines'])->name('scholarships.guidelines');
+
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
@@ -104,6 +106,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::get('/{certificateRequest}', [OfficialReceiptVerificationController::class, 'show'])->name('show');
             Route::get('/{certificateRequest}/view', [OfficialReceiptVerificationController::class, 'view'])->name('view');
             Route::get('/{certificateRequest}/download', [OfficialReceiptVerificationController::class, 'download'])->name('download');
+            Route::get('/{certificateRequest}/preview-certificate', [OfficialReceiptVerificationController::class, 'previewCertificate'])->name('preview-certificate');
             Route::patch('/{certificateRequest}/verify', [OfficialReceiptVerificationController::class, 'verify'])->name('verify');
             Route::patch('/{certificateRequest}/approve', [OfficialReceiptVerificationController::class, 'approve'])->name('approve');
             Route::patch('/{certificateRequest}/reject', [OfficialReceiptVerificationController::class, 'reject'])->name('reject');
@@ -247,7 +250,10 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::patch('/profile/student-details', [ProfileController::class, 'updateStudentDetails'])->name('profile.student-details.update');
+    Route::patch('/profile/signature', [ProfileController::class, 'updateSignature'])->name('profile.signature.update');
+    Route::delete('/profile/signature', [ProfileController::class, 'destroySignature'])->name('profile.signature.destroy');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    Route::get('/notifications/counts', \App\Http\Controllers\NotificationCountController::class)->name('notifications.counts');
 });
 
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';

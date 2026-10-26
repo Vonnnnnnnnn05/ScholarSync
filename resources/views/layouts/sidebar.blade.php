@@ -6,28 +6,30 @@
     $isCoordinator = $user->hasRole(\App\Enums\UserRole::Coordinator);
     $isRegistrar = $user->hasRole(\App\Enums\UserRole::Registrar);
 
+    $counts = $navNotificationCounts ?? app(\App\Services\NavigationNotificationService::class)->getCounts($user);
+
     $links = [
         ['label' => 'Dashboard', 'route' => 'dashboard', 'active' => 'dashboard*', 'show' => true],
         ['label' => 'User Management', 'route' => 'admin.users.index', 'active' => 'admin.users.*', 'show' => $isAdmin],
-        ['label' => 'Certificate Management', 'route' => 'admin.official-receipts.index', 'active' => 'admin.official-receipts.*', 'show' => $isAdmin],
+        ['label' => 'Certificate Management', 'route' => 'admin.official-receipts.index', 'active' => 'admin.official-receipts.*', 'show' => $isAdmin, 'badge_key' => 'certificate_management'],
         ['label' => 'Scholarship Opportunities', 'route' => 'admin.scholarships.index', 'active' => 'admin.scholarships.*', 'show' => $isAdmin],
 
         // Scholarship Chairman Links
-        ['label' => 'Certificate Management', 'route' => 'admin.official-receipts.index', 'active' => 'admin.official-receipts.*', 'show' => $isChairman],
+        ['label' => 'Certificate Management', 'route' => 'admin.official-receipts.index', 'active' => 'admin.official-receipts.*', 'show' => $isChairman, 'badge_key' => 'certificate_management'],
         ['label' => 'Post Scholarship', 'route' => 'admin.scholarships.index', 'active' => 'admin.scholarships.*', 'show' => $isChairman],
-        ['label' => 'Verify Grantees', 'route' => 'chairman.grantees.index', 'active' => 'chairman.grantees.*', 'show' => $isChairman],
+        ['label' => 'Verify Grantees', 'route' => 'chairman.grantees.index', 'active' => 'chairman.grantees.*', 'show' => $isChairman, 'badge_key' => 'verify_grantees'],
         ['label' => 'Scholars', 'route' => 'chairman.scholars.index', 'active' => 'chairman.scholars.*', 'show' => $isChairman],
 
         // Student Links
-        ['label' => 'Certificates', 'route' => 'student.certificate-requests.index', 'active' => 'student.certificate-requests.*', 'show' => $isStudent],
+        ['label' => 'Certificates', 'route' => 'student.certificate-requests.index', 'active' => 'student.certificate-requests.*', 'show' => $isStudent, 'badge_key' => 'student_certificates'],
         ['label' => 'Scholarships', 'route' => 'student.scholarships.index', 'active' => 'student.scholarships.*', 'show' => $isStudent],
 
         // Coordinator Links
-        ['label' => 'Campus Routing', 'route' => 'coordinator.masterlists.index', 'active' => 'coordinator.masterlists.*', 'show' => $isCoordinator],
+        ['label' => 'Campus Routing', 'route' => 'coordinator.masterlists.index', 'active' => 'coordinator.masterlists.*', 'show' => $isCoordinator, 'badge_key' => 'campus_routing'],
 
         // Registrar Links
         ['label' => 'Enrollment Records', 'route' => 'registrar.enrolled-students.index', 'active' => 'registrar.enrolled-students.*', 'show' => $isRegistrar],
-        ['label' => 'Beneficiary Verification', 'route' => 'registrar.batches.index', 'active' => 'registrar.batches.*', 'show' => $isRegistrar],
+        ['label' => 'Beneficiary Verification', 'route' => 'registrar.batches.index', 'active' => 'registrar.batches.*', 'show' => $isRegistrar, 'badge_key' => 'beneficiary_verification'],
 
         ['label' => 'Profile', 'route' => 'profile.edit', 'active' => 'profile.*', 'show' => true],
     ];
@@ -49,7 +51,29 @@
     ];
 @endphp
 
-<aside id="role-sidebar" class="w-full shrink-0 border-b border-emerald-900/10 bg-white lg:w-56 xl:w-60 lg:border-b-0 lg:border-r">
+<aside
+    id="role-sidebar"
+    x-data="{
+        counts: @js($counts),
+        init() {
+            setInterval(() => { this.refreshCounts(); }, 30000);
+            document.addEventListener('visibilitychange', () => {
+                if (document.visibilityState === 'visible') {
+                    this.refreshCounts();
+                }
+            });
+        },
+        refreshCounts() {
+            fetch('{{ route('notifications.counts') }}', {
+                headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }
+            })
+            .then(res => res.ok ? res.json() : null)
+            .then(data => { if (data) this.counts = data; })
+            .catch(() => {});
+        }
+    }"
+    class="w-full shrink-0 border-b border-emerald-900/10 bg-white lg:w-56 xl:w-60 lg:border-b-0 lg:border-r"
+>
     <div class="flex flex-col lg:sticky lg:top-0 lg:h-screen lg:min-h-screen">
         <div class="border-b border-emerald-900/10 px-4 py-3.5">
             <div class="flex items-center gap-2.5">
@@ -64,7 +88,12 @@
         <nav class="grid gap-1 scroll-smooth px-2.5 py-3 sm:grid-cols-2 lg:flex lg:flex-1 lg:flex-col lg:space-y-1 lg:overflow-y-auto">
             @foreach ($links as $link)
                 @if ($link['show'])
-                    <x-sidebar-link :href="route($link['route'])" :active="request()->routeIs($link['active'])">
+                    <x-sidebar-link
+                        :href="route($link['route'])"
+                        :active="request()->routeIs($link['active'])"
+                        :badge-key="$link['badge_key'] ?? null"
+                        :badge-value="isset($link['badge_key']) ? ($counts[$link['badge_key']] ?? 0) : null"
+                    >
                         {{ $link['label'] }}
                     </x-sidebar-link>
 

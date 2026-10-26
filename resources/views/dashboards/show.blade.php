@@ -37,6 +37,53 @@
                 </section>
             @endif
 
+            @if ($role === \App\Enums\UserRole::ScholarshipChairman)
+                <section class="mt-4 overflow-hidden rounded-xl border border-emerald-100 bg-white p-4 sm:p-5 shadow-xs ring-1 ring-gray-200">
+                    <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                        <div class="flex items-center gap-3">
+                            <span class="inline-flex h-11 w-11 items-center justify-center rounded-xl bg-emerald-50 text-emerald-800 ring-1 ring-emerald-700/15">
+                                <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10" />
+                                </svg>
+                            </span>
+                            <div>
+                                <div class="flex items-center gap-2">
+                                    <h4 class="text-sm font-bold text-gray-900">{{ __('Chairman Digital Signature') }}</h4>
+                                    @if (auth()->user()->hasSignature())
+                                        <span class="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-0.5 text-[11px] font-semibold text-emerald-800 ring-1 ring-emerald-700/20">
+                                            <span class="h-1.5 w-1.5 rounded-full bg-emerald-600"></span>
+                                            {{ __('Active on file') }}
+                                        </span>
+                                    @else
+                                        <span class="inline-flex items-center gap-1 rounded-full bg-amber-50 px-2.5 py-0.5 text-[11px] font-semibold text-amber-800 ring-1 ring-amber-600/20">
+                                            <span class="h-1.5 w-1.5 rounded-full bg-amber-500"></span>
+                                            {{ __('Setup required') }}
+                                        </span>
+                                    @endif
+                                </div>
+                                <p class="text-xs text-gray-600">
+                                    {{ auth()->user()->hasSignature() ? __('Your digital signature is active and will be affixed to approved student certificates.') : __('Use the digital signature pad to register your official signature for certificate signing.') }}
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center gap-3">
+                            @if (auth()->user()->hasSignature())
+                                <div class="hidden sm:flex h-10 w-28 items-center justify-center rounded-lg border border-dashed border-gray-300 bg-gray-50 px-2">
+                                    <img src="{{ auth()->user()->signatureDataUri() }}" alt="Signature Preview" class="max-h-8 max-w-full object-contain">
+                                </div>
+                            @endif
+                            <a
+                                href="{{ route('profile.edit') }}#digital-signature"
+                                class="inline-flex min-h-10 items-center justify-center rounded-xl bg-emerald-800 px-4 py-2 text-xs font-bold text-white shadow-xs transition hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-700 focus:ring-offset-2"
+                            >
+                                {{ auth()->user()->hasSignature() ? __('Manage Signature Pad') : __('Open Signature Pad') }}
+                            </a>
+                        </div>
+                    </div>
+                </section>
+            @endif
+
             @if (($role === \App\Enums\UserRole::Administrator || $role === \App\Enums\UserRole::ScholarshipChairman) && $adminDashboard)
                 @php
                     $metricAccentClasses = [

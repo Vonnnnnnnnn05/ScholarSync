@@ -96,6 +96,41 @@ class ProfileController extends Controller
     }
 
     /**
+     * Update the user's digitized official signature.
+     */
+    public function updateSignature(Request $request, \App\Services\SignatureService $signatureService): RedirectResponse
+    {
+        abort_unless($request->user()->hasAnyRole([UserRole::ScholarshipChairman, UserRole::Administrator]), 403);
+
+        $request->validate([
+            'signature_data' => ['nullable', 'string'],
+            'signature_file' => ['nullable', 'image', 'mimes:png,jpg,jpeg', 'max:2048'],
+        ]);
+
+        if ($request->hasFile('signature_file')) {
+            $signatureService->saveSignatureFromUploadedFile($request->user(), $request->file('signature_file'));
+        } elseif ($request->filled('signature_data')) {
+            $signatureService->saveSignatureFromDataUri($request->user(), $request->input('signature_data'));
+        } else {
+            return back()->withErrors(['signature_data' => 'Please provide a signature on the pad or upload a signature image.']);
+        }
+
+        return Redirect::route('profile.edit')->with('status', 'signature-updated');
+    }
+
+    /**
+     * Remove the user's stored digital signature.
+     */
+    public function destroySignature(Request $request, \App\Services\SignatureService $signatureService): RedirectResponse
+    {
+        abort_unless($request->user()->hasAnyRole([UserRole::ScholarshipChairman, UserRole::Administrator]), 403);
+
+        $signatureService->deleteSignature($request->user());
+
+        return Redirect::route('profile.edit')->with('status', 'signature-deleted');
+    }
+
+    /**
      * Delete the user's account.
      */
     public function destroy(Request $request): RedirectResponse

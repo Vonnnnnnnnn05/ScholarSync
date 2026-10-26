@@ -11,6 +11,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class OfficialReceiptVerificationController extends Controller
@@ -42,6 +43,28 @@ class OfficialReceiptVerificationController extends Controller
             'certificateRequest' => $certificateRequest->load(['student.user', 'certificate']),
         ]);
     }
+
+    public function previewCertificate(
+        Request $request,
+        CertificateRequest $certificateRequest,
+        CertificateGenerationService $certificateGenerator,
+    ): Response {
+        $certificateRequest->loadMissing(['student.user', 'certificate']);
+
+        if ($certificateRequest->isCertificateAvailable() && Storage::disk('local')->exists($certificateRequest->certificate->file_path)) {
+            return Storage::disk('local')->response(
+                $certificateRequest->certificate->file_path,
+                'certificate-'.$certificateRequest->certificate->certificate_number.'.pdf',
+                ['Content-Type' => 'application/pdf'],
+                'inline'
+            );
+        }
+
+        $pdf = $certificateGenerator->previewPdfForRequest($certificateRequest, $request->user());
+
+        return $pdf->stream('certificate-preview-'.$certificateRequest->id.'.pdf');
+    }
+
 
     public function download(CertificateRequest $certificateRequest): StreamedResponse
     {
@@ -88,7 +111,14 @@ class OfficialReceiptVerificationController extends Controller
         CertificateRequest $certificateRequest,
         AuditTrailService $audit,
         CertificateGenerationService $certificateGenerator,
+        \App\Services\SignatureService $signatureService,
     ): RedirectResponse {
+        if ($request->filled('signature_data')) {
+            $signatureService->saveSignatureFromDataUri($request->user(), $request->input('signature_data'));
+        } elseif ($request->hasFile('signature_file')) {
+            $signatureService->saveSignatureFromUploadedFile($request->user(), $request->file('signature_file'));
+        }
+
         if ($certificateRequest->status === CertificateRequestStatus::Approved) {
             $alreadyGenerated = $certificateRequest->certificate()->exists();
             $certificateGenerator->generateForRequest($certificateRequest, $request->user());
@@ -100,10 +130,12 @@ class OfficialReceiptVerificationController extends Controller
                     : 'Certificate PDF generated successfully.');
         }
 
-        abort_unless($certificateRequest->status === CertificateRequestStatus::Verified, 422);
+        abort_unless(in_array($certificateRequest->status, [CertificateRequestStatus::Pending, CertificateRequestStatus::Verified], true), 422);
 
         $certificateRequest->update([
             'status' => CertificateRequestStatus::Approved,
+            'verified_by' => $certificateRequest->verified_by ?? $request->user()->id,
+            'verified_at' => $certificateRequest->verified_at ?? now(),
             'approved_by' => $request->user()->id,
             'approved_at' => now(),
         ]);
@@ -111,6 +143,7 @@ class OfficialReceiptVerificationController extends Controller
         $audit->record('certificate_request_approved', $certificateRequest, [
             'student_id' => $certificateRequest->student_id,
             'status' => CertificateRequestStatus::Approved->value,
+            'has_signature' => $request->user()->hasSignature(),
         ], $request);
 
         return redirect()

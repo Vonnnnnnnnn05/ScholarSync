@@ -11,6 +11,8 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
+use Illuminate\Support\Facades\Storage;
+
 class User extends Authenticatable
 {
     /** @use HasFactory<UserFactory> */
@@ -27,6 +29,8 @@ class User extends Authenticatable
         'password',
         'role',
         'campus_id',
+        'signature_path',
+        'signature_updated_at',
     ];
 
     /**
@@ -50,6 +54,7 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'role' => UserRole::class,
+            'signature_updated_at' => 'datetime',
         ];
     }
 
@@ -87,5 +92,28 @@ class User extends Authenticatable
     public function agency(): HasOne
     {
         return $this->hasOne(Agency::class);
+    }
+
+    public function hasSignature(): bool
+    {
+        return ! empty($this->signature_path) && Storage::disk('local')->exists($this->signature_path);
+    }
+
+    public function signatureDataUri(): ?string
+    {
+        if (! $this->hasSignature()) {
+            return null;
+        }
+
+        $content = Storage::disk('local')->get($this->signature_path);
+        if ($content === null) {
+            return null;
+        }
+
+        $mime = str_ends_with(strtolower($this->signature_path), '.jpg') || str_ends_with(strtolower($this->signature_path), '.jpeg')
+            ? 'image/jpeg'
+            : 'image/png';
+
+        return 'data:'.$mime.';base64,'.base64_encode($content);
     }
 }

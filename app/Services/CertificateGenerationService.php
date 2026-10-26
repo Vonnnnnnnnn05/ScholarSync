@@ -37,6 +37,9 @@ class CertificateGenerationService
             $filePath = 'certificates/generated/'.Str::slug($certificateNumber).'.pdf';
             $issuedAt = now();
             [$semester, $academicYear] = $this->academicPeriod($issuedAt);
+            $approver = $generatedBy ?? ($certificateRequest->approved_by ? User::find($certificateRequest->approved_by) : null);
+            $signatureImage = $approver?->signatureDataUri();
+            $signaturePath = $approver?->signature_path;
 
             $pdf = Pdf::loadView('certificates.pdf.no-scholarship', [
                 'certificateRequest' => $certificateRequest,
@@ -45,7 +48,8 @@ class CertificateGenerationService
                 'issuedAt' => $issuedAt,
                 'semester' => $semester,
                 'academicYear' => $academicYear,
-            ])->setPaper('letter', 'portrait');
+                'signatureImage' => $signatureImage,
+            ])->setPaper('a4', 'portrait');
 
             Storage::disk('local')->put($filePath, $pdf->output());
 
@@ -53,6 +57,7 @@ class CertificateGenerationService
                 'certificate_request_id' => $certificateRequest->id,
                 'certificate_number' => $certificateNumber,
                 'file_path' => $filePath,
+                'signature_path' => $signaturePath,
                 'generated_by' => $generatedBy?->id ?? $certificateRequest->approved_by,
                 'generated_at' => now(),
             ]);
@@ -88,7 +93,7 @@ class CertificateGenerationService
     }
 
     /** @return array{0: string, 1: string} */
-    private function academicPeriod(\DateTimeInterface $issuedAt): array
+    public function academicPeriod(\DateTimeInterface $issuedAt): array
     {
         $month = (int) $issuedAt->format('n');
         $year = (int) $issuedAt->format('Y');
@@ -103,4 +108,26 @@ class CertificateGenerationService
 
         return ['Midyear', ($year - 1).'-'.$year];
     }
+
+    public function previewPdfForRequest(CertificateRequest $certificateRequest, ?User $viewer = null): \Barryvdh\DomPDF\PDF
+    {
+        $certificateRequest->loadMissing(['student.user', 'certificate']);
+
+        $issuedAt = now();
+        [$semester, $academicYear] = $this->academicPeriod($issuedAt);
+        $approver = $viewer ?? ($certificateRequest->approved_by ? User::find($certificateRequest->approved_by) : null);
+        $signatureImage = $approver?->signatureDataUri();
+
+        return Pdf::loadView('certificates.pdf.no-scholarship', [
+            'certificateRequest' => $certificateRequest,
+            'student' => $certificateRequest->student,
+            'certificateNumber' => 'CERT-'.$issuedAt->format('Y').'-PREVIEW',
+            'issuedAt' => $issuedAt,
+            'semester' => $semester,
+            'academicYear' => $academicYear,
+            'signatureImage' => $signatureImage,
+            'isPreview' => true,
+        ])->setPaper('a4', 'portrait');
+    }
 }
+

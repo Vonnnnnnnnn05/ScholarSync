@@ -1,4 +1,31 @@
-<nav id="role-navbar" x-data="{ open: false }" class="bg-white dark:bg-gray-800 border-b border-gray-100 dark:border-gray-700">
+@php
+    $counts = $navNotificationCounts ?? (Auth::check() ? app(\App\Services\NavigationNotificationService::class)->getCounts(Auth::user()) : []);
+@endphp
+
+<nav
+    id="role-navbar"
+    x-data="{
+        open: false,
+        counts: @js($counts),
+        init() {
+            setInterval(() => { this.refreshCounts(); }, 30000);
+            document.addEventListener('visibilitychange', () => {
+                if (document.visibilityState === 'visible') {
+                    this.refreshCounts();
+                }
+            });
+        },
+        refreshCounts() {
+            fetch('{{ route('notifications.counts') }}', {
+                headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }
+            })
+            .then(res => res.ok ? res.json() : null)
+            .then(data => { if (data) this.counts = data; })
+            .catch(() => {});
+        }
+    }"
+    class="bg-white dark:bg-gray-800 border-b border-gray-100 dark:border-gray-700"
+>
     <!-- Primary Navigation Menu -->
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between h-16">
@@ -17,21 +44,19 @@
                     </x-nav-link>
 
                     @if (Auth::user()->hasRole(\App\Enums\UserRole::Student))
-                        <x-nav-link :href="route('student.certificate-requests.index')" :active="request()->routeIs('student.certificate-requests.*')">
+                        <x-nav-link :href="route('student.certificate-requests.index')" :active="request()->routeIs('student.certificate-requests.*')" badge-key="student_certificates" :badge-value="$counts['student_certificates'] ?? 0">
                             {{ __('Certificates') }}
                         </x-nav-link>
-
                     @endif
 
                     @if (Auth::user()->hasRole(\App\Enums\UserRole::Administrator))
-                        <x-nav-link :href="route('admin.official-receipts.index')" :active="request()->routeIs('admin.official-receipts.*')">
+                        <x-nav-link :href="route('admin.official-receipts.index')" :active="request()->routeIs('admin.official-receipts.*')" badge-key="certificate_management" :badge-value="$counts['certificate_management'] ?? 0">
                             {{ __('OR Verification') }}
                         </x-nav-link>
 
                         <x-nav-link :href="route('admin.certificates.index')" :active="request()->routeIs('admin.certificates.*')">
                             {{ __('Certificates') }}
                         </x-nav-link>
-
 
                         <x-nav-link :href="route('admin.monitoring.dashboard')" :active="request()->routeIs('admin.monitoring.*')">
                             {{ __('Monitoring') }}
@@ -43,14 +68,13 @@
                     @endif
 
                     @if (Auth::user()->hasRole(\App\Enums\UserRole::Coordinator))
-                        <x-nav-link :href="route('coordinator.masterlists.index')" :active="request()->routeIs('coordinator.masterlists.*')">
+                        <x-nav-link :href="route('coordinator.masterlists.index')" :active="request()->routeIs('coordinator.masterlists.*')" badge-key="campus_routing" :badge-value="$counts['campus_routing'] ?? 0">
                             Campus Routing
                         </x-nav-link>
-
                     @endif
 
                     @if (Auth::user()->hasRole(\App\Enums\UserRole::ScholarshipChairman))
-                        <x-nav-link :href="route('admin.official-receipts.index')" :active="request()->routeIs('admin.official-receipts.*')">
+                        <x-nav-link :href="route('admin.official-receipts.index')" :active="request()->routeIs('admin.official-receipts.*')" badge-key="certificate_management" :badge-value="$counts['certificate_management'] ?? 0">
                             {{ __('Certificate Management') }}
                         </x-nav-link>
 
@@ -58,7 +82,7 @@
                             {{ __('Post Scholarship') }}
                         </x-nav-link>
 
-                        <x-nav-link :href="route('chairman.grantees.index')" :active="request()->routeIs('chairman.grantees.*')">
+                        <x-nav-link :href="route('chairman.grantees.index')" :active="request()->routeIs('chairman.grantees.*')" badge-key="verify_grantees" :badge-value="$counts['verify_grantees'] ?? 0">
                             {{ __('Verify Grantees') }}
                         </x-nav-link>
 
@@ -68,7 +92,7 @@
                     @endif
 
                     @if (Auth::user()->hasRole(\App\Enums\UserRole::Registrar))
-                        <x-nav-link :href="route('registrar.batches.index')" :active="request()->routeIs('registrar.batches.*')">
+                        <x-nav-link :href="route('registrar.batches.index')" :active="request()->routeIs('registrar.batches.*')" badge-key="beneficiary_verification" :badge-value="$counts['beneficiary_verification'] ?? 0">
                             {{ __('Beneficiary Verification') }}
                         </x-nav-link>
                     @endif
@@ -129,21 +153,19 @@
             </x-responsive-nav-link>
 
             @if (Auth::user()->hasRole(\App\Enums\UserRole::Student))
-                <x-responsive-nav-link :href="route('student.certificate-requests.index')" :active="request()->routeIs('student.certificate-requests.*')">
+                <x-responsive-nav-link :href="route('student.certificate-requests.index')" :active="request()->routeIs('student.certificate-requests.*')" badge-key="student_certificates" :badge-value="$counts['student_certificates'] ?? 0">
                     {{ __('Certificates') }}
                 </x-responsive-nav-link>
-
             @endif
 
             @if (Auth::user()->hasRole(\App\Enums\UserRole::Administrator))
-                <x-responsive-nav-link :href="route('admin.official-receipts.index')" :active="request()->routeIs('admin.official-receipts.*')">
+                <x-responsive-nav-link :href="route('admin.official-receipts.index')" :active="request()->routeIs('admin.official-receipts.*')" badge-key="certificate_management" :badge-value="$counts['certificate_management'] ?? 0">
                     {{ __('OR Verification') }}
                 </x-responsive-nav-link>
 
                 <x-responsive-nav-link :href="route('admin.certificates.index')" :active="request()->routeIs('admin.certificates.*')">
                     {{ __('Certificates') }}
                 </x-responsive-nav-link>
-
 
                 <x-responsive-nav-link :href="route('admin.monitoring.dashboard')" :active="request()->routeIs('admin.monitoring.*')">
                     {{ __('Monitoring') }}
@@ -155,14 +177,13 @@
             @endif
 
             @if (Auth::user()->hasRole(\App\Enums\UserRole::Coordinator))
-                <x-responsive-nav-link :href="route('coordinator.masterlists.index')" :active="request()->routeIs('coordinator.masterlists.*')">
+                <x-responsive-nav-link :href="route('coordinator.masterlists.index')" :active="request()->routeIs('coordinator.masterlists.*')" badge-key="campus_routing" :badge-value="$counts['campus_routing'] ?? 0">
                     Campus Routing
                 </x-responsive-nav-link>
-
             @endif
 
             @if (Auth::user()->hasRole(\App\Enums\UserRole::ScholarshipChairman))
-                <x-responsive-nav-link :href="route('admin.official-receipts.index')" :active="request()->routeIs('admin.official-receipts.*')">
+                <x-responsive-nav-link :href="route('admin.official-receipts.index')" :active="request()->routeIs('admin.official-receipts.*')" badge-key="certificate_management" :badge-value="$counts['certificate_management'] ?? 0">
                     {{ __('Certificate Management') }}
                 </x-responsive-nav-link>
 
@@ -170,7 +191,7 @@
                     {{ __('Post Scholarship') }}
                 </x-responsive-nav-link>
 
-                <x-responsive-nav-link :href="route('chairman.grantees.index')" :active="request()->routeIs('chairman.grantees.*')">
+                <x-responsive-nav-link :href="route('chairman.grantees.index')" :active="request()->routeIs('chairman.grantees.*')" badge-key="verify_grantees" :badge-value="$counts['verify_grantees'] ?? 0">
                     {{ __('Verify Grantees') }}
                 </x-responsive-nav-link>
 
@@ -180,7 +201,7 @@
             @endif
 
             @if (Auth::user()->hasRole(\App\Enums\UserRole::Registrar))
-                <x-responsive-nav-link :href="route('registrar.batches.index')" :active="request()->routeIs('registrar.batches.*')">
+                <x-responsive-nav-link :href="route('registrar.batches.index')" :active="request()->routeIs('registrar.batches.*')" badge-key="beneficiary_verification" :badge-value="$counts['beneficiary_verification'] ?? 0">
                     {{ __('Beneficiary Verification') }}
                 </x-responsive-nav-link>
             @endif
